@@ -1,0 +1,59 @@
+---
+title: "Group Project"
+author: "lahumada"
+date: "2/5/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = F, results = T, message = T)
+loadPkg = function(x) { if (!require(x,character.only=T, quietly =T)) { install.packages(x,dep=T,repos="http://cran.us.r-project.org"); if(!require(x,character.only=T)) stop("Package not found") } }
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r}
+
+census <- read.csv(file = 'acs2015updated.csv')
+
+```
+
+```{r}
+census2 <- subset(census, INTPTLONG > -150 & INTPTLONG < -50 & INTPTLAT > 24 & INTPTLAT < 50) 
+str(census2)
+```
+
+
+
+
+```{r}
+
+loadPkg("ggplot2")
+ggplot(census2, aes( x= INTPTLONG, y = INTPTLAT, color = Hispanic)) + 
+  geom_point(size=0.005) + scale_color_gradient(low="orange", high="red") +
+  labs (title="Scatter Plot: IncomePerCap",
+        x=" Latitude",
+        y = "Longitude")
+
+```
+
+```{r}
+
+
+hist(census2$sodium, 
+        col = "green",
+        main = "Histogram: Sodium",
+        xlab = "Amount of sodium per 100 grams in the sample")
+
+ggplot(census2, aes( x= Professional, y = IncomePerCap, color = Asian)) + 
+  geom_point(size=0.1) +
+  labs (title="Scatter Plot",
+        x="Construction",
+        y = "IncomePerCap")
+
+```
+
