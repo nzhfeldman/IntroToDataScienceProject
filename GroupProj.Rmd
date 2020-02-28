@@ -49,20 +49,21 @@ census_edu_2017 <- left_join(census, edu_data_2017, by = c("CensusTract" = "Id2"
 full_2017 <- full_join(census_edu_2017, freedom %>% filter(Year == 2015), by = "State") 
 ```
 
-```{r}
-census2 <- subset(census, INTPTLONG > -150 & INTPTLONG < -50 & INTPTLAT > 24 & INTPTLAT < 50) 
-str(census2)
-```
+```{r geo scatter}
+full_2015_2 <- subset(full_2015, INTPTLONG > -150 & INTPTLONG < -50 & INTPTLAT > 24 & INTPTLAT < 50) 
+full_2017_2 <- subset(full_2017, INTPTLONG > -150 & INTPTLONG < -50 & INTPTLAT > 24 & INTPTLAT < 50) 
 
-
-
-
-```{r}
 
 loadPkg("ggplot2")
-ggplot(census2, aes( x= INTPTLONG, y = INTPTLAT, color = Hispanic)) + 
+ggplot(full_2015_2, aes( x= INTPTLONG, y = INTPTLAT, color = Hispanic)) + 
   geom_point(size=0.005) + scale_color_gradient(low="orange", high="red") +
-  labs (title="Scatter Plot: IncomePerCap",
+  labs (title="Scatter Plot: Spanish Ethnicity in 2015",
+        x=" Latitude",
+        y = "Longitude")
+
+ggplot(full_2017_2, aes( x= INTPTLONG, y = INTPTLAT, color = Hispanic)) + 
+  geom_point(size=0.005) + scale_color_gradient(low="orange", high="red") +
+  labs (title="Scatter Plot: Spanish Ethnicity in 2017",
         x=" Latitude",
         y = "Longitude")
 
