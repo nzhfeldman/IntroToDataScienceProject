@@ -16,10 +16,37 @@ This is an R Markdown document. Markdown is a simple formatting syntax for autho
 
 When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 
-```{r}
+```{r Load 2015 data}
+loadPkg('dplyr')
+loadPkg('readxl')
 
-census <- read.csv(file = 'acs2015updated.csv')
+#Read in general census data
+census_2015 <- read.csv(file = 'acs2015updated.csv')
 
+#Read in Specifically Education Data
+edu_data_2015 <- read_csv("ACS_15_5YR_B15003_with_ann.csv", skip = 1) %>% mutate(Id2 = as.numeric(Id2))
+
+#Read in Freedom Data
+freedom <- read_excel("Freedom_In_The_50_States_2018.xlsx", sheet = "Overall")
+
+#Combine
+census_edu_2015 <- left_join(census_2015, edu_data_2015, by = c("CensusTract" = "Id2"))
+full_2015 <- full_join(census_edu_2015, freedom %>% filter(Year == 2015), by = "State") 
+```
+
+```{r Load 2017 data}
+#Read in general census data
+census_2017 <- read.csv(file = 'acs2017_census_tract_data.csv') %>% mutate(CensusTract = TractId, TractId = NULL) %>% left_join(census_2015 %>% select(INTPTLAT, INTPTLONG, GEOID, CensusTract), by = 'CensusTract')
+
+#Read in Specifically Education Data
+edu_data_2017 <- read_csv("ACS_17_5YR_B15003_with_ann.csv", skip = 1) %>% mutate(Id2 = as.numeric(Id2))
+
+#Read in Freedom Data
+freedom <- read_excel("Freedom_In_The_50_States_2018.xlsx", sheet = "Overall")
+
+#Combine
+census_edu_2017 <- left_join(census, edu_data_2017, by = c("CensusTract" = "Id2"))
+full_2017 <- full_join(census_edu_2017, freedom %>% filter(Year == 2015), by = "State") 
 ```
 
 ```{r}
