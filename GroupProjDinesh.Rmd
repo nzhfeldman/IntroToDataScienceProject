@@ -68,7 +68,7 @@ boxplot(census_2017$IncomePerCap)
 
 ##Spread
 hist(census_2017$IncomePerCap)
-plot(density(census_2017$IncomePerCap), main = 'Income Density')
+#plot(density(census_2017$IncomePerCap), main = 'Income Density')
 ```
 
 
@@ -98,8 +98,8 @@ census_2017 = census_2017 %>%
 #regfit_full = regsubsets(IncomePerCap~., data = census_2017)
 #summary(regfit_full)
 
-census_2017_pccov <- princomp(census_2017, scores = TRUE)
-summary(census_2017_pcov)
+#census_2017_pccov <- princomp(census_2017, scores = TRUE)
+#summary(census_2017_pcov)
 ```
 
 
@@ -109,16 +109,36 @@ summary(census_2017_pcov)
 ```{r}
 loadPkg('leaps')
 #This is essentially best fit 
-reg.best10 <- regsubsets(IncomePerCap~. , data = census_2017 %>% select(Men:Unemployment), nvmax = 14, nbest = 2, method = "exhaustive")  # leaps::regsubsets() - Model selection by exhaustive (default) search, forward or backward stepwise, or sequential replacement
+reg.best10 <- regsubsets(IncomePerCap~. , data = census_2017 %>% select(Men:Unemployment), nvmax = 17, nbest = 2, method = "exhaustive")  # leaps::regsubsets() - Model selection by exhaustive (default) search, forward or backward stepwise, or sequential replacement
 #The plot will show the Adjust R^2 when using the variables across the bottom
 plot(reg.best10, scale = "adjr2", main = "Adjusted R^2")
 plot(reg.best10, scale = "r2", main = "R^2")
 # In the "leaps" package, we can use scale=c("bic","Cp","adjr2","r2")
 plot(reg.best10, scale = "bic", main = "BIC")
 plot(reg.best10, scale = "Cp", main = "Cp")
-summary(reg.best14)
+summary(reg.best10)
 ```
 
+# stepwise forward regression
+# Varibale Selection
+```{r}
+loadPkg('olsrr')
+model <- lm(IncomePerCap ~ ., data = census_2017 %>% select(Men:Unemployment))
+ols_step_forward_p(model)
+```
+
+#Plot
+```{r}
+model <- lm(IncomePerCap ~ ., data = census_2017 %>% select(Men:Unemployment))
+m <- ols_step_forward_p(model)
+plot(m)
+```
+
+#Detailed Output
+```{r}
+model <- lm(IncomePerCap ~ ., data = census_2017 %>% select(Men:Unemployment))
+ols_step_forward_p(model, details = TRUE)
+```
 
 
 ```{r Load 2017 data}
