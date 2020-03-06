@@ -6,22 +6,59 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(warning = F, results = T, message = T)
+loadPkg = function(x) { if (!require(x,character.only=T, quietly =T)) { install.packages(x,dep=T,repos="http://cran.us.r-project.org"); if(!require(x,character.only=T)) stop("Package not found") } }
 ```
 
-## R Markdown
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+```{r Load 2015 data}
+loadPkg('dplyr')
+loadPkg('readxl')
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
- 
-```{r cars}
-summary(cars)
+#Read in general census data
+census_2015 <- read.csv(file = 'acs2015updated.csv')
+
+#Read in Specifically Education Data
+edu_data_2015 <- read.csv("ACS_15_5YR_B15003_renamed.csv", skip = 1) %>% mutate(Id2 = as.numeric(Id2))
+
+#Read in Freedom Data
+freedom <- read_excel("Freedom_In_The_50_States_2018.xlsx", sheet = "Overall")
+
+#Combine
+census_edu_2015 <- left_join(census_2015, edu_data_2015, by = c("CensusTract" = "Id2"))
+full_2015 <- full_join(census_edu_2015, freedom %>% filter(Year == 2015), by = "State") 
+
+#For the education data, we will need to divide the count by the total
+full_2015_eduProp <- full_2015 %>% mutate(PropHighSchool = EstHighSchool/EstTotal,
+                                          PropBachelors = EstBachelors/EstTotal,
+                                          PropDoctorate = EstDoctorate/EstTotal)
 ```
 
-## Including Plots
+```{r Load 2017 data}
+#Read in general census data
+census_2017 <- read.csv(file = 'acs2017_census_tract_data.csv') %>% mutate(CensusTract = TractId, TractId = NULL) %>% left_join(census_2015 %>% select(INTPTLAT, INTPTLONG, GEOID, CensusTract), by = 'CensusTract')
 
-You can also embed plots, for example:
+#Read in Specifically Education Data
+```
+
+
+```{r Load 2017 data}
+edu_data_2017 <- read.csv("ACS_17_5YR_B15003_renamed.csv", skip = 1) %>% mutate(Id2 = as.numeric(Id2))
+
+#Read in Freedom Data
+freedom <- read_excel("Freedom_In_The_50_States_2018.xlsx", sheet = "Overall")
+
+#Combine
+census_edu_2017 <- left_join(census_2017, edu_data_2017, by = c("CensusTract" = "Id2"))
+
+full_2017 <- full_join(census_edu_2017, freedom %>% filter(Year == 2015), by = "State")
+
+#For the education data, we will need to divide the count by the total
+full_2017_eduProp <- full_2017 %>% mutate(PropHighSchool = EstHighSchool/EstTotal,
+                                          PropBachelors = EstBachelors/EstTotal,
+                                          PropDoctorate = EstDoctorate/EstTotal)
+```
+
 
 ```{r pressure, echo=FALSE}
 plot(pressure)
