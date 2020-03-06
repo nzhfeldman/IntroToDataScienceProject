@@ -19,6 +19,7 @@ When you click the **Knit** button a document will be generated that includes bo
 ```{r Load 2015 data}
 loadPkg('dplyr')
 loadPkg('readxl')
+loadPkg('readr')
 
 #Read in general census data
 census_2015 <- read.csv(file = 'acs2015updated.csv')
@@ -37,6 +38,8 @@ full_2015 <- full_join(census_edu_2015, freedom %>% filter(Year == 2015), by = "
 full_2015_eduProp <- full_2015 %>% mutate(PropHighSchool = EstHighSchool/EstTotal,
                                           PropBachelors = EstBachelors/EstTotal,
                                           PropDoctorate = EstDoctorate/EstTotal)
+full_2015_varOfInterest <- full_2015 %>%  select(Hispanic:Asian,IncomePerCap,Professional:Production,FiscalPolicy,EconomicFreedom, RegulatoryPolicy, PersonalFreedom, OverallFreedom)
+
 ```
 
 ```{r Load 2017 data}
@@ -58,6 +61,8 @@ full_2017 <- full_join(census_edu_2017, freedom %>% filter(Year == 2015), by = "
 full_2017_eduProp <- full_2017 %>% mutate(PropHighSchool = EstHighSchool/EstTotal,
                                           PropBachelors = EstBachelors/EstTotal,
                                           PropDoctorate = EstDoctorate/EstTotal)
+
+full_2017_varOfInterest <- full_2017 %>%  select(Hispanic:Asian,IncomePerCap,Professional:Production,FiscalPolicy,EconomicFreedom, RegulatoryPolicy, PersonalFreedom, OverallFreedom)
 ```
 
 
