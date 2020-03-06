@@ -11,6 +11,7 @@ loadPkg = function(x) { if (!require(x,character.only=T, quietly =T)) { install.
 ```
 
 
+
 ```{r Load 2015 data}
 loadPkg('dplyr')
 loadPkg('readxl')
@@ -57,7 +58,10 @@ full_2017 <- full_join(census_edu_2017, freedom %>% filter(Year == 2015), by = "
 full_2017_eduProp <- full_2017 %>% mutate(PropHighSchool = EstHighSchool/EstTotal,
                                           PropBachelors = EstBachelors/EstTotal,
                                           PropDoctorate = EstDoctorate/EstTotal)
+str(full_2017IPC)
 ```
+
+
 
 ```{r Remove Outliers}
 
@@ -111,8 +115,52 @@ outlierKD2 <- function(df, var, rm=FALSE) {
     }
 }
 
-```{r pressure, echo=FALSE}
+```
 
+```{r income}
+loadPkg("ggplot2")
+
+# NA's
+sum(is.na(full_2017IPC$IncomePerCap))
+
+#Length
+length(full_2017IPC$IncomePerCap)
+
+
+#Histogram of dependent variable
+hist(full_2017IPC$IncomePerCap, 
+        col = "#a8c2fb",
+        main = "Income per Capita",
+        xlab = "US Dollars")
+
+#ggplot
+qqnorm(full_2017IPC$IncomePerCap, main="Q-Q plot of IncomePerCap")
+qqline(full_2017IPC$IncomePerCap)
+
+#Mean after removing NA's
+format(mean(full_2017IPC$IncomePerCap, na.rm = TRUE))
+
+#Summary after removing NA's
+summary(full_2017IPC$IncomePerCap)
+
+```
+
+```{r variables}
+# do not use outliers for 
+full_2017IPC <- outlierKD2(full_2017IPC, EconomicFreedom, TRUE) %>% outlierKD2(PersonalFreedom, TRUE) 
+full_2017IPC <- outlierKD2(full_2017IPC, RegulatoryPolicy, TRUE)
+full_2017IPC <- outlierKD2(full_2017IPC, FiscalPolicy, TRUE)
+full_2017IPC <- outlierKD2(full_2017IPC, Black, TRUE)
+full_2017IPC <- outlierKD2(full_2017IPC, Hispanic, TRUE)
+full_2017IPC <- outlierKD2(full_2017IPC, Unemployment, TRUE)
+full_2017IPC <- outlierKD2(full_2017IPC, Professional, TRUE)
+full_2017IPC <- outlierKD2(full_2017IPC, Office, TRUE)
+full_2017IPC <- outlierKD2(full_2017IPC, Asian, TRUE)
+full_2017IPC <- outlierKD2(full_2017IPC, Service, TRUE)
+full_2017IPC <- outlierKD2(full_2017IPC, OverallFreedom, TRUE)
+full_2017IPC <- outlierKD2(full_2017IPC, Construction, TRUE)
+full_2017IPC <- outlierKD2(full_2017IPC, Production, TRUE)
+full_2017IPC <- outlierKD2(full_2017IPC, Native, TRUE)
 
 
 
@@ -138,7 +186,7 @@ ggplot(full_2017_2, aes( x= INTPTLONG, y = INTPTLAT, color = Hispanic)) +
 
 ```
 
-```{r Exploratory}
+```{r income}
 loadPkg("ggplot2")
 
 # NA's
@@ -151,7 +199,7 @@ length(full_2017IPC$IncomePerCap)
 #Histogram of dependent variable
 hist(full_2017IPC$IncomePerCap, 
         col = "#a8c2fb",
-        main = "Histogram: Income per Capita",
+        main = "Income per Capita",
         xlab = "US Dollars")
 
 #ggplot
