@@ -8,8 +8,7 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-
-## R Markdown
+Notes: cor.test was not performed since the dataset utilized here is the US Census.
 
 w/i the groups, is there correlation
 b/w the groups, is there correlation
@@ -45,17 +44,62 @@ loadPkg = function(pkg, character.only = FALSE) {
 loadPkg(knitr)
 ```
 
+```{r DF Setup}
+str(full_2015_varOfInterest)
+full_2015_cor <- cor(full_2015_varOfInterest, use = "complete.obs")
+```
+
+```{r Cor of Dataset}
+corrplot(full_2015_cor)
+```
+
+```{r Subsetting}
+Freedom_2015 <- subset(full_2015_varOfInterest, select = c(OverallFreedom, EconomicFreedom, PersonalFreedom, RegulatoryPolicy, FiscalPolicy, IncomePerCap))
+str(Freedom_2015)
+
+Work_2015 <- subset(full_2015_varOfInterest, select = c(Professional, Service, Office, Construction, Production, Unemployment, IncomePerCap))
+str(Work_2015)
+
+Ethnic_2015 <- subset(full_2015_varOfInterest, select = c(Hispanic, White, Black, Native, Asian, IncomePerCap))
+str(Ethnic_2015)
+```
+
+
 ```{r Cor w/i Freedom}
 loadPkg("corrplot")
-
+Freedom_2015_cor <- cor(Freedom_2015)
+corrplot(Freedom_2015_cor)
 ```
 
-## Including Plots
 
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r Cor w/i Work}
+Work_2015_cor <- cor(Work_2015, use = "complete.obs")
+corrplot(Work_2015_cor)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+```{r Cor w/i Ethnic Background}
+Ethnic_2015_cor <- cor(Ethnic_2015, use = "complete.obs")
+corrplot(Ethnic_2015_cor)
+```
+
+
+```{r lattice}
+#This part is commented out because while it's kind of interesting, it takes a long time for each lattice (since it's looking at 70k obs)
+#loadPkg("lattice")
+#pairs(Ethnic_2015)
+#pairs(Work_2015)
+#pairs(Freedom_2015)
+```
+
+```{r vif }
+#lm2015 <- lm(IncomePerCap ~ ., data = full_2015_varOfInterest)
+#lm2015
+
+#vif(lm2015)
+#the vif will return an error statement.  I believe it is because of the NA values for the coefficients in the lm
+```
+
+
+
+
