@@ -44,6 +44,11 @@ census_2017 <- read.csv(file = 'acs2017_census_tract_data.csv') %>% mutate(Censu
 
 
 ```{r Load 2017 data}
+
+
+
+#New DF with 41 Columns
+str(full_2017IPC)
 edu_data_2017 <- read.csv("ACS_17_5YR_B15003_renamed.csv", skip = 1) %>% mutate(Id2 = as.numeric(Id2))
 
 #Read in Freedom Data
@@ -58,7 +63,25 @@ full_2017 <- full_join(census_edu_2017, freedom %>% filter(Year == 2015), by = "
 full_2017_eduProp <- full_2017 %>% mutate(PropHighSchool = EstHighSchool/EstTotal,
                                           PropBachelors = EstBachelors/EstTotal,
                                           PropDoctorate = EstDoctorate/EstTotal)
+
+
+#Subsetting.DepVar -> income IndVar -> Work-related ones, and Freedom
+full_2017IPC <- subset(full_2017, select = -c(VotingAgeCitizen, IncomePerCapErr, IncomeErr, Drive, Carpool, Transit, Walk, OtherTransp, MeanCommute, EstTotal) )
+full_2017IPC <- subset(full_2017IPC, select = -c(33:83) )
+full_2017IPC <- subset(full_2017IPC, select = -c(42:60) )
+#full_2017IPC <- subset(full_2017IPC, select = c(42:60) )
+
+
+#New DF with 41 Columns
 str(full_2017IPC)
+
+
+```
+
+
+str(full_2017IPC)
+
+
 ```
 
 
@@ -146,21 +169,38 @@ summary(full_2017IPC$IncomePerCap)
 ```
 
 ```{r variables}
-# do not use outliers for 
+# do not use outliers for dependent variables 
 full_2017IPC <- outlierKD2(full_2017IPC, EconomicFreedom, TRUE) %>% outlierKD2(PersonalFreedom, TRUE) 
+
+#Freedom Scores 
+full_2017IPC <- outlierKD2(full_2017IPC, OverallFreedom, TRUE)
 full_2017IPC <- outlierKD2(full_2017IPC, RegulatoryPolicy, TRUE)
 full_2017IPC <- outlierKD2(full_2017IPC, FiscalPolicy, TRUE)
+
+#Work Variations 
+full_2017IPC <- outlierKD2(full_2017IPC, Professional, TRUE)
+full_2017IPC <- outlierKD2(full_2017IPC, Production, TRUE)
+full_2017IPC <- outlierKD2(full_2017IPC, Unemployment, TRUE)
+full_2017IPC <- outlierKD2(full_2017IPC, Office, TRUE)
+full_2017IPC <- outlierKD2(full_2017IPC, Service, TRUE)
+full_2017IPC <- outlierKD2(full_2017IPC, Construction, TRUE)
+
+#Ethnic Variation
 full_2017IPC <- outlierKD2(full_2017IPC, Black, TRUE)
 full_2017IPC <- outlierKD2(full_2017IPC, Hispanic, TRUE)
-full_2017IPC <- outlierKD2(full_2017IPC, Unemployment, TRUE)
-full_2017IPC <- outlierKD2(full_2017IPC, Professional, TRUE)
-full_2017IPC <- outlierKD2(full_2017IPC, Office, TRUE)
 full_2017IPC <- outlierKD2(full_2017IPC, Asian, TRUE)
-full_2017IPC <- outlierKD2(full_2017IPC, Service, TRUE)
-full_2017IPC <- outlierKD2(full_2017IPC, OverallFreedom, TRUE)
-full_2017IPC <- outlierKD2(full_2017IPC, Construction, TRUE)
-full_2017IPC <- outlierKD2(full_2017IPC, Production, TRUE)
+full_2017IPC <- outlierKD2(full_2017IPC, White, TRUE)
 full_2017IPC <- outlierKD2(full_2017IPC, Native, TRUE)
+
+
+
+
+
+
+
+
+
+
 
 
 
