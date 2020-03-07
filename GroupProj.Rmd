@@ -19,6 +19,7 @@ When you click the **Knit** button a document will be generated that includes bo
 ```{r Load 2015 data}
 loadPkg('dplyr')
 loadPkg('readxl')
+loadPkg('readr')
 
 #Read in general census data
 census_2015 <- read.csv(file = 'acs2015updated.csv')
