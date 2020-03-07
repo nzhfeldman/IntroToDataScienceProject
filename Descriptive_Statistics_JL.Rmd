@@ -165,6 +165,9 @@ summary(full_2017IPC$IncomePerCap)
 #standard deviation
 sd(full_2017IPC$IncomePerCap, na.rm = TRUE)
 
+#normality test 
+#shapiro.test(full_2017IPC$IncomePerCap)
+#ks.test(full_2017IPC$IncomePerCap)
 ```
 
 
@@ -178,6 +181,7 @@ sd(full_2017IPC$IncomePerCap, na.rm = TRUE)
 #FiscalPolicy
 
 #Work Variations 
+
 #Professional
 #Production
 #Unemployment
@@ -195,11 +199,185 @@ sd(full_2017IPC$IncomePerCap, na.rm = TRUE)
 ```
 
 ```{r Freedom scores}
+loadPkg("dvmisc")
+#Group by Economic Freedom
+GroupEF <- quant_groups(full_2017IPC$EconomicFreedom, 4)
+str(GroupEF)
+#Boxplot of IncomePerCap by Economic Freedom
+plot(IncomePerCap ~ GroupEF, data=full_2017IPC, main="IncomePerCap and GroupEF", col=c("#ffd18b","#ffb76d","#ffa264", "#ff875f") )
+summary(full_2017IPC$EconomicFreedom)
 
+#Histogram of Economic Freedom
+hist(full_2017IPC$EconomicFreedom, 
+        col = "#ffd18b",
+        main = "Economic Freedom")
+
+#qqplot of Econoimc Freedom
+qqnorm(full_2017IPC$EconomicFreedom, main="Q-Q plot of Economic Freedom")
+qqline(full_2017IPC$EconomicFreedom)
+
+
+#Group by PersonalFreedom
+GroupPF <- quant_groups(full_2017IPC$PersonalFreedom, 4)
+str(GroupPF)
+#Boxplot of IncomePerCap by Personal Freedom
+plot(IncomePerCap ~ GroupPF, data=full_2017IPC, main="IncomePerCap and GroupPF", col=c("#BFBFFF","#A3A3FF", "#7879FF", "#4949FF") )
+summary(full_2017IPC$PersonalFreedom)
+
+#Histogram of Economic Freedom
+hist(full_2017IPC$PersonalFreedom, 
+        col = "#A3A3FF",
+        main = "Personal Freedom")
+
+#qqplot of Econoimc Freedom
+qqnorm(full_2017IPC$PersonalFreedom, main="Q-Q plot of Personal Freedom")
+qqline(full_2017IPC$PersonalFreedom)
+
+#Group by Regulatory Policy
+GroupRP <- quant_groups(full_2017IPC$RegulatoryPolicy, 4)
+str(GroupRP)
+#Boxplot of IncomePerCap by Regulatory Policy
+plot(IncomePerCap ~ GroupRP, data=full_2017IPC, main="IncomePerCap and GroupRP", col=c("#FFDF01","#FED901", "#FFCF00", "#FEC300") )
+summary(full_2017IPC$RegulatoryPolicy)
+
+#Histogram of Regulatory Policy
+hist(full_2017IPC$RegulatoryPolicy, 
+        col = "#A3A3FF",
+        main = "Regulatory Policy ")
+
+#qqplot of Regulatory Policy
+qqnorm(full_2017IPC$RegulatoryPolicy, main="Q-Q plot of Regulatory Policy")
+qqline(full_2017IPC$RegulatoryPolicy)
+
+
+#Group by Fiscal Policy
+GroupFP <- quant_groups(full_2017IPC$FiscalPolicy, 4)
+str(GroupFP)
+#Boxplot of IncomePerCap by Fiscal Policy
+plot(IncomePerCap ~ GroupFP, data=full_2017IPC, main="IncomePerCap and GroupFP", col=c("#7EFFD4","#70EBBA", "#64D8A7", "#58BD95") )
+summary(full_2017IPC$FiscalPolicy)
+
+#Histogram of Economic Freedom
+hist(full_2017IPC$FiscalPolicy, 
+        col = "#A3A3FF",
+        main = "Fiscal Policy")
+
+#qqplot of Econoimc Freedom
+qqnorm(full_2017IPC$FiscalPolicy, main="Q-Q plot of Fiscal Policy")
+qqline(full_2017IPC$FiscalPolicy)
+
+#Group by Overall Freedom
+GroupOF <- quant_groups(full_2017IPC$OverallFreedom, 4)
+str(GroupOF)
+#Boxplot of IncomePerCap by Overall Freedom
+plot(IncomePerCap ~ GroupOF, data=full_2017IPC, main="IncomePerCap and GroupOF", col=c("#C0C6CB","#98A5C0", "#7688BB", "#536CB5") )
+summary(full_2017IPC$OverallFreedom)
+
+#Histogram of Overall Freedom
+hist(full_2017IPC$PersonalFreedom, 
+        col = "#A3A3FF",
+        main = "Overall Freedom")
+
+#qqplot of Overall Freedom
+qqnorm(full_2017IPC$PersonalFreedom, main="Q-Q plot of Overall Freedom")
+qqline(full_2017IPC$PersonalFreedom)
 ```
 
 ```{r Work variations}
+#Group by Unemployment
+GroupUnemployment <- quant_groups(full_2017IPC$Unemployment, 4)
+str(GroupUnemployment)
+#Boxplot of IncomePerCap by Unemployment
+plot(IncomePerCap ~ GroupUnemployment, data=full_2017IPC, main="IncomePerCap and GroupUnemployment", col=c("#FFF57B","#FFE469", "#FECC51", "#FCB033") )
+summary(full_2017IPC$Unemployment)
 
+#Histogram of Unemployment
+hist(full_2017IPC$Unemployment, 
+        col = "#A3A3FF",
+        main = "Unemployment")
+
+#qqplot of Unemployment Unemployment
+qqnorm(full_2017IPC$Unemployment, main="Q-Q plot of Unemployment")
+qqline(full_2017IPC$Unemployment)
+
+#Group by Professional
+GroupProfessional <- quant_groups(full_2017IPC$Professional, 4)
+str(GroupProfessional)
+#Boxplot of IncomePerCap by Professional
+plot(IncomePerCap ~ GroupProfessional, data=full_2017IPC, main="IncomePerCap and GroupProfessional", col=c("#F3D8F2","#E6B2E4", "#D88DD5", "#CA68C7") )
+summary(full_2017IPC$Professional)
+
+#Histogram of Professional
+hist(full_2017IPC$PersonalFreedom, 
+        col = "#D88DD5",
+        main = "Professional")
+
+#qqplot of Professional
+qqnorm(full_2017IPC$Professional, main="Q-Q plot of Professional")
+qqline(full_2017IPC$Professional)
+
+
+#Group by Office
+GroupOffice <- quant_groups(full_2017IPC$Office, 4)
+str(GroupOffice)
+#Boxplot of IncomePerCap by Office
+plot(IncomePerCap ~ GroupOffice, data=full_2017IPC, main="IncomePerCap and GroupOffice", col=c("#D1FFD5","#B4FFB2", "#98FF98", "#79F58A") )
+summary(full_2017IPC$Office)
+#Histogram of Professional
+hist(full_2017IPC$Office, 
+        col = "#FECC51",
+        main = "Office")
+
+#qqplot of Professional
+qqnorm(full_2017IPC$Professional, main="Q-Q plot of Professional")
+qqline(full_2017IPC$Professional)
+
+
+#Group by Service
+GroupService <- quant_groups(full_2017IPC$Service, 4)
+str(GroupService)
+#Boxplot of IncomePerCap by Service
+plot(IncomePerCap ~ GroupService, data=full_2017IPC, main="IncomePerCap and GroupService", col=c("#E0BCBF","#D8ABB1", "#CF989F", "#C0838C") )
+summary(full_2017IPC$Service)
+
+#Histogram of Service
+hist(full_2017IPC$Service, 
+        col = "#79F58A",
+        main = "Service")
+
+#qqplot of Service
+qqnorm(full_2017IPC$Service, main="Q-Q plot of Service")
+qqline(full_2017IPC$Service)
+
+#Group by Construction
+GroupConstruction <- quant_groups(full_2017IPC$Construction, 4)
+str(GroupConstruction)
+#Boxplot of IncomePerCap by Construction
+plot(IncomePerCap ~ GroupConstruction, data=full_2017IPC, main="IncomePerCap and GroupConstruction", col=c("#A9AB98","#949180", "#7D7968", "#5E594F") )
+summary(full_2017IPC$Construction)
+#Histogram of Construciton
+hist(full_2017IPC$Construction, 
+        col = "#C0838C",
+        main = "Construction")
+
+#qqplot of Construction
+qqnorm(full_2017IPC$Construction, main="Q-Q plot of Construction")
+qqline(full_2017IPC$Construction)
+
+#Group by Production
+GroupProduction <- quant_groups(full_2017IPC$Production, 4)
+str(GroupProduction)
+#Boxplot of IncomePerCap by Production
+plot(IncomePerCap ~ GroupProduction, data=full_2017IPC, main="IncomePerCap and Production", col=c("#F3D8F2","#E6B2E4", "#D88DD5", "#CA68C7") )
+summary(full_2017IPC$Production)
+#Histogram of Producrtion
+hist(full_2017IPC$Production, 
+        col = "#E6B2E4",
+        main = "Production")
+
+#qqplot of Professional
+qqnorm(full_2017IPC$Production, main="Q-Q plot of Production")
+qqline(full_2017IPC$Production)
 ```
 
 ```{r  Ethnic Variatons}
@@ -209,31 +387,71 @@ GroupBlack <- quant_groups(full_2017IPC$Black, 4)
 str(GroupBlack)
 #Boxplot of IncomePerCap by Black Population
 plot(IncomePerCap ~ GroupBlack, data=full_2017IPC, main="IncomePerCap and GroupBlack", col=c("#d0dfff","#a8c2fb", "#86abf9", "#6893ee") )
+summary(full_2017IPC$Black)
+
+#Histogram of Black
+hist(full_2017IPC$Black, 
+        col = "#d0dfff",
+        main = "Black")
+
+#qqplot of Black
+qqnorm(full_2017IPC$Black, main="Q-Q plot of Black")
+qqline(full_2017IPC$Black)
 
 #Group by Hispanic
 GroupHispanic <- quant_groups(full_2017IPC$Hispanic, 4)
 str(GroupHispanic)
 #Boxplot of IncomePerCap by Hispanic Population
 plot(IncomePerCap ~ GroupHispanic, data=full_2017IPC, main="IncomePerCap and GroupHispanic", col=c("#F6BDC0","#F1959B", "#F07470", "#EA4C46") )
+summary(full_2017IPC$Hispanic)
+#Histogram of Hispanic
+hist(full_2017IPC$Hispanic, 
+        col = "#EA4C46",
+        main = "Hispanic")
+
+#qqplot of Hispanic
+qqnorm(full_2017IPC$Hispanic, main="Q-Q plot of Production")
+qqline(full_2017IPC$Hispanic)
 
 #Group by Asians
 GroupAsian <- quant_groups(full_2017IPC$Asian, 3)
 str(GroupAsian)
 #Boxplot of IncomePerCap by Asian Population
 plot(IncomePerCap ~ GroupAsian, data=full_2017IPC, main="IncomePerCap and GroupAsian", col=c("#FFE6C8","#FFCCBE", "#EFABA0", "#D6806F") )
+summary(full_2017IPC$Asian)
+#Histogram of Asian
+hist(full_2017IPC$Asian, 
+        col = "#FFE6C8",
+        main = "Asian")
+
+#qqplot of Asian
+qqnorm(full_2017IPC$Asian, main="Q-Q plot of Asian")
+qqline(full_2017IPC$Asian)
 
 #Group by White
 GroupWhite <- quant_groups(full_2017IPC$White, 4)
 str(GroupWhite)
 #Boxplot of IncomePerCap by White Population
 plot(IncomePerCap ~ GroupWhite, data=full_2017IPC, main="IncomePerCap and GroupWhite", col=c("#B5651D", "#A4550A", "#964B00", "#834200") )
+summary(full_2017IPC$White)
+#Histogram of White
+hist(full_2017IPC$White, 
+        col = "#964B00",
+        main = "White")
+
+#qqplot of White
+qqnorm(full_2017IPC$White, main="Q-Q plot of Production")
+qqline(full_2017IPC$White)
+
+
+
 ```
 
 ```{r geo scatter}
 full_2015_2 <- subset(full_2015, INTPTLONG > -150 & INTPTLONG < -50 & INTPTLAT > 24 & INTPTLAT < 50) 
 full_2017_2 <- subset(full_2017, INTPTLONG > -150 & INTPTLONG < -50 & INTPTLAT > 24 & INTPTLAT < 50) 
 
-
+#Hispanic 
 loadPkg("ggplot2")
 ggplot(full_2015_2, aes( x= INTPTLONG, y = INTPTLAT, color = Hispanic)) + 
   geom_point(size=0.005) + scale_color_gradient(low="orange", high="red") +
@@ -246,7 +464,54 @@ ggplot(full_2017_2, aes( x= INTPTLONG, y = INTPTLAT, color = Hispanic)) +
   labs (title="Scatter Plot: Spanish Ethnicity in 2017",
         x=" Latitude",
         y = "Longitude")
+#Native 
+ggplot(full_2015_2, aes( x= INTPTLONG, y = INTPTLAT, color = Native)) + 
+  geom_point(size=0.005) + scale_color_gradient(low="orange", high="red") +
+  labs (title="Scatter Plot: Spanish Ethnicity in 2015",
+        x=" Latitude",
+        y = "Longitude")
 
+ggplot(full_2017_2, aes( x= INTPTLONG, y = INTPTLAT, color = Native)) + 
+  geom_point(size=0.005) + scale_color_gradient(low="orange", high="red") +
+  labs (title="Scatter Plot: Spanish Ethnicity in 2017",
+        x=" Latitude",
+        y = "Longitude")
+#White 
+ggplot(full_2015_2, aes( x= INTPTLONG, y = INTPTLAT, color = White)) + 
+  geom_point(size=0.005) + scale_color_gradient(low="orange", high="red") +
+  labs (title="Scatter Plot: Spanish Ethnicity in 2015",
+        x=" Latitude",
+        y = "Longitude")
+
+ggplot(full_2017_2, aes( x= INTPTLONG, y = INTPTLAT, color = White)) + 
+  geom_point(size=0.005) + scale_color_gradient(low="orange", high="red") +
+  labs (title="Scatter Plot: Spanish Ethnicity in 2017",
+        x=" Latitude",
+        y = "Longitude")
+#Black
+ggplot(full_2015_2, aes( x= INTPTLONG, y = INTPTLAT, color = Black)) + 
+  geom_point(size=0.005) + scale_color_gradient(low="orange", high="red") +
+  labs (title="Scatter Plot: Spanish Ethnicity in 2015",
+        x=" Latitude",
+        y = "Longitude")
+
+ggplot(full_2017_2, aes( x= INTPTLONG, y = INTPTLAT, color = Black)) + 
+  geom_point(size=0.005) + scale_color_gradient(low="orange", high="red") +
+  labs (title="Scatter Plot: Spanish Ethnicity in 2017",
+        x=" Latitude",
+        y = "Longitude")
+#Asian
+ggplot(full_2015_2, aes( x= INTPTLONG, y = INTPTLAT, color = Asian)) + 
+  geom_point(size=0.005) + scale_color_gradient(low="orange", high="red") +
+  labs (title="Scatter Plot: Spanish Ethnicity in 2015",
+        x=" Latitude",
+        y = "Longitude")
+
+ggplot(full_2017_2, aes( x= INTPTLONG, y = INTPTLAT, color = Asian)) + 
+  geom_point(size=0.005) + scale_color_gradient(low="orange", high="red") +
+  labs (title="Scatter Plot: Spanish Ethnicity in 2017",
+        x=" Latitude",
+        y = "Longitude")
 ```
 
 
