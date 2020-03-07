@@ -48,7 +48,6 @@ census_2017 <- read.csv(file = 'acs2017_census_tract_data.csv') %>% mutate(Censu
 
 
 #New DF with 41 Columns
-str(full_2017IPC)
 edu_data_2017 <- read.csv("ACS_17_5YR_B15003_renamed.csv", skip = 1) %>% mutate(Id2 = as.numeric(Id2))
 
 #Read in Freedom Data
@@ -64,12 +63,12 @@ full_2017_eduProp <- full_2017 %>% mutate(PropHighSchool = EstHighSchool/EstTota
                                           PropBachelors = EstBachelors/EstTotal,
                                           PropDoctorate = EstDoctorate/EstTotal)
 
-
 #Subsetting.DepVar -> income IndVar -> Work-related ones, and Freedom
 full_2017IPC <- subset(full_2017, select = -c(VotingAgeCitizen, IncomePerCapErr, IncomeErr, Drive, Carpool, Transit, Walk, OtherTransp, MeanCommute, EstTotal) )
 full_2017IPC <- subset(full_2017IPC, select = -c(33:83) )
 full_2017IPC <- subset(full_2017IPC, select = -c(42:60) )
 #full_2017IPC <- subset(full_2017IPC, select = c(42:60) )
+
 
 
 #New DF with 41 Columns
@@ -78,11 +77,6 @@ str(full_2017IPC)
 
 ```
 
-
-str(full_2017IPC)
-
-
-```
 
 
 
@@ -144,8 +138,11 @@ outlierKD2 <- function(df, var, rm=FALSE) {
 loadPkg("ggplot2")
 
 # NA's
+#full_2017IPC<-full_2017IPC[!is.na(IncomePerCap)]
 sum(is.na(full_2017IPC$IncomePerCap))
 
+#removed outliers 
+full_2017IPC <- outlierKD2(full_2017IPC, IncomePerCap, TRUE)
 #Length
 length(full_2017IPC$IncomePerCap)
 
@@ -165,45 +162,71 @@ format(mean(full_2017IPC$IncomePerCap, na.rm = TRUE))
 
 #Summary after removing NA's
 summary(full_2017IPC$IncomePerCap)
+#standard deviation
+sd(full_2017IPC$IncomePerCap, na.rm = TRUE)
 
 ```
 
+
+
 ```{r variables}
-# do not use outliers for dependent variables 
-full_2017IPC <- outlierKD2(full_2017IPC, EconomicFreedom, TRUE) %>% outlierKD2(PersonalFreedom, TRUE) 
+
 
 #Freedom Scores 
-full_2017IPC <- outlierKD2(full_2017IPC, OverallFreedom, TRUE)
-full_2017IPC <- outlierKD2(full_2017IPC, RegulatoryPolicy, TRUE)
-full_2017IPC <- outlierKD2(full_2017IPC, FiscalPolicy, TRUE)
+#OverallFreedom
+#RegulatoryPolicy
+#FiscalPolicy
 
 #Work Variations 
-full_2017IPC <- outlierKD2(full_2017IPC, Professional, TRUE)
-full_2017IPC <- outlierKD2(full_2017IPC, Production, TRUE)
-full_2017IPC <- outlierKD2(full_2017IPC, Unemployment, TRUE)
-full_2017IPC <- outlierKD2(full_2017IPC, Office, TRUE)
-full_2017IPC <- outlierKD2(full_2017IPC, Service, TRUE)
-full_2017IPC <- outlierKD2(full_2017IPC, Construction, TRUE)
+#Professional
+#Production
+#Unemployment
+#Office
+#Service 
+#Construction
 
 #Ethnic Variation
-full_2017IPC <- outlierKD2(full_2017IPC, Black, TRUE)
-full_2017IPC <- outlierKD2(full_2017IPC, Hispanic, TRUE)
-full_2017IPC <- outlierKD2(full_2017IPC, Asian, TRUE)
-full_2017IPC <- outlierKD2(full_2017IPC, White, TRUE)
-full_2017IPC <- outlierKD2(full_2017IPC, Native, TRUE)
+#Black
+#Hispanic
+#Asian
+#White
+#Native
 
+```
 
+```{r Freedom scores}
 
+```
 
+```{r Work variations}
 
+```
 
+```{r  Ethnic Variatons}
+loadPkg("dvmisc")
+#Group by Black
+GroupBlack <- quant_groups(full_2017IPC$Black, 4)
+str(GroupBlack)
+#Boxplot of IncomePerCap by Black Population
+plot(IncomePerCap ~ GroupBlack, data=full_2017IPC, main="IncomePerCap and GroupBlack", col=c("#d0dfff","#a8c2fb", "#86abf9", "#6893ee") )
 
+#Group by Hispanic
+GroupHispanic <- quant_groups(full_2017IPC$Hispanic, 4)
+str(GroupHispanic)
+#Boxplot of IncomePerCap by Hispanic Population
+plot(IncomePerCap ~ GroupHispanic, data=full_2017IPC, main="IncomePerCap and GroupHispanic", col=c("#F6BDC0","#F1959B", "#F07470", "#EA4C46") )
 
+#Group by Asians
+GroupAsian <- quant_groups(full_2017IPC$Asian, 3)
+str(GroupAsian)
+#Boxplot of IncomePerCap by Asian Population
+plot(IncomePerCap ~ GroupAsian, data=full_2017IPC, main="IncomePerCap and GroupAsian", col=c("#FFE6C8","#FFCCBE", "#EFABA0", "#D6806F") )
 
-
-
-
-
+#Group by White
+GroupWhite <- quant_groups(full_2017IPC$White, 4)
+str(GroupWhite)
+#Boxplot of IncomePerCap by White Population
+plot(IncomePerCap ~ GroupWhite, data=full_2017IPC, main="IncomePerCap and GroupWhite", col=c("#B5651D", "#A4550A", "#964B00", "#834200") )
 ```
 
 ```{r geo scatter}
@@ -226,32 +249,5 @@ ggplot(full_2017_2, aes( x= INTPTLONG, y = INTPTLAT, color = Hispanic)) +
 
 ```
 
-```{r income}
-loadPkg("ggplot2")
-
-# NA's
-sum(is.na(full_2017IPC$IncomePerCap))
-
-#Length
-length(full_2017IPC$IncomePerCap)
-
-
-#Histogram of dependent variable
-hist(full_2017IPC$IncomePerCap, 
-        col = "#a8c2fb",
-        main = "Income per Capita",
-        xlab = "US Dollars")
-
-#ggplot
-qqnorm(full_2017IPC$IncomePerCap, main="Q-Q plot of IncomePerCap")
-qqline(full_2017IPC$IncomePerCap)
-
-#Mean after removing NA's
-format(mean(full_2017IPC$IncomePerCap, na.rm = TRUE))
-
-#Summary after removing NA's
-summary(full_2017IPC$IncomePerCap)
-
-```
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
