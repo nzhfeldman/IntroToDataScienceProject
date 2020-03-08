@@ -38,7 +38,23 @@ full_2015 <- full_join(census_edu_2015, freedom %>% filter(Year == 2015), by = "
 full_2015_eduProp <- full_2015 %>% mutate(PropHighSchool = EstHighSchool/EstTotal,
                                           PropBachelors = EstBachelors/EstTotal,
                                           PropDoctorate = EstDoctorate/EstTotal)
-full_2015_varOfInterest <- full_2015 %>%  select(Hispanic:Asian,IncomePerCap,Professional:Production, SelfEmployed, Unemployment, FiscalPolicy,EconomicFreedom, RegulatoryPolicy, PersonalFreedom, OverallFreedom)
+full_2015_varOfInterest <- full_2015 %>%  select(IncomePerCap,Hispanic:Asian,Professional:Production, SelfEmployed, Unemployment, FiscalPolicy,EconomicFreedom, RegulatoryPolicy, PersonalFreedom, OverallFreedom)
+
+full_2015_varOfInterest_withMajorityEthnicity <- full_2015_varOfInterest %>% mutate(EthnicMajority = case_when(
+  White >= 50 ~ "White",
+  Hispanic >= 50 ~ "Hispanic",
+  Black >= 50 ~ "Black",
+  Native >= 50 ~ "Native",
+  Asian >= 50 ~ "Asian",
+  True ~ "Diverse"),
+  MaxEthnicity = max(White, Hispanic, Black, Native, Asian)
+  EthnicPlurality = case_when(
+  White >= 50 ~ "White",
+  Hispanic >= 50 ~ "Hispanic",
+  Black >= 50 ~ "Black",
+  Native >= 50 ~ "Native",
+  Asian >= 50 ~ "Asian",
+  True ~ "Diverse"),)
 
 ```
 
@@ -62,7 +78,7 @@ full_2017_eduProp <- full_2017 %>% mutate(PropHighSchool = EstHighSchool/EstTota
                                           PropBachelors = EstBachelors/EstTotal,
                                           PropDoctorate = EstDoctorate/EstTotal)
 
-full_2017_varOfInterest <- full_2017 %>%  select(Hispanic:Asian,IncomePerCap,Professional:Production, SelfEmployed, Unemployment, FiscalPolicy,EconomicFreedom, RegulatoryPolicy, PersonalFreedom, OverallFreedom)
+full_2017_varOfInterest <- full_2017 %>%  select(IncomePerCap,Hispanic:Asian,Professional:Production, SelfEmployed, Unemployment, FiscalPolicy,EconomicFreedom, RegulatoryPolicy, PersonalFreedom, OverallFreedom)
 ```
 
 
