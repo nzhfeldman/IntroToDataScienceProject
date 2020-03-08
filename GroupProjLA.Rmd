@@ -175,10 +175,11 @@ ggplot(state_income_2015, aes( x= StatePrivateWorkPerCap, y = StateIncomePerCap,
 full_2017IPC <- subset(full_2017, select = -c(VotingAgeCitizen, IncomePerCapErr, IncomeErr, Drive, Carpool, Transit, Walk, OtherTransp, MeanCommute, EstTotal) )
 full_2017IPC <- subset(full_2017IPC, select = -c(33:83) )
 full_2017IPC <- subset(full_2017IPC, select = -c(42:60) )
-#full_2017IPC <- subset(full_2017IPC, select = c(42:60) )
+full_2017IPC <- subset(full_2017IPC, select = -c(Pacific, Income, Poverty, ChildPoverty, Employed, PrivateWork, PublicWork, FamilyWork, fprank, rprank, pfrank, efrank) )
 
 
-#New DF with 41 Columns
+
+#New DF 
 str(full_2017IPC)
 
 
@@ -241,41 +242,58 @@ outlierKD2 <- function(df, var, rm=FALSE) {
 # outlierKD2(mlb, weight, FALSE) # This will NOT remove weight outliers, but it will show the charts with and without outliers nonetheless. 
 # outlierKD2(mlb, weight) # same as above, as the last argument is optional, default = FALSE
 
-full_2017IPC <- outlierKD2(full_2017IPC, IncomePerCap, TRUE)
-str(full_2017IPC)
+
 
 ```
 
-
-
-```{r Exploratory}
-loadPkg("ggplot2")
-
-# NA's
-sum(is.na(full_2017IPC$IncomePerCap))
-
-#Length
-length(full_2017IPC$IncomePerCap)
-
-
+```{r}
 #Histogram of dependent variable
 hist(full_2017IPC$IncomePerCap, 
         col = "#a8c2fb",
         main = "Histogram: Income per Capita",
         xlab = "US Dollars")
 
-#ggplot
+#ggplot of dependent variables
 qqnorm(full_2017IPC$IncomePerCap, main="Q-Q plot of IncomePerCap")
 qqline(full_2017IPC$IncomePerCap)
 
-#Mean after removing NA's
-format(mean(full_2017IPC$IncomePerCap, na.rm = TRUE))
-
-#Summary after removing NA's
+#Summary before removing NA's
 summary(full_2017IPC$IncomePerCap)
+```
 
-#Summary after removing NA's
-summary(full_2017IPC$Black)
+
+```{r}
+#Removing Outliers of IncomePerCap
+fullnooutliers <- outlierKD2(full_2017IPC, IncomePerCap, TRUE)
+str(full_2017IPC)
+
+#Removing NA's of all variables
+full_var <- subset(fullnooutliers, select = -c(State, County, TotalPop, Men, Women, CensusTract, INTPTLAT, INTPTLONG, GEOID, Id) )
+str(full_var)
+fullClean <- na.omit(full_var)
+
+```
+
+
+
+
+```{r Exploratory}
+loadPkg("ggplot2")
+
+
+#Histogram of dependent variable after removing NA's and Outliers
+hist(fullClean$IncomePerCap, 
+        col = "#a8c2fb",
+        main = "Histogram: Income per Capita",
+        xlab = "US Dollars")
+
+#ggplot of dependent variable after removing NA's and Outliers
+qqnorm(fullClean$IncomePerCap, main="Q-Q plot of IncomePerCap")
+qqline(fullClean$IncomePerCap)
+
+#Summary of dependent variable after removing NA's and Outliers
+summary(fullClean$IncomePerCap)
+
 
 ```
 ```{r}
@@ -303,96 +321,124 @@ loadPkg("dvmisc")
 #Idea of this section is to analyze boxplots of IncomePerCapita and a second variable using groups. You can divide a continous variable into 4 quartiles using Quantiles and Cut functions. Quantcut combines these two functions.
 
 #Group by Economic Freedom
-GroupEF <- quant_groups(full_2017IPC$EconomicFreedom, 4)
+GroupEF <- quant_groups(fullClean$EconomicFreedom, 4)
 str(GroupEF)
 #Boxplot of IncomePerCap by Economic Freedom
-plot(IncomePerCap ~ GroupEF, data=full_2017IPC, main="IncomePerCap and GroupEF", col=c("#ffd18b","#ffb76d","#ffa264", "#ff875f") )
+plot(IncomePerCap ~ GroupEF, data=fullClean, main="IncomePerCap and Economic Freedom", col=c("#ffd18b","#ffb76d","#ffa264", "#ff875f") )
 
 #Group by PersonalFreedom
-GroupPF <- quant_groups(full_2017IPC$PersonalFreedom, 4)
+GroupPF <- quant_groups(fullClean$PersonalFreedom, 4)
 str(GroupPF)
 #Boxplot of IncomePerCap by Personal Freedom
-plot(IncomePerCap ~ GroupPF, data=full_2017IPC, main="IncomePerCap and GroupPF", col=c("#BFBFFF","#A3A3FF", "#7879FF", "#4949FF") )
+plot(IncomePerCap ~ GroupPF, data=fullClean, main="IncomePerCap and Personal Freedom", col=c("#BFBFFF","#A3A3FF", "#7879FF", "#4949FF") )
 
 #Group by Regulatory Policy
-GroupRP <- quant_groups(full_2017IPC$RegulatoryPolicy, 4)
+GroupRP <- quant_groups(fullClean$RegulatoryPolicy, 4)
 str(GroupRP)
 #Boxplot of IncomePerCap by Regulatory Policy
-plot(IncomePerCap ~ GroupRP, data=full_2017IPC, main="IncomePerCap and GroupRP", col=c("#FFDF01","#FED901", "#FFCF00", "#FEC300") )
+plot(IncomePerCap ~ GroupRP, data=fullClean, main="IncomePerCap and Regulatory Policy", col=c("#FFDF01","#FED901", "#FFCF00", "#FEC300") )
 
 #Group by Fiscal Policy
-GroupFP <- quant_groups(full_2017IPC$FiscalPolicy, 4)
+GroupFP <- quant_groups(fullClean$FiscalPolicy, 4)
 str(GroupFP)
 #Boxplot of IncomePerCap by Fiscal Policy
-plot(IncomePerCap ~ GroupFP, data=full_2017IPC, main="IncomePerCap and GroupFP", col=c("#7EFFD4","#70EBBA", "#64D8A7", "#58BD95") )
+plot(IncomePerCap ~ GroupFP, data=fullClean, main="IncomePerCap and Fiscal Policy", col=c("#7EFFD4","#70EBBA", "#64D8A7", "#58BD95") )
 
 #Group by Overall Freedom
-GroupOF <- quant_groups(full_2017IPC$OverallFreedom, 4)
+GroupOF <- quant_groups(fullClean$OverallFreedom, 4)
 str(GroupOF)
 #Boxplot of IncomePerCap by Overall Freedom
-plot(IncomePerCap ~ GroupOF, data=full_2017IPC, main="IncomePerCap and GroupOF", col=c("#C0C6CB","#98A5C0", "#7688BB", "#536CB5") )
+plot(IncomePerCap ~ GroupOF, data=fullClean, main="IncomePerCap and Overall Freedom", col=c("#C0C6CB","#98A5C0", "#7688BB", "#536CB5") )
+
 
 
 #Group by Black
-GroupBlack <- quant_groups(full_2017IPC$Black, 4)
+GroupBlack <- quant_groups(fullClean$Black, 4)
 str(GroupBlack)
 #Boxplot of IncomePerCap by Black Population
-plot(IncomePerCap ~ GroupBlack, data=full_2017IPC, main="IncomePerCap and GroupBlack", col=c("#d0dfff","#a8c2fb", "#86abf9", "#6893ee") )
+plot(IncomePerCap ~ GroupBlack, data=fullClean, main="IncomePerCap and GroupBlack", col=c("#d0dfff","#a8c2fb", "#86abf9", "#6893ee") )
 
 #Group by Hispanic
-GroupHispanic <- quant_groups(full_2017IPC$Hispanic, 4)
+GroupHispanic <- quant_groups(fullClean$Hispanic, 4)
 str(GroupHispanic)
 #Boxplot of IncomePerCap by Hispanic Population
-plot(IncomePerCap ~ GroupHispanic, data=full_2017IPC, main="IncomePerCap and GroupHispanic", col=c("#F6BDC0","#F1959B", "#F07470", "#EA4C46") )
+plot(IncomePerCap ~ GroupHispanic, data=fullClean, main="IncomePerCap and GroupHispanic", col=c("#F6BDC0","#F1959B", "#F07470", "#EA4C46") )
 
 #Group by Asians
-GroupAsian <- quant_groups(full_2017IPC$Asian, 3)
+GroupAsian <- quant_groups(fullClean$Asian, 3)
 str(GroupAsian)
 #Boxplot of IncomePerCap by Asian Population
-plot(IncomePerCap ~ GroupAsian, data=full_2017IPC, main="IncomePerCap and GroupAsian", col=c("#FFE6C8","#FFCCBE", "#EFABA0", "#D6806F") )
+plot(IncomePerCap ~ GroupAsian, data=fullClean, main="IncomePerCap and GroupAsian", col=c("#FFE6C8","#FFCCBE", "#EFABA0", "#D6806F") )
 
 #Group by White
-GroupWhite <- quant_groups(full_2017IPC$White, 4)
+GroupWhite <- quant_groups(fullClean$White, 4)
 str(GroupWhite)
 #Boxplot of IncomePerCap by White Population
-plot(IncomePerCap ~ GroupWhite, data=full_2017IPC, main="IncomePerCap and GroupWhite", col=c("#B5651D", "#A4550A", "#964B00", "#834200") )
+plot(IncomePerCap ~ GroupWhite, data=fullClean, main="IncomePerCap and GroupWhite", col=c("#F5F8FA", "#EFF2F4", "#EAEDEF", "#E0E3E5") )
 
+#Group by Native
+#GroupNative <- quant_groups(fullClean$Native, 2)
+#str(GroupNative)
+#Boxplot of IncomePerCap by Native Population
+#plot(IncomePerCap ~ GroupNative, data=fullClean, main="IncomePerCap and GroupNative", col=c("#AAC2FF", "#C6D6FF", "#E2EAFF", "#EFF4FF") )
 
 
 #Group by Unemployment
-GroupUnemployment <- quant_groups(full_2017IPC$Unemployment, 4)
+GroupUnemployment <- quant_groups(fullClean$Unemployment, 4)
 str(GroupUnemployment)
 #Boxplot of IncomePerCap by Unemployment
-plot(IncomePerCap ~ GroupUnemployment, data=full_2017IPC, main="IncomePerCap and GroupUnemployment", col=c("#FFF57B","#FFE469", "#FECC51", "#FCB033") )
+plot(IncomePerCap ~ GroupUnemployment, data=fullClean, main="IncomePerCap and GroupUnemployment", col=c("#FFF57B","#FFE469", "#FECC51", "#FCB033") )
 
 
 #Group by Professional
-GroupProfessional <- quant_groups(full_2017IPC$Professional, 4)
+GroupProfessional <- quant_groups(fullClean$Professional, 4)
 str(GroupProfessional)
 #Boxplot of IncomePerCap by Professional
-plot(IncomePerCap ~ GroupProfessional, data=full_2017IPC, main="IncomePerCap and GroupProfessional", col=c("#F3D8F2","#E6B2E4", "#D88DD5", "#CA68C7") )
+plot(IncomePerCap ~ GroupProfessional, data=fullClean, main="IncomePerCap and GroupProfessional", col=c("#F3D8F2","#E6B2E4", "#D88DD5", "#CA68C7") )
 
 #Group by Office
-GroupOffice <- quant_groups(full_2017IPC$Office, 4)
+GroupOffice <- quant_groups(fullClean$Office, 4)
 str(GroupOffice)
 #Boxplot of IncomePerCap by Office
-plot(IncomePerCap ~ GroupOffice, data=full_2017IPC, main="IncomePerCap and GroupOffice", col=c("#D1FFD5","#B4FFB2", "#98FF98", "#79F58A") )
+plot(IncomePerCap ~ GroupOffice, data=fullClean, main="IncomePerCap and GroupOffice", col=c("#D1FFD5","#B4FFB2", "#98FF98", "#79F58A") )
 
 #Group by Service
-GroupService <- quant_groups(full_2017IPC$Service, 4)
+GroupService <- quant_groups(fullClean$Service, 4)
 str(GroupService)
 #Boxplot of IncomePerCap by Service
-plot(IncomePerCap ~ GroupService, data=full_2017IPC, main="IncomePerCap and GroupService", col=c("#E0BCBF","#D8ABB1", "#CF989F", "#C0838C") )
+plot(IncomePerCap ~ GroupService, data=fullClean, main="IncomePerCap and GroupService", col=c("#E0BCBF","#D8ABB1", "#CF989F", "#C0838C") )
 
 
 #Group by Construction
-GroupConstruction <- quant_groups(full_2017IPC$Construction, 4)
+GroupConstruction <- quant_groups(fullClean$Construction, 4)
 str(GroupConstruction)
 #Boxplot of IncomePerCap by Construction
-plot(IncomePerCap ~ GroupConstruction, data=full_2017IPC, main="IncomePerCap and GroupConstruction", col=c("#A9AB98","#949180", "#7D7968", "#5E594F") )
+plot(IncomePerCap ~ GroupConstruction, data=fullClean, main="IncomePerCap and GroupConstruction", col=c("#A9AB98","#949180", "#7D7968", "#5E594F") )
+
+#Group by WorkAtHome
+GroupWorkAtHome <- quant_groups(fullClean$WorkAtHome, 4)
+str(GroupWorkAtHome)
+#Boxplot of IncomePerCap by WorkAtHome
+plot(IncomePerCap ~ GroupWorkAtHome, data=fullClean, main="IncomePerCap and GroupWorkAtHome", col=c("#456BCC","#4E78E5", "#729AFF", "#8EAEFF") )
+
+#Group by SelfEmployed
+GroupSelfEmployed <- quant_groups(fullClean$SelfEmployed, 4)
+str(GroupSelfEmployed)
+#Boxplot of IncomePerCap by SelfEmployed
+plot(IncomePerCap ~ GroupSelfEmployed, data=fullClean, main="IncomePerCap and GroupSelfEmployed", col=c("#317B22","#67E0A3", "#7CF0BD", "#AFF9C9") )
 
 
+```
+```{r}
 
+loadPkg("corrplot")
+CorMx = cor(fullClean) 
+CorMx
 
+corrplot(CorMx, method = "color")
+
+#Correlation Matrix Plot showing values
+M <-cor(CorMx)
+corrplot(M, method = "number", type="upper")
 ```
 
