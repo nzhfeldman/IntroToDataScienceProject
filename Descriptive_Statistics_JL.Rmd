@@ -35,47 +35,7 @@ full_2015_eduProp <- full_2015 %>% mutate(PropHighSchool = EstHighSchool/EstTota
                                           PropDoctorate = EstDoctorate/EstTotal)
 ```
 
-```{r Load 2017 data}
-#Read in general census data
-census_2017 <- read.csv(file = 'acs2017_census_tract_data.csv') %>% mutate(CensusTract = TractId, TractId = NULL) %>% left_join(census_2015 %>% select(INTPTLAT, INTPTLONG, GEOID, CensusTract), by = 'CensusTract')
 
-#Read in Specifically Education Data
-```
-
-
-```{r Load 2017 data}
-
-
-
-#New DF with 41 Columns
-edu_data_2017 <- read.csv("ACS_17_5YR_B15003_renamed.csv", skip = 1) %>% mutate(Id2 = as.numeric(Id2))
-
-#Read in Freedom Data
-freedom <- read_excel("Freedom_In_The_50_States_2018.xlsx", sheet = "Overall")
-
-#Combine
-census_edu_2017 <- left_join(census_2017, edu_data_2017, by = c("CensusTract" = "Id2"))
-
-full_2017 <- full_join(census_edu_2017, freedom %>% filter(Year == 2015), by = "State")
-
-#For the education data, we will need to divide the count by the total
-full_2017_eduProp <- full_2017 %>% mutate(PropHighSchool = EstHighSchool/EstTotal,
-                                          PropBachelors = EstBachelors/EstTotal,
-                                          PropDoctorate = EstDoctorate/EstTotal)
-
-#Subsetting.DepVar -> income IndVar -> Work-related ones, and Freedom
-full_2017IPC <- subset(full_2017, select = -c(VotingAgeCitizen, IncomePerCapErr, IncomeErr, Drive, Carpool, Transit, Walk, OtherTransp, MeanCommute, EstTotal) )
-full_2017IPC <- subset(full_2017IPC, select = -c(33:83) )
-full_2017IPC <- subset(full_2017IPC, select = -c(42:60) )
-#full_2017IPC <- subset(full_2017IPC, select = c(42:60) )
-
-
-
-#New DF with 41 Columns
-str(full_2017IPC)
-
-
-```
 
 
 
@@ -138,36 +98,33 @@ outlierKD2 <- function(df, var, rm=FALSE) {
 loadPkg("ggplot2")
 
 # NA's
-#full_2017IPC<-full_2017IPC[!is.na(IncomePerCap)]
-sum(is.na(full_2017IPC$IncomePerCap))
+dat0<-full_2015[!is.na(full_2015$IncomePerCap),]
+sum(is.na(dat0$IncomePerCap))
 
 #removed outliers 
-full_2017IPC <- outlierKD2(full_2017IPC, IncomePerCap, TRUE)
+dat1 <- outlierKD2(dat0, IncomePerCap, TRUE)
 #Length
-length(full_2017IPC$IncomePerCap)
+length(dat1$IncomePerCap)
 
 
 #Histogram of dependent variable
-hist(full_2017IPC$IncomePerCap, 
+hist(dat1$IncomePerCap, 
         col = "#a8c2fb",
         main = "Income per Capita",
         xlab = "US Dollars")
 
 #ggplot
-qqnorm(full_2017IPC$IncomePerCap, main="Q-Q plot of IncomePerCap")
-qqline(full_2017IPC$IncomePerCap)
+qqnorm(dat1$IncomePerCap, main="Q-Q plot of IncomePerCap")
+qqline(dat1$IncomePerCap)
 
 #Mean after removing NA's
-format(mean(full_2017IPC$IncomePerCap, na.rm = TRUE))
+format(mean(dat1$IncomePerCap, na.rm = TRUE))
 
 #Summary after removing NA's
-summary(full_2017IPC$IncomePerCap)
+summary(dat1$IncomePerCap)
 #standard deviation
-sd(full_2017IPC$IncomePerCap, na.rm = TRUE)
+sd(dat1$IncomePerCap, na.rm = TRUE)
 
-#normality test 
-#shapiro.test(full_2017IPC$IncomePerCap)
-#ks.test(full_2017IPC$IncomePerCap)
 ```
 
 
@@ -203,6 +160,7 @@ loadPkg("dvmisc")
 #Group by Economic Freedom
 GroupEF <- quant_groups(full_2017IPC$EconomicFreedom, 4)
 str(GroupEF)
+
 #Boxplot of IncomePerCap by Economic Freedom
 plot(IncomePerCap ~ GroupEF, data=full_2017IPC, main="IncomePerCap and GroupEF", col=c("#ffd18b","#ffb76d","#ffa264", "#ff875f") )
 summary(full_2017IPC$EconomicFreedom)
@@ -220,6 +178,7 @@ qqline(full_2017IPC$EconomicFreedom)
 #Group by PersonalFreedom
 GroupPF <- quant_groups(full_2017IPC$PersonalFreedom, 4)
 str(GroupPF)
+
 #Boxplot of IncomePerCap by Personal Freedom
 plot(IncomePerCap ~ GroupPF, data=full_2017IPC, main="IncomePerCap and GroupPF", col=c("#BFBFFF","#A3A3FF", "#7879FF", "#4949FF") )
 summary(full_2017IPC$PersonalFreedom)
