@@ -124,9 +124,31 @@ format(mean(dat1$IncomePerCap, na.rm = TRUE))
 summary(dat1$IncomePerCap)
 #standard deviation
 sd(dat1$IncomePerCap, na.rm = TRUE)
-
+str(dat1)
 ```
 
+```{r population}
+loadPkg("ggplot2")
+
+#Histogram of dependent variable
+hist(dat1$TotalPop, 
+        col = "#a8c2fb",
+        main = "population Count",
+        xlab = "US Dollars")
+
+#ggplot
+qqnorm(dat1$TotalPop, main="Q-Q plot of TotalPop")
+qqline(dat1$TotalPop)
+
+#Mean after removing NA's
+format(mean(dat1$TotalPop, na.rm = TRUE))
+
+#Summary after removing NA's
+summary(dat1$TotalPop)
+#standard deviation
+sd(dat1$TotalPop, na.rm = TRUE)
+
+```
 
 
 ```{r variables}
@@ -186,25 +208,26 @@ str(GroupPF)
 plot(IncomePerCap ~ GroupPF, data=dat1, main="IncomePerCap and GroupPF", col=c("#BFBFFF","#A3A3FF", "#7879FF", "#4949FF") )
 summary(dat1$PersonalFreedom)
 
-#Histogram of Economic Freedom
+#Histogram of Personal Freedom
 hist(dat1$PersonalFreedom, 
         col = "#A3A3FF",
         main = "Personal Freedom")
 
-#qqplot of Econoimc Freedom
+#qqplot of Personal Freedom
 qqnorm(dat1$PersonalFreedom, main="Q-Q plot of Personal Freedom")
 qqline(dat1$PersonalFreedom)
 
 #Group by Regulatory Policy
 GroupRP <- quant_groups(dat1$RegulatoryPolicy, 4)
 str(GroupRP)
+
 #Boxplot of IncomePerCap by Regulatory Policy
 plot(IncomePerCap ~ GroupRP, data=dat1, main="IncomePerCap and GroupRP", col=c("#FFDF01","#FED901", "#FFCF00", "#FEC300") )
 summary(dat1$RegulatoryPolicy)
 
 #Histogram of Regulatory Policy
 hist(dat1$RegulatoryPolicy, 
-        col = "#A3A3FF",
+        col = "#FFDF01",
         main = "Regulatory Policy ")
 
 #qqplot of Regulatory Policy
@@ -219,12 +242,12 @@ str(GroupFP)
 plot(IncomePerCap ~ GroupFP, data=dat1, main="IncomePerCap and GroupFP", col=c("#7EFFD4","#70EBBA", "#64D8A7", "#58BD95") )
 summary(dat1$FiscalPolicy)
 
-#Histogram of Economic Freedom
+#Histogram of Fiscal Policy
 hist(dat1$FiscalPolicy, 
-        col = "#A3A3FF",
+        col = "#7EFFD4",
         main = "Fiscal Policy")
 
-#qqplot of Econoimc Freedom
+#qqplot of Fiscal Policy
 qqnorm(dat1$FiscalPolicy, main="Q-Q plot of Fiscal Policy")
 qqline(dat1$FiscalPolicy)
 
@@ -236,13 +259,13 @@ plot(IncomePerCap ~ GroupOF, data=dat1, main="IncomePerCap and GroupOF", col=c("
 summary(dat1$OverallFreedom)
 
 #Histogram of Overall Freedom
-hist(dat1$PersonalFreedom, 
+hist(dat1$OverallFreedom, 
         col = "#A3A3FF",
         main = "Overall Freedom")
 
 #qqplot of Overall Freedom
-qqnorm(dat1$PersonalFreedom, main="Q-Q plot of Overall Freedom")
-qqline(dat1$PersonalFreedom)
+qqnorm(dat1$OverallFreedom, main="Q-Q plot of Overall Freedom")
+qqline(dat1$OverallFreedom)
 ```
 
 ```{r Work variations}
@@ -256,7 +279,7 @@ summary(dat1$Unemployment)
 #Histogram of Unemployment
 hist(dat1$Unemployment, 
         col = "#A3A3FF",
-        main = "Unemployment")
+       )
 
 #qqplot of Unemployment Unemployment
 qqnorm(dat1$Unemployment, main="Q-Q plot of Unemployment")
@@ -270,7 +293,7 @@ plot(IncomePerCap ~ GroupProfessional, data=dat1, main="IncomePerCap and GroupPr
 summary(dat1$Professional)
 
 #Histogram of Professional
-hist(dat1$PersonalFreedom, 
+hist(dat1$Professional, 
         col = "#D88DD5",
         main = "Professional")
 
@@ -285,14 +308,14 @@ str(GroupOffice)
 #Boxplot of IncomePerCap by Office
 plot(IncomePerCap ~ GroupOffice, data=dat1, main="IncomePerCap and GroupOffice", col=c("#D1FFD5","#B4FFB2", "#98FF98", "#79F58A") )
 summary(dat1$Office)
-#Histogram of Professional
+#Histogram of Office
 hist(dat1$Office, 
         col = "#FECC51",
         main = "Office")
 
-#qqplot of Professional
-qqnorm(dat1$Professional, main="Q-Q plot of Professional")
-qqline(dat1$Professional)
+#qqplot of Office
+qqnorm(dat1$Office, main="Q-Q plot of Office")
+qqline(dat1$Office)
 
 
 #Group by Service
@@ -337,15 +360,15 @@ hist(dat1$Production,
         col = "#E6B2E4",
         main = "Production")
 
-#qqplot of Professional
+#qqplot of Production
 qqnorm(dat1$Production, main="Q-Q plot of Production")
 qqline(dat1$Production)
 
 #Group by Self-Employed
 GroupProduction <- quant_groups(dat1$SelfEmployed, 4)
 str(GroupProduction)
-#Boxplot of IncomePerCap by Production
-plot(IncomePerCap ~ GroupProduction, data=dat1, main="IncomePerCap and Production", col=c("#F3D8F2","#E6B2E4", "#D88DD5", "#CA68C7") )
+#Boxplot of IncomePerCap by Selfemployed
+plot(IncomePerCap ~ GroupProduction, data=dat1, main="IncomePerCap and Selfemployed", col=c("#F3D8F2","#E6B2E4", "#D88DD5", "#CA68C7") )
 summary(dat1$SelfEmployed)
 #Histogram of Self Employed
 hist(dat1$SelfEmployed, 
@@ -353,7 +376,7 @@ hist(dat1$SelfEmployed,
         main = "Production")
 
 #qqplot of Self employed
-qqnorm(dat1$SelfEmployed, main="Q-Q plot of Production")
+qqnorm(dat1$SelfEmployed, main="Q-Q plot of Selfemployed")
 qqline(dat1$SelfEmployed)
 ```
 
@@ -387,7 +410,7 @@ hist(dat1$Hispanic,
         main = "Hispanic")
 
 #qqplot of Hispanic
-qqnorm(dat1$Hispanic, main="Q-Q plot of Production")
+qqnorm(dat1$Hispanic, main="Q-Q plot of Hspanic")
 qqline(dat1$Hispanic)
 
 #Group by Asians
@@ -409,15 +432,15 @@ qqline(dat1$Asian)
 GroupWhite <- quant_groups(dat1$White, 4)
 str(GroupWhite)
 #Boxplot of IncomePerCap by White Population
-plot(IncomePerCap ~ GroupWhite, data=dat1, main="IncomePerCap and GroupWhite", col=c("#B5651D", "#A4550A", "#964B00", "#834200") )
+plot(IncomePerCap ~ GroupWhite, data=dat1, main="IncomePerCap and GroupWhite", col=c("#F5F8FA", "#EFF2F4", "#EAEDEF", "#E0E3E5") )
 summary(dat1$White)
 #Histogram of White
 hist(dat1$White, 
-        col = "#964B00",
+        col = "#F5F8FA",
         main = "White")
 
 #qqplot of White
-qqnorm(dat1$White, main="Q-Q plot of Production")
+qqnorm(dat1$White, main="Q-Q plot of White")
 qqline(dat1$White)
 
 
