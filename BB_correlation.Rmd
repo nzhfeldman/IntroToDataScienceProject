@@ -55,13 +55,13 @@ corrplot(full_2015_cor)
 ```
 
 ```{r Subsetting}
-Freedom_2015 <- subset(full_2015_varOfInterest, select = c(OverallFreedom, EconomicFreedom, PersonalFreedom, RegulatoryPolicy, FiscalPolicy, IncomePerCap))
+Freedom_2015 <- subset(full_2015_varOfInterest, select = c(IncomePerCap, OverallFreedom, EconomicFreedom, PersonalFreedom, RegulatoryPolicy, FiscalPolicy))
 str(Freedom_2015)
 
-Work_2015 <- subset(full_2015_varOfInterest, select = c(Professional, Service, Office, Construction, Production, SelfEmployed, Unemployment, IncomePerCap))
+Work_2015 <- subset(full_2015_varOfInterest, select = c(IncomePerCap, Professional, Service, Office, Construction, Production, SelfEmployed, Unemployment))
 str(Work_2015)
 
-Ethnic_2015 <- subset(full_2015_varOfInterest, select = c(Hispanic, White, Black, Native, Asian, IncomePerCap))
+Ethnic_2015 <- subset(full_2015_varOfInterest, select = c(IncomePerCap, Hispanic, White, Black, Native, Asian))
 str(Ethnic_2015)
 ```
 
@@ -69,19 +69,22 @@ str(Ethnic_2015)
 ```{r Cor w/i Freedom}
 loadPkg("corrplot")
 Freedom_2015_cor <- cor(Freedom_2015, use = "complete.obs")
-corrplot(Freedom_2015_cor)
+#corrplot(Freedom_2015_cor)
+corrplot.mixed(Freedom_2015_cor, tl.pos = "lt")
 ```
 
 
 ```{r Cor w/i Work}
 Work_2015_cor <- cor(Work_2015, use = "complete.obs")
-corrplot(Work_2015_cor)
+#corrplot(Work_2015_cor)
+corrplot.mixed(Work_2015_cor, tl.pos = "lt")
 ```
 
 
 ```{r Cor w/i Ethnic Background}
 Ethnic_2015_cor <- cor(Ethnic_2015, use = "complete.obs")
-corrplot(Ethnic_2015_cor)
+#corrplot(Ethnic_2015_cor)
+corrplot.mixed(Ethnic_2015_cor, tl.pos = "lt")
 ```
 
 
