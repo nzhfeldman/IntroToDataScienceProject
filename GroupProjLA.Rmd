@@ -175,7 +175,7 @@ ggplot(state_income_2015, aes( x= StatePrivateWorkPerCap, y = StateIncomePerCap,
 full_2017IPC <- subset(full_2017, select = -c(VotingAgeCitizen, IncomePerCapErr, IncomeErr, Drive, Carpool, Transit, Walk, OtherTransp, MeanCommute, EstTotal) )
 full_2017IPC <- subset(full_2017IPC, select = -c(33:83) )
 full_2017IPC <- subset(full_2017IPC, select = -c(42:60) )
-full_2017IPC <- subset(full_2017IPC, select = -c(Pacific, Income, Poverty, ChildPoverty, Employed, PrivateWork, PublicWork, FamilyWork, fprank, rprank, pfrank, efrank) )
+full_2017IPC <- subset(full_2017IPC, select = -c(Pacific, Income, Poverty, ChildPoverty, Employed, PrivateWork, PublicWork, WorkAtHome FamilyWork, fprank, rprank, pfrank, efrank) )
 
 
 
@@ -416,10 +416,10 @@ str(GroupConstruction)
 plot(IncomePerCap ~ GroupConstruction, data=fullClean, main="IncomePerCap and GroupConstruction", col=c("#A9AB98","#949180", "#7D7968", "#5E594F") )
 
 #Group by WorkAtHome
-GroupWorkAtHome <- quant_groups(fullClean$WorkAtHome, 4)
-str(GroupWorkAtHome)
+#GroupWorkAtHome <- quant_groups(fullClean$WorkAtHome, 4)
+#str(GroupWorkAtHome)
 #Boxplot of IncomePerCap by WorkAtHome
-plot(IncomePerCap ~ GroupWorkAtHome, data=fullClean, main="IncomePerCap and GroupWorkAtHome", col=c("#456BCC","#4E78E5", "#729AFF", "#8EAEFF") )
+#plot(IncomePerCap ~ GroupWorkAtHome, data=fullClean, main="IncomePerCap and GroupWorkAtHome", col=c("#456BCC","#4E78E5", "#729AFF", "#8EAEFF") )
 
 #Group by SelfEmployed
 GroupSelfEmployed <- quant_groups(fullClean$SelfEmployed, 4)
@@ -435,10 +435,10 @@ loadPkg("corrplot")
 CorMx = cor(fullClean) 
 CorMx
 
-corrplot(CorMx, method = "color")
+corrplot(CorMx)
 
 #Correlation Matrix Plot showing values
 M <-cor(CorMx)
-corrplot(M, method = "number", type="upper")
+corrplot(M, type="upper")
 ```
 
