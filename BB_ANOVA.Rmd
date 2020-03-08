@@ -7,8 +7,6 @@ output: html_document
 Anova b/w ethnic and income
 anova b/w work and income
 
-x^2 b/w ethnic and work
-
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
