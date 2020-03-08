@@ -4,27 +4,46 @@ author: "BB"
 date: "3/8/2020"
 output: html_document
 ---
+Anova b/w ethnic and income
+anova b/w work and income
+
+x^2 b/w ethnic and work
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+```{r dataset}
+dat0 <- full_2015_varOfInterest_withMajorityEthnicity %>% filter(EthnicPlurality!= "Error",
+                                                                 WorkPlurality!= "Error")
+str(dat0)
 ```
 
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r Ethnic ANOVA}
+Ethnic_2015_anova = aov(IncomePerCap ~ EthnicPlurality, data = dat0)
+Ethnic_2015_anova
+names(Ethnic_2015_anova)
+summary(Ethnic_2015_anova)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+```{r Ethnic Graph}
+ggplot(dat0, aes(x=EthnicPlurality, y=IncomePerCap)) + 
+  geom_boxplot(outlier.shape=8, outlier.size=4) +
+  labs(title="Income/Capita with Different Ethnic Majority", x="Ethnic Majority", y = "Income per Cap")
+```
+
+
+```{r Work ANOVA}
+Work_2015_anova = aov(IncomePerCap ~ WorkPlurality, data = dat0)
+Work_2015_anova
+names(Work_2015_anova)
+summary(Work_2015_anova)
+```
+
+```{r Work Graph}
+ggplot(dat0, aes(x=WorkPlurality, y=IncomePerCap)) + 
+  geom_boxplot(outlier.shape=8, outlier.size=4) +
+  labs(title="Income/Capita with Different Work Majority", x="Work Majority", y = "Income per Cap")
+```
+
