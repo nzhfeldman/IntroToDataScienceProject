@@ -50,6 +50,7 @@ full_2015_cor <- cor(full_2015_varOfInterest, use = "complete.obs")
 ```
 
 ```{r Cor of Dataset}
+loadPkg("corrplot")
 corrplot(full_2015_cor)
 ```
 
@@ -57,7 +58,7 @@ corrplot(full_2015_cor)
 Freedom_2015 <- subset(full_2015_varOfInterest, select = c(OverallFreedom, EconomicFreedom, PersonalFreedom, RegulatoryPolicy, FiscalPolicy, IncomePerCap))
 str(Freedom_2015)
 
-Work_2015 <- subset(full_2015_varOfInterest, select = c(Professional, Service, Office, Construction, Production, Unemployment, IncomePerCap))
+Work_2015 <- subset(full_2015_varOfInterest, select = c(Professional, Service, Office, Construction, Production, SelfEmployed, Unemployment, IncomePerCap))
 str(Work_2015)
 
 Ethnic_2015 <- subset(full_2015_varOfInterest, select = c(Hispanic, White, Black, Native, Asian, IncomePerCap))
@@ -67,7 +68,7 @@ str(Ethnic_2015)
 
 ```{r Cor w/i Freedom}
 loadPkg("corrplot")
-Freedom_2015_cor <- cor(Freedom_2015)
+Freedom_2015_cor <- cor(Freedom_2015, use = "complete.obs")
 corrplot(Freedom_2015_cor)
 ```
 
@@ -93,6 +94,7 @@ corrplot(Ethnic_2015_cor)
 ```
 
 ```{r vif }
+#loadPkg("car")
 #lm2015 <- lm(IncomePerCap ~ ., data = full_2015_varOfInterest)
 #lm2015
 
