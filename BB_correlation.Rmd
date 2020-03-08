@@ -69,21 +69,21 @@ str(Ethnic_2015)
 ```{r Cor w/i Freedom}
 loadPkg("corrplot")
 Freedom_2015_cor <- cor(Freedom_2015, use = "complete.obs")
-corrplot(Freedom_2015_cor)
+#corrplot(Freedom_2015_cor)
 corrplot.mixed(Freedom_2015_cor, tl.pos = "lt")
 ```
 
 
 ```{r Cor w/i Work}
 Work_2015_cor <- cor(Work_2015, use = "complete.obs")
-corrplot(Work_2015_cor)
+#corrplot(Work_2015_cor)
 corrplot.mixed(Work_2015_cor, tl.pos = "lt")
 ```
 
 
 ```{r Cor w/i Ethnic Background}
 Ethnic_2015_cor <- cor(Ethnic_2015, use = "complete.obs")
-corrplot(Ethnic_2015_cor)
+#corrplot(Ethnic_2015_cor)
 corrplot.mixed(Ethnic_2015_cor, tl.pos = "lt")
 ```
 
