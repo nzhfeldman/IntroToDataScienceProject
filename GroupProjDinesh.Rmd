@@ -37,6 +37,10 @@ full_2015 <- full_join(census_edu_2015, freedom %>% filter(Year == 2015), by = "
 full_2015_eduProp <- full_2015 %>% mutate(PropHighSchool = EstHighSchool/EstTotal,
                                           PropBachelors = EstBachelors/EstTotal,
                                           PropDoctorate = EstDoctorate/EstTotal)
+
+#Chosen 17 Varibales
+full_2015_varOfInterest <- full_2015 %>%  select(Hispanic:Asian,IncomePerCap,Professional:Production,Unemployment, FiscalPolicy,EconomicFreedom, RegulatoryPolicy, PersonalFreedom, OverallFreedom)
+
 ```
 
 ```{r Load 2017 data}
@@ -44,6 +48,22 @@ full_2015_eduProp <- full_2015 %>% mutate(PropHighSchool = EstHighSchool/EstTota
 census_2017 <- read.csv(file = 'acs2017_census_tract_data.csv') %>% mutate(CensusTract = TractId, TractId = NULL) %>% left_join(census_2015 %>% select(INTPTLAT, INTPTLONG, GEOID, CensusTract), by = 'CensusTract')
 
 #Read in Specifically Education Data
+edu_data_2017 <- read.csv("ACS_17_5YR_B15003_renamed.csv", skip = 1) %>% mutate(Id2 = as.numeric(Id2))
+
+#Read in Freedom Data
+freedom <- read_excel("Freedom_In_The_50_States_2018.xlsx", sheet = "Overall")
+
+#Combine
+census_edu_2017 <- left_join(census_2017, edu_data_2017, by = c("CensusTract" = "Id2"))
+
+full_2017 <- full_join(census_edu_2017, freedom %>% filter(Year == 2015), by = "State")
+
+#For the education data, we will need to divide the count by the total
+full_2017_eduProp <- full_2017 %>% mutate(PropHighSchool = EstHighSchool/EstTotal,
+                                          PropBachelors = EstBachelors/EstTotal,
+                                          PropDoctorate = EstDoctorate/EstTotal)
+
+full_2017_varOfInterest <- full_2017 %>%  select(Hispanic:Asian,IncomePerCap,Professional:Production, Unemployment, FiscalPolicy,EconomicFreedom, RegulatoryPolicy, PersonalFreedom, OverallFreedom)
 ```
 
 ```{r Load 2017 data}
@@ -109,7 +129,7 @@ census_2017 = census_2017 %>%
 ```{r}
 loadPkg('leaps')
 #This is essentially best fit 
-reg.best10 <- regsubsets(IncomePerCap~. , data = census_2017 %>% select(Men:Unemployment), nvmax = 17, nbest = 2, method = "exhaustive")  # leaps::regsubsets() - Model selection by exhaustive (default) search, forward or backward stepwise, or sequential replacement
+reg.best10 <- regsubsets(IncomePerCap~. , data = full_2017_varOfInterest, nvmax = 17, nbest = 2, method = "exhaustive")  # leaps::regsubsets() - Model selection by exhaustive (default) search, forward or backward stepwise, or sequential replacement
 #The plot will show the Adjust R^2 when using the variables across the bottom
 plot(reg.best10, scale = "adjr2", main = "Adjusted R^2")
 plot(reg.best10, scale = "r2", main = "R^2")
@@ -119,26 +139,54 @@ plot(reg.best10, scale = "Cp", main = "Cp")
 summary(reg.best10)
 ```
 
-# stepwise forward regression
-# Varibale Selection
+### Forward Selection
+
+The result for forward selection (with `nvmax=10` and `nbest=2`) is here. We typically do not use the regular r2 as criteria, which usually improves with number of variables and leads to overfitting.  
+
 ```{r}
-loadPkg('olsrr')
-model <- lm(IncomePerCap ~ ., data = census_2017 %>% select(Men:Unemployment))
-ols_step_forward_p(model)
+reg.forward17 <- regsubsets(IncomePerCap~. , data = full_2017_varOfInterest, nvmax = 17, nbest = 2, method = "forward")
+plot(reg.forward10, scale = "adjr2", main = "Adjusted R^2")
+plot(reg.forward10, scale = "bic", main = "BIC")
+plot(reg.forward10, scale = "Cp", main = "Cp")
+# summary(reg.forward17)
 ```
 
-#Plot
+
+### Backward Selection
+
+Now backwards (`nvmax=10` and `nbest=2`)
+
 ```{r}
-model <- lm(IncomePerCap ~ ., data = census_2017 %>% select(Men:Unemployment))
-m <- ols_step_forward_p(model)
-plot(m)
+reg.back17 <- regsubsets(IncomePerCap~. , data = full_2017_varOfInterest, nvmax = 17, nbest = 2, method = "backward")
+plot(reg.back10, scale = "adjr2", main = "Adjusted R^2")
+plot(reg.back10, scale = "bic", main = "BIC")
+plot(reg.back10, scale = "Cp", main = "Cp")
+summary(reg.back17)
 ```
 
-#Detailed Output
+### Sequential Replacement seqrep  
+
+Lastly we can try seqrep method.
 ```{r}
-model <- lm(IncomePerCap ~ ., data = census_2017 %>% select(Men:Unemployment))
-ols_step_forward_p(model, details = TRUE)
+reg.seqrep <- regsubsets(IncomePerCap~. , data = full_2017_varOfInterest, nvmax = 17, nbest = 2 , method = "seqrep")
+plot(reg.seqrep, scale = "adjr2", main = "Adjusted R^2")
+plot(reg.seqrep, scale = "bic", main = "BIC")
+plot(reg.seqrep, scale = "Cp", main = "Cp")
+summary(reg.seqrep)
 ```
+
+
+## `car::subsets()`
+```{r}
+
+
+summaryRegForward = summary(reg.seqrep)
+# Adjusted R2
+subsets(reg.seqrep, statistic="adjr2", legend = FALSE, min.size = 2, main = "Adjusted R^2")
+```
+
+
+
 
 
 ```{r Load 2017 data}
