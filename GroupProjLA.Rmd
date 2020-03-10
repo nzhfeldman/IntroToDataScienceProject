@@ -125,7 +125,7 @@ hist(freedom$PersonalFreedom,
         main = "Histogram: Levels of Personal Freedoms",
         xlab = "Personal Freedom Score")
 
-ggplot(full_2015, aes( x= Professional, y = IncomePerCap, color = Asian)) + 
+ggplot(full_2015, aes( x= Professional, y = IncomePerCap, color = White)) + 
   geom_point(size=0.1) +
   labs (title="Scatter Plot",
         x="Construction",
@@ -134,10 +134,10 @@ ggplot(full_2015, aes( x= Professional, y = IncomePerCap, color = Asian)) +
 ```
 
 ```{r Population Scaling}
-ggplot(full_2015_eduProp, aes( x= PropDoctorate, y = IncomePerCap, color = State == "New York", size = TotalPop)) +
+ggplot(full_2015_eduProp, aes( x= Professional, y = IncomePerCap, color = State == "New York", size = TotalPop)) +
   geom_point() +
-  labs (title="Scatter Plot",
-        x="Education (Proportion with Doctorates)",
+  labs (title="Scatter Plot: IncomePerCap and Work type: Professional",
+        x="Professional (% of pop in census tract)",
         y = "IncomePerCap")
 
 ggplot(full_2015_eduProp, aes( x= PropBachelors, y = log(IncomePerCap), color = State == "New York", size = TotalPop)) +
@@ -440,5 +440,44 @@ corrplot(CorMx)
 #Correlation Matrix Plot showing values
 M <-cor(CorMx)
 corrplot(M, type="upper")
+
+length(fullClean$IncomePerCap)
+```
+
+```{r}
+#Scatter Plots. Use fullClean
+
+ggplot(fullClean, aes( x= Professional, y = IncomePerCap, color = White)) + 
+  geom_point(size=0.1) + geom_smooth(method='lm', formula= IncomerPerCap~Professional) +
+  labs (title="Scatter Plot of IncomePerCap and Professional",
+        x="Professional",
+        y = "IncomePerCap")
+
+ggplot(fullClean, aes( x= Unemployment, y = IncomePerCap, color = White)) + 
+  geom_point(size=0.1) + geom_smooth(method='lm', formula= IncomerPerCap~Unemployment) +
+  labs (title="Scatter Plot of IncomePerCap and Unemployment",
+        x="Unemployment",
+        y = "IncomePerCap")
+
+
+ggplot(fullClean, aes( x= Service, y = IncomePerCap, color = White)) + 
+  geom_point(size=0.1) + geom_smooth(method='lm', formula= IncomerPerCap~Service) +
+  labs (title="Scatter Plot of IncomePerCap and Service",
+        x="Service",
+        y = "IncomePerCap")
+
+
+ggplot(fullClean, aes( x= EconomicFreedom, y = IncomePerCap, color = White)) + 
+  geom_point(size=0.1) + geom_smooth(method='lm', formula= IncomerPerCap~EconomicFreedom) +
+  labs (title="Scatter Plot of IncomePerCap and EconomicFreedom",
+        x="EconomicFreedom",
+        y = "IncomePerCap")
+
+
+
+
+
+
+
 ```
 
