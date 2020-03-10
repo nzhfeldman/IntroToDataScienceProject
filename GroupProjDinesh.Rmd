@@ -83,12 +83,12 @@ In our case, let us remove some cumulative player stats to make the dataframe mo
 
 ```{r}
 #Central tendancy
-summary(census_2017$IncomePerCap)
-boxplot(census_2017$IncomePerCap)
+summary(full_2017_varOfInterest$IncomePerCap)
+boxplot(full_2017_varOfInterest$IncomePerCap)
 
 ##Spread
-hist(census_2017$IncomePerCap)
-#plot(density(census_2017$IncomePerCap), main = 'Income Density')
+hist(full_2017_varOfInterest$IncomePerCap)
+#plot(density(full_2017_varOfInterest$IncomePerCap), main = 'Income Density')
 ```
 
 
@@ -129,8 +129,7 @@ census_2017 = census_2017 %>%
 ```{r}
 loadPkg('leaps')
 #This is essentially best fit 
-reg.best10 <- regsubsets(IncomePerCap~. , data = full_2017_varOfInterest, nvmax = 17, nbest = 2, method = "exhaustive")  # leaps::regsubsets() - Model selection by exhaustive (default) search, forward or backward stepwise, or sequential replacement
-#The plot will show the Adjust R^2 when using the variables across the bottom
+reg.best10 <- regsubsets(IncomePerCap~. , data = full_2017_varOfInterest, nvmax = 17, nbest = 2, method = "exhaustive")  
 plot(reg.best10, scale = "adjr2", main = "Adjusted R^2")
 plot(reg.best10, scale = "r2", main = "R^2")
 # In the "leaps" package, we can use scale=c("bic","Cp","adjr2","r2")
@@ -141,14 +140,12 @@ summary(reg.best10)
 
 ### Forward Selection
 
-The result for forward selection (with `nvmax=10` and `nbest=2`) is here. We typically do not use the regular r2 as criteria, which usually improves with number of variables and leads to overfitting.  
-
 ```{r}
-reg.forward17 <- regsubsets(IncomePerCap~. , data = full_2017_varOfInterest, nvmax = 17, nbest = 2, method = "forward")
+reg.forward10 <- regsubsets(IncomePerCap~. , data = full_2017_varOfInterest, nvmax = 17, nbest = 2, method = "forward")
 plot(reg.forward10, scale = "adjr2", main = "Adjusted R^2")
 plot(reg.forward10, scale = "bic", main = "BIC")
 plot(reg.forward10, scale = "Cp", main = "Cp")
-# summary(reg.forward17)
+#summary(reg.forward10)
 ```
 
 
@@ -157,16 +154,15 @@ plot(reg.forward10, scale = "Cp", main = "Cp")
 Now backwards (`nvmax=10` and `nbest=2`)
 
 ```{r}
-reg.back17 <- regsubsets(IncomePerCap~. , data = full_2017_varOfInterest, nvmax = 17, nbest = 2, method = "backward")
+reg.back10 <- regsubsets(IncomePerCap~. , data = full_2017_varOfInterest, nvmax = 17, nbest = 2, method = "backward")
 plot(reg.back10, scale = "adjr2", main = "Adjusted R^2")
 plot(reg.back10, scale = "bic", main = "BIC")
 plot(reg.back10, scale = "Cp", main = "Cp")
-summary(reg.back17)
+summary(reg.back10)
 ```
 
 ### Sequential Replacement seqrep  
 
-Lastly we can try seqrep method.
 ```{r}
 reg.seqrep <- regsubsets(IncomePerCap~. , data = full_2017_varOfInterest, nvmax = 17, nbest = 2 , method = "seqrep")
 plot(reg.seqrep, scale = "adjr2", main = "Adjusted R^2")
@@ -174,18 +170,6 @@ plot(reg.seqrep, scale = "bic", main = "BIC")
 plot(reg.seqrep, scale = "Cp", main = "Cp")
 summary(reg.seqrep)
 ```
-
-
-## `car::subsets()`
-```{r}
-
-
-summaryRegForward = summary(reg.seqrep)
-# Adjusted R2
-subsets(reg.seqrep, statistic="adjr2", legend = FALSE, min.size = 2, main = "Adjusted R^2")
-```
-
-
 
 
 
