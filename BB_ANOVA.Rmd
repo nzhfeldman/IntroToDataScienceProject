@@ -31,6 +31,10 @@ ggplot(dat0, aes(x=EthnicPlurality, y=IncomePerCap)) +
   labs(title="Income/Capita with Different Ethnic Majority", x="Ethnic Majority", y = "Income per Cap")
 ```
 
+```{r Ethnic Tukey}
+TukeyHSD(Ethnic_2015_anova)
+```
+
 
 ```{r Work ANOVA}
 Work_2015_anova = aov(IncomePerCap ~ WorkPlurality, data = dat0)
@@ -44,4 +48,10 @@ ggplot(dat0, aes(x=WorkPlurality, y=IncomePerCap)) +
   geom_boxplot(outlier.shape=8, outlier.size=4) +
   labs(title="Income/Capita with Different Work Majority", x="Work Majority", y = "Income per Cap")
 ```
+
+```{r Work Tukey}
+TukeyHSD(Work_2015_anova)
+```
+
+
 
