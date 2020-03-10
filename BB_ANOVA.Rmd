@@ -1,0 +1,57 @@
+---
+title: "ANOVA"
+author: "BB"
+date: "3/8/2020"
+output: html_document
+---
+Anova b/w ethnic and income
+anova b/w work and income
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r dataset}
+dat0 <- full_2015_varOfInterest_withMajorityEthnicity %>% filter(EthnicPlurality!= "Error",
+                                                                 WorkPlurality!= "Error")
+str(dat0)
+```
+
+```{r Ethnic ANOVA}
+Ethnic_2015_anova = aov(IncomePerCap ~ EthnicPlurality, data = dat0)
+Ethnic_2015_anova
+names(Ethnic_2015_anova)
+summary(Ethnic_2015_anova)
+```
+
+```{r Ethnic Graph}
+ggplot(dat0, aes(x=EthnicPlurality, y=IncomePerCap)) + 
+  geom_boxplot(outlier.shape=8, outlier.size=4) +
+  labs(title="Income/Capita with Different Ethnic Majority", x="Ethnic Majority", y = "Income per Cap")
+```
+
+```{r Ethnic Tukey}
+TukeyHSD(Ethnic_2015_anova)
+```
+
+
+```{r Work ANOVA}
+Work_2015_anova = aov(IncomePerCap ~ WorkPlurality, data = dat0)
+Work_2015_anova
+names(Work_2015_anova)
+summary(Work_2015_anova)
+```
+
+```{r Work Graph}
+ggplot(dat0, aes(x=WorkPlurality, y=IncomePerCap)) + 
+  geom_boxplot(outlier.shape=8, outlier.size=4) +
+  labs(title="Income/Capita with Different Work Majority", x="Work Majority", y = "Income per Cap")
+```
+
+```{r Work Tukey}
+TukeyHSD(Work_2015_anova)
+```
+
+
+
