@@ -465,13 +465,78 @@ qqline(dat1$White)
 
 # Correlations
 
+
+```{r DF and cor Setup}
+full_2015_cor <- cor(full_2015_varOfInterest, use = "complete.obs")
+
+loadPkg("corrplot")
+corrplot(full_2015_cor)
+```
+
+
+```{r Subsetting}
+Freedom_2015 <- subset(full_2015_varOfInterest, select = c(IncomePerCap, OverallFreedom, EconomicFreedom, PersonalFreedom, RegulatoryPolicy, FiscalPolicy))
+
+Work_2015 <- subset(full_2015_varOfInterest, select = c(IncomePerCap, Professional, Service, Office, Construction, Production, SelfEmployed, Unemployment))
+
+Ethnic_2015 <- subset(full_2015_varOfInterest, select = c(IncomePerCap, Hispanic, White, Black, Native, Asian))
+```
+
+
+```{r Cor w/i Freedom}
+Freedom_2015_cor <- cor(Freedom_2015, use = "complete.obs")
+#corrplot(Freedom_2015_cor)
+corrplot.mixed(Freedom_2015_cor, tl.pos = "lt")
+```
+
+
+```{r Cor w/i Work}
+Work_2015_cor <- cor(Work_2015, use = "complete.obs")
+#corrplot(Work_2015_cor)
+corrplot.mixed(Work_2015_cor, tl.pos = "lt")
+```
+
+
+```{r Cor w/i Ethnic Background}
+Ethnic_2015_cor <- cor(Ethnic_2015, use = "complete.obs")
+#corrplot(Ethnic_2015_cor)
+corrplot.mixed(Ethnic_2015_cor, tl.pos = "lt")
+```
+
 # Scatter PLots
+
+```{r}
+ggplot(dat1, aes( x= Professional, y = IncomePerCap, color = White)) + 
+  geom_point(size=0.1) + geom_smooth(method='lm', formula= IncomerPerCap~Professional) +
+  labs (title="Scatter Plot of IncomePerCap and Professional",
+        x="Professional",
+        y = "IncomePerCap")
+
+ggplot(dat1, aes( x= Unemployment, y = IncomePerCap, color = White)) + 
+  geom_point(size=0.1) + geom_smooth(method='lm', formula= IncomerPerCap~Unemployment) +
+  labs (title="Scatter Plot of IncomePerCap and Unemployment",
+        x="Unemployment",
+        y = "IncomePerCap")
+
+
+ggplot(dat1, aes( x= Service, y = IncomePerCap, color = White)) + 
+  geom_point(size=0.1) + geom_smooth(method='lm', formula= IncomerPerCap~Service) +
+  labs (title="Scatter Plot of IncomePerCap and Service",
+        x="Service",
+        y = "IncomePerCap")
+
+
+ggplot(dat1, aes( x= EconomicFreedom, y = IncomePerCap, color = White)) + 
+  geom_point(size=0.1) + geom_smooth(method='lm', formula= IncomerPerCap~EconomicFreedom) +
+  labs (title="Scatter Plot of IncomePerCap and EconomicFreedom",
+        x="EconomicFreedom",
+        y = "IncomePerCap")
+```
+
 
 # ANOVA
 
-# Chi Squared Tests
-
-```{r Majority Ethnicities}
+```{r Majority Ethnicities Dataset}
 #' @title Returns the max value of each row of a data.frame or matrix
 #'
 #' @description
@@ -536,8 +601,51 @@ full_2015_varOfInterest_withMajorityEthnicity$WorkPlurality <-
   as.factor(full_2015_varOfInterest_withMajorityEthnicity$WorkPlurality)
 ```
 
+```{r dataset}
+anova_dat <- full_2015_varOfInterest_withMajorityEthnicity %>% filter(EthnicPlurality!= "Error",
+                                                                 WorkPlurality!= "Error")
+```
+
+```{r Ethnic ANOVA}
+Ethnic_2015_anova = aov(IncomePerCap ~ EthnicPlurality, data = anova_dat)
+Ethnic_2015_anova
+names(Ethnic_2015_anova)
+summary(Ethnic_2015_anova)
+```
+
+```{r Ethnic Graph}
+ggplot(anova_dat, aes(x=EthnicPlurality, y=IncomePerCap)) + 
+  geom_boxplot(outlier.shape=8, outlier.size=4) +
+  labs(title="Income/Capita with Different Ethnic Majority", x="Ethnic Majority", y = "Income per Cap")
+```
+
+```{r Ethnic Tukey}
+TukeyHSD(Ethnic_2015_anova)
+```
+
+
+```{r Work ANOVA}
+Work_2015_anova = aov(IncomePerCap ~ WorkPlurality, data = anova_dat)
+Work_2015_anova
+names(Work_2015_anova)
+summary(Work_2015_anova)
+```
+
+```{r Work Graph}
+ggplot(anova_dat, aes(x=WorkPlurality, y=IncomePerCap)) + 
+  geom_boxplot(outlier.shape=8, outlier.size=4) +
+  labs(title="Income/Capita with Different Work Majority", x="Work Majority", y = "Income per Cap")
+```
+
+```{r Work Tukey}
+TukeyHSD(Work_2015_anova)
+```
+
+# Chi Squared Tests
+
 ```{r Chi Squared Test}
 loadPkg('sjPlot')
+loadPkg('visualize')
 
 chi_table_dat <- full_2015_varOfInterest_withMajorityEthnicity %>%
   select(c(WorkPlurality, EthnicPlurality)) %>% filter(WorkPlurality != "Error")
@@ -547,7 +655,38 @@ chi_table_dat %>%
        show.summary=T, show.exp=T, show.legend=T)
 
 chi.test <- chisq.test(full_2015_varOfInterest_withMajorityEthnicity$EthnicPlurality, full_2015_varOfInterest_withMajorityEthnicity$WorkPlurality)
-visualize.chisq(stat = 81698, df = 35, section = "upper")
 ```
 
-# Regressions
+# Forward Selection
+
+```{r}
+loadPkg('leaps')
+reg.forward10 <- regsubsets(IncomePerCap~. , data = full_2015_varOfInterest, nvmax = 17, nbest = 2, method = "forward")
+plot(reg.forward10, scale = "adjr2", main = "Adjusted R^2")
+plot(reg.forward10, scale = "bic", main = "BIC")
+plot(reg.forward10, scale = "Cp", main = "Cp")
+#summary(reg.forward10)
+```
+
+
+# Backward Selection
+
+Now backwards (`nvmax=10` and `nbest=2`)
+
+```{r}
+reg.back10 <- regsubsets(IncomePerCap~. , data = full_2015_varOfInterest, nvmax = 17, nbest = 2, method = "backward")
+plot(reg.back10, scale = "adjr2", main = "Adjusted R^2")
+plot(reg.back10, scale = "bic", main = "BIC")
+plot(reg.back10, scale = "Cp", main = "Cp")
+summary(reg.back10)
+```
+
+# Sequential Replacement seqrep  
+
+```{r}
+reg.seqrep <- regsubsets(IncomePerCap~. , data = full_2015_varOfInterest, nvmax = 17, nbest = 2 , method = "seqrep")
+plot(reg.seqrep, scale = "adjr2", main = "Adjusted R^2")
+plot(reg.seqrep, scale = "bic", main = "BIC")
+plot(reg.seqrep, scale = "Cp", main = "Cp")
+summary(reg.seqrep)
+```
