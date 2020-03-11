@@ -657,10 +657,39 @@ chi_table_dat %>%
 chi.test <- chisq.test(full_2015_varOfInterest_withMajorityEthnicity$EthnicPlurality, full_2015_varOfInterest_withMajorityEthnicity$WorkPlurality)
 ```
 
-# Forward Selection
+#Exhaustive Search
 
 ```{r}
 loadPkg('leaps')
+#This is essentially best fit 
+reg.best10 <- regsubsets(IncomePerCap~. , data = full_2015_varOfInterest, nvmax = 17)  
+plot(reg.best10, scale = "adjr2", main = "Adjusted R^2")
+plot(reg.best10, scale = "r2", main = "R^2")
+# In the "leaps" package, we can use scale=c("bic","Cp","adjr2","r2")
+plot(reg.best10, scale = "bic", main = "BIC")
+plot(reg.best10, scale = "Cp", main = "Cp")
+reg.summary<-summary(reg.best10)
+names(reg.best10)
+plot(reg.summary$rsq,xlab = "# of Varibales", ylab = "Rsquare", type = "l")
+plot(reg.summary$rss,xlab = "# of Varibales", ylab = "RSS", type = "l")
+#Adjusted R2
+which.max(reg.summary$adjr2)
+plot(reg.summary$adjr2,xlab = '# of Varibales', ylab = 'Adjusted Rsq', type = "l")
+points(12,reg.summary$adjr2[12],col = "red",cex = 2, pch =20)
+#CP
+which.min(reg.summary$cp)
+plot(reg.summary$cp,xlab = '# of Varibales', ylab = 'CP', type = "l")
+points(12,reg.summary$cp[12],col = "red",cex = 2, pch =20)
+#BIC
+which.min(reg.summary$bic)
+plot(reg.summary$bic,xlab = '# of Varibales', ylab = 'BIC', type = "l")
+points(10,reg.summary$bic[12],col = "red",cex = 2, pch =20)
+
+```
+
+# Forward Selection
+
+```{r}
 reg.forward10 <- regsubsets(IncomePerCap~. , data = full_2015_varOfInterest, nvmax = 17, nbest = 2, method = "forward")
 plot(reg.forward10, scale = "adjr2", main = "Adjusted R^2")
 plot(reg.forward10, scale = "bic", main = "BIC")
