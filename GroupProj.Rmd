@@ -107,6 +107,28 @@ full_2015_varOfInterest_withMajorityEthnicity$WorkPlurality <-
   as.factor(full_2015_varOfInterest_withMajorityEthnicity$WorkPlurality)
 ```
 
+```{r Chi Squared Test}
+loadPkg('sjPlot')
+
+chi_table_dat <- full_2015_varOfInterest_withMajorityEthnicity %>%
+  select(c(WorkPlurality, EthnicPlurality)) %>% filter(WorkPlurality != "Error")
+
+chi_table_dat %>%
+  sjtab(fun = "xtab", var.labels=c("Work", "Ethnicity"),
+       show.summary=T, show.exp=T, show.legend=T)
+
+chi_table_dat2 <- full_2015_varOfInterest_withMajorityEthnicity %>%
+  select(c(WorkPlurality, EthnicMajority)) %>% filter(WorkPlurality != "Error")
+
+chi_table_dat2 %>%
+  sjtab(fun = "xtab", var.labels=c("Work", "Ethnicity"),
+       show.summary=T, show.exp=T, show.legend=T)
+
+
+chi.test <- chisq.test(full_2015_varOfInterest_withMajorityEthnicity$EthnicPlurality, full_2015_varOfInterest_withMajorityEthnicity$WorkPlurality)
+visualize.chisq(stat = 81698, df = 35, section = "upper")
+```
+
 ```{r Load 2017 data}
 #Read in general census data
 census_2017 <- read.csv(file = 'acs2017_census_tract_data.csv') %>% mutate(CensusTract = TractId, TractId = NULL) %>% left_join(census_2015 %>% select(INTPTLAT, INTPTLONG, GEOID, CensusTract), by = 'CensusTract')
@@ -189,6 +211,7 @@ ggplot(full_2017_2, aes( x= INTPTLONG, y = INTPTLAT, color = Hispanic)) +
   labs (title="Scatter Plot: Spanish Ethnicity in 2017",
         x=" Latitude",
         y = "Longitude")
+
 
 ```
 

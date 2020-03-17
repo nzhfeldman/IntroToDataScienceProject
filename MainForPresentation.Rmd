@@ -1,0 +1,721 @@
+---
+title: "Group Project"
+author: "Dinesh Padmanabhan, Jake Lieberfarb,
+Luis Ahumada, Noah Feldman, Becca Blacker
+"
+date: "3/09/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = F, results = T, message = T)
+loadPkg = function(x) { if (!require(x,character.only=T, quietly =T)) { install.packages(x,dep=T,repos="http://cran.us.r-project.org"); if(!require(x,character.only=T)) stop("Package not found") } }
+```
+
+## Functions and Data Load
+
+```{r Functions}
+loadPkg = function(pkg, character.only = FALSE) { 
+  if (!character.only) { pkg <- as.character(substitute(pkg)) }
+  if (!require(pkg,character.only=T, quietly =T)) {  install.packages(pkg,dep=T,repos="http://cran.us.r-project.org"); if(!require(pkg,character.only=T)) stop("Package not found") } 
+}
+loadPkg(knitr)
+```
+
+```{r Remove Outliers}
+# Fix outliers
+
+outlierKD2 <- function(df, var, rm=FALSE) { 
+    #' Original outlierKD functino by By Klodian Dhana,
+    #' https://www.r-bloggers.com/identify-describe-plot-and-remove-the-outliers-from-the-dataset/
+    #' Modified to have third argument for removing outliers inwtead of interactive prompt, 
+    #' and after removing outlier, original df will not be changed. The function returns the new df, 
+    #' which can be saved as original df name if desired.
+    #' Check outliers, and option to remove them, save as a new dataframe. 
+    #' @param df The dataframe.
+    #' @param var The variable in the dataframe to be checked for outliers
+    #' @param rm Boolean. Whether to remove outliers or not.
+    #' @return The dataframe with outliers replaced by NA if rm==TRUE, or df if nothing changed
+    #' @examples
+    #' outlierKD2(mydf, height, FALSE)
+    #' mydf = outlierKD2(mydf, height, TRUE)
+    #' mydfnew = outlierKD2(mydf, height, TRUE)
+    dt = df # duplicate the dataframe for potential alteration
+    var_name <- eval(substitute(var),eval(dt))
+    na1 <- sum(is.na(var_name))
+    m1 <- mean(var_name, na.rm = T)
+    par(mfrow=c(2, 2), oma=c(0,0,3,0))
+    boxplot(var_name, main="With outliers")
+    hist(var_name, main="With outliers", xlab=NA, ylab=NA)
+    outlier <- boxplot.stats(var_name)$out
+    mo <- mean(outlier)
+    var_name <- ifelse(var_name %in% outlier, NA, var_name)
+    boxplot(var_name, main="Without outliers")
+    hist(var_name, main="Without outliers", xlab=NA, ylab=NA)
+    title("Outlier Check", outer=TRUE)
+    na2 <- sum(is.na(var_name))
+    cat("Outliers identified:", na2 - na1, "\n")
+    cat("Propotion (%) of outliers:", round((na2 - na1) / sum(!is.na(var_name))*100, 1), "\n")
+    cat("Mean of the outliers:", round(mo, 2), "\n")
+    m2 <- mean(var_name, na.rm = T)
+    cat("Mean without removing outliers:", round(m1, 2), "\n")
+    cat("Mean if we remove outliers:", round(m2, 2), "\n")
+    
+    # response <- readline(prompt="Do you want to remove outliers and to replace with NA? [yes/no]: ")
+    # if(response == "y" | response == "yes"){
+    if(rm){
+        dt[as.character(substitute(var))] <- invisible(var_name)
+        #assign(as.character(as.list(match.call())$dt), dt, envir = .GlobalEnv)
+        cat("Outliers successfully removed", "\n")
+        return(invisible(dt))
+    } else {
+        cat("Nothing changed", "\n")
+        return(invisible(df))
+    }
+}
+
+```
+
+```{r Load 2015 data}
+loadPkg('dplyr')
+loadPkg('readxl')
+loadPkg('readr')
+
+#Read in general census data
+census_2015 <- read.csv(file = 'acs2015updated.csv')
+
+#Read in Specifically Education Data
+edu_data_2015 <- read_csv("ACS_15_5YR_B15003_renamed.csv", skip = 1) %>% mutate(Id2 = as.numeric(Id2))
+
+#Read in Freedom Data
+freedom <- read_excel("Freedom_In_The_50_States_2018.xlsx", sheet = "Overall")
+
+#Combine
+census_edu_2015 <- left_join(census_2015, edu_data_2015, by = c("CensusTract" = "Id2"))
+full_2015 <- full_join(census_edu_2015, freedom %>% filter(Year == 2015), by = "State") 
+
+#For the education data, we will need to divide the count by the total
+full_2015_eduProp <- full_2015 %>% mutate(PropHighSchool = EstHighSchool/EstTotal,
+                                          PropBachelors = EstBachelors/EstTotal,
+                                          PropDoctorate = EstDoctorate/EstTotal)
+full_2015_varOfInterest <- full_2015 %>%  select(IncomePerCap,Hispanic:Asian,Professional:Production, SelfEmployed, Unemployment, FiscalPolicy,EconomicFreedom, RegulatoryPolicy, PersonalFreedom, OverallFreedom)
+
+```
+
+# "First Attempts" Geo Plots
+
+```{r geo scatter}
+full_2015_2 <- subset(full_2015, INTPTLONG > -150 & INTPTLONG < -50 & INTPTLAT > 24 & INTPTLAT < 50) 
+
+
+loadPkg("ggplot2")
+ggplot(full_2015_2, aes( x= INTPTLONG, y = INTPTLAT, color = Hispanic)) + 
+  geom_point(size=0.005) + scale_color_gradient(low="orange", high="red") +
+  labs (title="Scatter Plot: Spanish Ethnicity in 2015",
+        x=" Latitude",
+        y = "Longitude")
+
+ggplot(full_2015_eduProp, aes( x= Professional, y = IncomePerCap, color = State == "New York", size = TotalPop)) +
+  geom_point() +
+  labs (title="Scatter Plot: IncomePerCap and Work type: Professional",
+        x="Professional (% of pop in census tract)",
+        y = "IncomePerCap")
+```
+# Population Histogram and QQ
+
+```{r population}
+loadPkg("ggplot2")
+
+# NA's
+dat0<-full_2015[!is.na(full_2015$IncomePerCap),]
+sum(is.na(dat0$IncomePerCap))
+
+#removed outliers 
+dat1 <- outlierKD2(dat0, IncomePerCap, TRUE)
+#Histogram of dependent variable
+hist(dat1$TotalPop, 
+        col = "#a8c2fb",
+        main = "population Count",
+        xlab = "US Dollars")
+
+#ggplot
+qqnorm(dat1$TotalPop, main="Q-Q plot of TotalPop")
+qqline(dat1$TotalPop)
+
+#Mean after removing NA's
+format(mean(dat1$TotalPop, na.rm = TRUE))
+
+#Summary after removing NA's
+summary(dat1$TotalPop)
+#standard deviation
+sd(dat1$TotalPop, na.rm = TRUE)
+
+```
+
+# Income Histogram and QQ
+
+```{r income including outliers}
+#Histogram of dependent variable
+hist(dat0$IncomePerCap, 
+        col = "#a8c2fb",
+        main = "Income per Capita",
+        xlab = "US Dollars")
+
+#ggplot
+qqnorm(dat0$IncomePerCap, main="Q-Q plot of IncomePerCap")
+qqline(dat0$IncomePerCap)
+
+#Mean after removing NA's
+format(mean(dat0$IncomePerCap, na.rm = TRUE))
+
+#Summary after removing NA's
+summary(dat0$IncomePerCap)
+#standard deviation
+sd(dat0$IncomePerCap, na.rm = TRUE)
+```
+
+```{r income no outliers}
+#Histogram of dependent variable
+hist(dat1$IncomePerCap, 
+        col = "#a8c2fb",
+        main = "Income per Capita",
+        xlab = "US Dollars")
+
+#ggplot
+qqnorm(dat1$IncomePerCap, main="Q-Q plot of IncomePerCap")
+qqline(dat1$IncomePerCap)
+
+#Mean after removing NA's
+format(mean(dat1$IncomePerCap, na.rm = TRUE))
+
+#Summary after removing NA's
+summary(dat1$IncomePerCap)
+#standard deviation
+sd(dat1$IncomePerCap, na.rm = TRUE)
+```
+
+# EDA By Group
+
+
+```{r Freedom scores}
+loadPkg("dvmisc")
+#Group by Economic Freedom
+GroupEF <- quant_groups(dat1$EconomicFreedom, 4)
+str(GroupEF)
+
+#Boxplot of IncomePerCap by Economic Freedom
+plot(IncomePerCap ~ GroupEF, data=dat1, main="IncomePerCap and GroupEF", col=c("#ffd18b","#ffb76d","#ffa264", "#ff875f") )
+summary(dat1$EconomicFreedom)
+
+#Histogram of Economic Freedom
+hist(dat1$EconomicFreedom, 
+        col = "#ffd18b",
+        main = "Economic Freedom")
+
+#qqplot of Econoimc Freedom
+qqnorm(dat1$EconomicFreedom, main="Q-Q plot of Economic Freedom")
+qqline(dat1$EconomicFreedom)
+
+
+#Group by PersonalFreedom
+GroupPF <- quant_groups(dat1$PersonalFreedom, 4)
+str(GroupPF)
+
+#Boxplot of IncomePerCap by Personal Freedom
+plot(IncomePerCap ~ GroupPF, data=dat1, main="IncomePerCap and GroupPF", col=c("#BFBFFF","#A3A3FF", "#7879FF", "#4949FF") )
+summary(dat1$PersonalFreedom)
+
+#Histogram of Personal Freedom
+hist(dat1$PersonalFreedom, 
+        col = "#A3A3FF",
+        main = "Personal Freedom")
+
+#qqplot of Personal Freedom
+qqnorm(dat1$PersonalFreedom, main="Q-Q plot of Personal Freedom")
+qqline(dat1$PersonalFreedom)
+
+#Group by Regulatory Policy
+GroupRP <- quant_groups(dat1$RegulatoryPolicy, 4)
+str(GroupRP)
+
+#Boxplot of IncomePerCap by Regulatory Policy
+plot(IncomePerCap ~ GroupRP, data=dat1, main="IncomePerCap and GroupRP", col=c("#FFDF01","#FED901", "#FFCF00", "#FEC300") )
+summary(dat1$RegulatoryPolicy)
+
+#Histogram of Regulatory Policy
+hist(dat1$RegulatoryPolicy, 
+        col = "#FFDF01",
+        main = "Regulatory Policy ")
+
+#qqplot of Regulatory Policy
+qqnorm(dat1$RegulatoryPolicy, main="Q-Q plot of Regulatory Policy")
+qqline(dat1$RegulatoryPolicy)
+
+
+#Group by Fiscal Policy
+GroupFP <- quant_groups(dat1$FiscalPolicy, 4)
+str(GroupFP)
+#Boxplot of IncomePerCap by Fiscal Policy
+plot(IncomePerCap ~ GroupFP, data=dat1, main="IncomePerCap and GroupFP", col=c("#7EFFD4","#70EBBA", "#64D8A7", "#58BD95") )
+summary(dat1$FiscalPolicy)
+
+#Histogram of Fiscal Policy
+hist(dat1$FiscalPolicy, 
+        col = "#7EFFD4",
+        main = "Fiscal Policy")
+
+#qqplot of Fiscal Policy
+qqnorm(dat1$FiscalPolicy, main="Q-Q plot of Fiscal Policy")
+qqline(dat1$FiscalPolicy)
+
+#Group by Overall Freedom
+GroupOF <- quant_groups(dat1$OverallFreedom, 4)
+str(GroupOF)
+#Boxplot of IncomePerCap by Overall Freedom
+plot(IncomePerCap ~ GroupOF, data=dat1, main="IncomePerCap and GroupOF", col=c("#C0C6CB","#98A5C0", "#7688BB", "#536CB5") )
+summary(dat1$OverallFreedom)
+
+#Histogram of Overall Freedom
+hist(dat1$OverallFreedom, 
+        col = "#A3A3FF",
+        main = "Overall Freedom")
+
+#qqplot of Overall Freedom
+qqnorm(dat1$OverallFreedom, main="Q-Q plot of Overall Freedom")
+qqline(dat1$OverallFreedom)
+```
+
+```{r Work variations}
+#Group by Unemployment
+GroupUnemployment <- quant_groups(dat1$Unemployment, 4)
+str(GroupUnemployment)
+#Boxplot of IncomePerCap by Unemployment
+plot(IncomePerCap ~ GroupUnemployment, data=dat1, main="IncomePerCap and GroupUnemployment", col=c("#FFF57B","#FFE469", "#FECC51", "#FCB033") )
+summary(dat1$Unemployment)
+
+#Histogram of Unemployment
+hist(dat1$Unemployment, 
+        col = "#A3A3FF",
+       )
+
+#qqplot of Unemployment Unemployment
+qqnorm(dat1$Unemployment, main="Q-Q plot of Unemployment")
+qqline(dat1$Unemployment)
+
+#Group by Professional
+GroupProfessional <- quant_groups(dat1$Professional, 4)
+str(GroupProfessional)
+#Boxplot of IncomePerCap by Professional
+plot(IncomePerCap ~ GroupProfessional, data=dat1, main="IncomePerCap and GroupProfessional", col=c("#F3D8F2","#E6B2E4", "#D88DD5", "#CA68C7") )
+summary(dat1$Professional)
+
+#Histogram of Professional
+hist(dat1$Professional, 
+        col = "#D88DD5",
+        main = "Professional")
+
+#qqplot of Professional
+qqnorm(dat1$Professional, main="Q-Q plot of Professional")
+qqline(dat1$Professional)
+
+
+#Group by Office
+GroupOffice <- quant_groups(dat1$Office, 4)
+str(GroupOffice)
+#Boxplot of IncomePerCap by Office
+plot(IncomePerCap ~ GroupOffice, data=dat1, main="IncomePerCap and GroupOffice", col=c("#D1FFD5","#B4FFB2", "#98FF98", "#79F58A") )
+summary(dat1$Office)
+#Histogram of Office
+hist(dat1$Office, 
+        col = "#FECC51",
+        main = "Office")
+
+#qqplot of Office
+qqnorm(dat1$Office, main="Q-Q plot of Office")
+qqline(dat1$Office)
+
+
+#Group by Service
+GroupService <- quant_groups(dat1$Service, 4)
+str(GroupService)
+#Boxplot of IncomePerCap by Service
+plot(IncomePerCap ~ GroupService, data=dat1, main="IncomePerCap and GroupService", col=c("#E0BCBF","#D8ABB1", "#CF989F", "#C0838C") )
+summary(dat1$Service)
+
+#Histogram of Service
+hist(dat1$Service, 
+        col = "#79F58A",
+        main = "Service")
+
+#qqplot of Service
+qqnorm(dat1$Service, main="Q-Q plot of Service")
+qqline(dat1$Service)
+
+#Group by Construction
+GroupConstruction <- quant_groups(dat1$Construction, 4)
+str(GroupConstruction)
+#Boxplot of IncomePerCap by Construction
+plot(IncomePerCap ~ GroupConstruction, data=dat1, main="IncomePerCap and GroupConstruction", col=c("#A9AB98","#949180", "#7D7968", "#5E594F") )
+summary(dat1$Construction)
+#Histogram of Construciton
+hist(dat1$Construction, 
+        col = "#C0838C",
+        main = "Construction")
+
+#qqplot of Construction
+qqnorm(dat1$Construction, main="Q-Q plot of Construction")
+qqline(dat1$Construction)
+
+#Group by Production
+GroupProduction <- quant_groups(dat1$Production, 4)
+str(GroupProduction)
+#Boxplot of IncomePerCap by Production
+plot(IncomePerCap ~ GroupProduction, data=dat1, main="IncomePerCap and Production", col=c("#F3D8F2","#E6B2E4", "#D88DD5", "#CA68C7") )
+summary(dat1$Production)
+#Histogram of Producrtion
+hist(dat1$Production, 
+        col = "#E6B2E4",
+        main = "Production")
+
+#qqplot of Production
+qqnorm(dat1$Production, main="Q-Q plot of Production")
+qqline(dat1$Production)
+
+#Group by Self-Employed
+GroupProduction <- quant_groups(dat1$SelfEmployed, 4)
+str(GroupProduction)
+#Boxplot of IncomePerCap by Selfemployed
+plot(IncomePerCap ~ GroupProduction, data=dat1, main="IncomePerCap and Selfemployed", col=c("#F3D8F2","#E6B2E4", "#D88DD5", "#CA68C7") )
+summary(dat1$SelfEmployed)
+#Histogram of Self Employed
+hist(dat1$SelfEmployed, 
+        col = "#E6B2E4",
+        main = "Production")
+
+#qqplot of Self employed
+qqnorm(dat1$SelfEmployed, main="Q-Q plot of Selfemployed")
+qqline(dat1$SelfEmployed)
+```
+
+```{r  Ethnic Variatons}
+#Group by Black
+GroupBlack <- quant_groups(dat1$Black, 4)
+str(GroupBlack)
+#Boxplot of IncomePerCap by Black Population
+plot(IncomePerCap ~ GroupBlack, data=dat1, main="IncomePerCap and GroupBlack", col=c("#d0dfff","#a8c2fb", "#86abf9", "#6893ee") )
+summary(dat1$Black)
+
+#Histogram of Black
+hist(dat1$Black, 
+        col = "#d0dfff",
+        main = "Black")
+
+#qqplot of Black
+qqnorm(dat1$Black, main="Q-Q plot of Black")
+qqline(dat1$Black)
+
+#Group by Hispanic
+GroupHispanic <- quant_groups(dat1$Hispanic, 4)
+str(GroupHispanic)
+#Boxplot of IncomePerCap by Hispanic Population
+plot(IncomePerCap ~ GroupHispanic, data=dat1, main="IncomePerCap and GroupHispanic", col=c("#F6BDC0","#F1959B", "#F07470", "#EA4C46") )
+summary(dat1$Hispanic)
+#Histogram of Hispanic
+hist(dat1$Hispanic, 
+        col = "#EA4C46",
+        main = "Hispanic")
+
+#qqplot of Hispanic
+qqnorm(dat1$Hispanic, main="Q-Q plot of Hspanic")
+qqline(dat1$Hispanic)
+
+#Group by Asians
+GroupAsian <- quant_groups(dat1$Asian, 3)
+str(GroupAsian)
+#Boxplot of IncomePerCap by Asian Population
+plot(IncomePerCap ~ GroupAsian, data=dat1, main="IncomePerCap and GroupAsian", col=c("#FFE6C8","#FFCCBE", "#EFABA0", "#D6806F") )
+summary(dat1$Asian)
+#Histogram of Asian
+hist(dat1$Asian, 
+        col = "#FFE6C8",
+        main = "Asian")
+
+#qqplot of Asian
+qqnorm(dat1$Asian, main="Q-Q plot of Asian")
+qqline(dat1$Asian)
+
+#Group by White
+GroupWhite <- quant_groups(dat1$White, 4)
+str(GroupWhite)
+#Boxplot of IncomePerCap by White Population
+plot(IncomePerCap ~ GroupWhite, data=dat1, main="IncomePerCap and GroupWhite", col=c("#F5F8FA", "#EFF2F4", "#EAEDEF", "#E0E3E5") )
+summary(dat1$White)
+#Histogram of White
+hist(dat1$White, 
+        col = "#F5F8FA",
+        main = "White")
+
+#qqplot of White
+qqnorm(dat1$White, main="Q-Q plot of White")
+qqline(dat1$White)
+
+
+
+```
+
+# Correlations
+
+
+```{r DF and cor Setup}
+full_2015_cor <- cor(full_2015_varOfInterest, use = "complete.obs")
+
+loadPkg("corrplot")
+corrplot(full_2015_cor)
+```
+
+
+```{r Subsetting}
+Freedom_2015 <- subset(full_2015_varOfInterest, select = c(IncomePerCap, OverallFreedom, EconomicFreedom, PersonalFreedom, RegulatoryPolicy, FiscalPolicy))
+
+Work_2015 <- subset(full_2015_varOfInterest, select = c(IncomePerCap, Professional, Service, Office, Construction, Production, SelfEmployed, Unemployment))
+
+Ethnic_2015 <- subset(full_2015_varOfInterest, select = c(IncomePerCap, Hispanic, White, Black, Native, Asian))
+```
+
+
+```{r Cor w/i Freedom}
+Freedom_2015_cor <- cor(Freedom_2015, use = "complete.obs")
+#corrplot(Freedom_2015_cor)
+corrplot.mixed(Freedom_2015_cor, tl.pos = "lt")
+```
+
+
+```{r Cor w/i Work}
+Work_2015_cor <- cor(Work_2015, use = "complete.obs")
+#corrplot(Work_2015_cor)
+corrplot.mixed(Work_2015_cor, tl.pos = "lt")
+```
+
+
+```{r Cor w/i Ethnic Background}
+Ethnic_2015_cor <- cor(Ethnic_2015, use = "complete.obs")
+#corrplot(Ethnic_2015_cor)
+corrplot.mixed(Ethnic_2015_cor, tl.pos = "lt")
+```
+
+# Scatter PLots
+
+```{r}
+ggplot(dat1, aes( x= Professional, y = IncomePerCap, color = White)) + 
+  geom_point(size=0.1) + geom_smooth(method='lm', formula= IncomerPerCap~Professional) +
+  labs (title="Scatter Plot of IncomePerCap and Professional",
+        x="Professional",
+        y = "IncomePerCap")
+
+ggplot(dat1, aes( x= Unemployment, y = IncomePerCap, color = White)) + 
+  geom_point(size=0.1) + geom_smooth(method='lm', formula= IncomerPerCap~Unemployment) +
+  labs (title="Scatter Plot of IncomePerCap and Unemployment",
+        x="Unemployment",
+        y = "IncomePerCap")
+
+
+ggplot(dat1, aes( x= Service, y = IncomePerCap, color = White)) + 
+  geom_point(size=0.1) + geom_smooth(method='lm', formula= IncomerPerCap~Service) +
+  labs (title="Scatter Plot of IncomePerCap and Service",
+        x="Service",
+        y = "IncomePerCap")
+
+
+ggplot(dat1, aes( x= EconomicFreedom, y = IncomePerCap, color = White)) + 
+  geom_point(size=0.1) + geom_smooth(method='lm', formula= IncomerPerCap~EconomicFreedom) +
+  labs (title="Scatter Plot of IncomePerCap and EconomicFreedom",
+        x="EconomicFreedom",
+        y = "IncomePerCap")
+```
+
+
+# ANOVA
+
+```{r Majority Ethnicities Dataset}
+#' @title Returns the max value of each row of a data.frame or matrix
+#'
+#' @description
+#' Returns maximum value of each row of a data.frame or matrix.
+#' @param df Data.frame or matrix, required.
+#' @param na.rm Logical value, optional, TRUE by default. Defines whether NA values should be removed first. Otherwise result will be NA when any NA is in the given vector.
+#' @return Returns a vector of numbers of length equal to number of rows in df.
+#' @template maxmin
+#' @export
+rowMaxs <- function(df, na.rm=TRUE) {
+
+  if (is.matrix(df)) {df <- data.frame(df, stringsAsFactors=FALSE, drop = FALSE)}
+
+  valid.cols <- sapply(df, function(x) { is.numeric(x) || is.logical(x) || is.character(x)})
+  stopifnot(any(valid.cols))
+  # or could just return NA?:
+  # if (!any(valid.cols)) {return(NA)}
+  if (any(!valid.cols) ) {warning('using only numeric (double or integer) or logical or character columns -- ignoring other columns ')}
+
+  result <- do.call(pmax, c(df[ , valid.cols, drop = FALSE], na.rm=na.rm))
+
+  result[nononmissing <- rowSums(!is.na(df[ , valid.cols, drop = FALSE]))==0] <- -Inf
+  if (any(nononmissing)) {warning('where no non-missing arguments, returning -Inf')}
+  return(result)
+
+  # df = data.frame of numeric values, i.e. a list of vectors passed to pmax
+  # Value returned is vector, each element is max of a row of df
+}
+
+full_2015_varOfInterest1 <- full_2015_varOfInterest %>% mutate(EthnicMajority = case_when(
+  White >= 50 ~ "White",
+  Hispanic >= 50 ~ "Hispanic",
+  Black >= 50 ~ "Black",
+  Native >= 50 ~ "Native",
+  Asian >= 50 ~ "Asian",
+  TRUE ~ "Diverse"))
+EthnicityMaxes <- rowMaxs(full_2015_varOfInterest1 %>%  select(White, Hispanic, Black, Native, Asian))
+WorkMaxes <- rowMaxs(full_2015_varOfInterest1 %>%  select(Professional:Unemployment))
+full_2015_varOfInterest2 <- cbind(full_2015_varOfInterest1, EthnicityMaxes, WorkMaxes)
+
+full_2015_varOfInterest_withMajorityEthnicity <- full_2015_varOfInterest2 %>% mutate(EthnicPlurality = case_when(
+  White == EthnicityMaxes ~ "White",
+  Hispanic == EthnicityMaxes ~ "Hispanic",
+  Black == EthnicityMaxes ~ "Black",
+  Native == EthnicityMaxes ~ "Native",
+  Asian == EthnicityMaxes ~ "Asian",
+  TRUE ~ "Error"),
+  WorkPlurality = case_when(
+  Professional == WorkMaxes ~ "Professional",
+  Service == WorkMaxes ~ "Service",
+  Office == WorkMaxes ~ "Office",
+  Construction == WorkMaxes ~ "Construction",
+  Production == WorkMaxes ~ "Production",
+  SelfEmployed == WorkMaxes ~ "SelfEmployed",
+  Unemployment == WorkMaxes ~ "Unemployment",
+  TRUE ~ "Error"))
+full_2015_varOfInterest_withMajorityEthnicity$EthnicMajority <-
+  as.factor(full_2015_varOfInterest_withMajorityEthnicity$EthnicMajority)
+full_2015_varOfInterest_withMajorityEthnicity$EthnicPlurality <-
+  as.factor(full_2015_varOfInterest_withMajorityEthnicity$EthnicPlurality)
+full_2015_varOfInterest_withMajorityEthnicity$WorkPlurality <-
+  as.factor(full_2015_varOfInterest_withMajorityEthnicity$WorkPlurality)
+```
+
+```{r dataset}
+anova_dat <- full_2015_varOfInterest_withMajorityEthnicity %>% filter(EthnicPlurality!= "Error",
+                                                                 WorkPlurality!= "Error")
+```
+
+```{r Ethnic ANOVA}
+Ethnic_2015_anova = aov(IncomePerCap ~ EthnicPlurality, data = anova_dat)
+Ethnic_2015_anova
+names(Ethnic_2015_anova)
+summary(Ethnic_2015_anova)
+```
+
+```{r Ethnic Graph}
+ggplot(anova_dat, aes(x=EthnicPlurality, y=IncomePerCap)) + 
+  geom_boxplot(outlier.shape=8, outlier.size=4) +
+  labs(title="Income/Capita with Different Ethnic Majority", x="Ethnic Majority", y = "Income per Cap")
+```
+
+```{r Ethnic Tukey}
+TukeyHSD(Ethnic_2015_anova)
+```
+
+
+```{r Work ANOVA}
+Work_2015_anova = aov(IncomePerCap ~ WorkPlurality, data = anova_dat)
+Work_2015_anova
+names(Work_2015_anova)
+summary(Work_2015_anova)
+```
+
+```{r Work Graph}
+ggplot(anova_dat, aes(x=WorkPlurality, y=IncomePerCap)) + 
+  geom_boxplot(outlier.shape=8, outlier.size=4) +
+  labs(title="Income/Capita with Different Work Majority", x="Work Majority", y = "Income per Cap")
+```
+
+```{r Work Tukey}
+TukeyHSD(Work_2015_anova)
+```
+
+# Chi Squared Tests
+
+```{r Chi Squared Test}
+loadPkg('sjPlot')
+loadPkg('visualize')
+
+chi_table_dat <- full_2015_varOfInterest_withMajorityEthnicity %>%
+  select(c(WorkPlurality, EthnicPlurality)) %>% filter(WorkPlurality != "Error")
+
+chi_table_dat %>%
+  sjtab(fun = "xtab", var.labels=c("Work", "Ethnicity"),
+       show.summary=T, show.exp=T, show.legend=T)
+
+chi.test <- chisq.test(full_2015_varOfInterest_withMajorityEthnicity$EthnicPlurality, full_2015_varOfInterest_withMajorityEthnicity$WorkPlurality)
+```
+
+#Exhaustive Search
+
+```{r}
+loadPkg('leaps')
+#This is essentially best fit 
+reg.best10 <- regsubsets(IncomePerCap~. , data = full_2015_varOfInterest, nvmax = 17)  
+plot(reg.best10, scale = "adjr2", main = "Adjusted R^2")
+plot(reg.best10, scale = "r2", main = "R^2")
+# In the "leaps" package, we can use scale=c("bic","Cp","adjr2","r2")
+plot(reg.best10, scale = "bic", main = "BIC")
+plot(reg.best10, scale = "Cp", main = "Cp")
+reg.summary<-summary(reg.best10)
+names(reg.best10)
+plot(reg.summary$rsq,xlab = "# of Varibales", ylab = "Rsquare", type = "l")
+plot(reg.summary$rss,xlab = "# of Varibales", ylab = "RSS", type = "l")
+#Adjusted R2
+which.max(reg.summary$adjr2)
+plot(reg.summary$adjr2,xlab = '# of Varibales', ylab = 'Adjusted Rsq', type = "l")
+points(12,reg.summary$adjr2[12],col = "red",cex = 2, pch =20)
+#CP
+which.min(reg.summary$cp)
+plot(reg.summary$cp,xlab = '# of Varibales', ylab = 'CP', type = "l")
+points(12,reg.summary$cp[12],col = "red",cex = 2, pch =20)
+#BIC
+which.min(reg.summary$bic)
+plot(reg.summary$bic,xlab = '# of Varibales', ylab = 'BIC', type = "l")
+points(10,reg.summary$bic[12],col = "red",cex = 2, pch =20)
+
+```
+
+# Forward Selection
+
+```{r}
+reg.forward10 <- regsubsets(IncomePerCap~. , data = full_2015_varOfInterest, nvmax = 17, nbest = 2, method = "forward")
+plot(reg.forward10, scale = "adjr2", main = "Adjusted R^2")
+plot(reg.forward10, scale = "bic", main = "BIC")
+plot(reg.forward10, scale = "Cp", main = "Cp")
+#summary(reg.forward10)
+```
+
+
+# Backward Selection
+
+Now backwards (`nvmax=10` and `nbest=2`)
+
+```{r}
+reg.back10 <- regsubsets(IncomePerCap~. , data = full_2015_varOfInterest, nvmax = 17, nbest = 2, method = "backward")
+plot(reg.back10, scale = "adjr2", main = "Adjusted R^2")
+plot(reg.back10, scale = "bic", main = "BIC")
+plot(reg.back10, scale = "Cp", main = "Cp")
+summary(reg.back10)
+```
+
+# Sequential Replacement seqrep  
+
+```{r}
+reg.seqrep <- regsubsets(IncomePerCap~. , data = full_2015_varOfInterest, nvmax = 17, nbest = 2 , method = "seqrep")
+plot(reg.seqrep, scale = "adjr2", main = "Adjusted R^2")
+plot(reg.seqrep, scale = "bic", main = "BIC")
+plot(reg.seqrep, scale = "Cp", main = "Cp")
+summary(reg.seqrep)
+```
