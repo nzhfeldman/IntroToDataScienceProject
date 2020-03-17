@@ -133,7 +133,7 @@ loadPkg("ggplot2")
 #Histogram of dependent variable
 hist(dat1$TotalPop, 
         col = "#a8c2fb",
-        main = "population Count",
+        main = "Population Count",
         xlab = "US Dollars")
 
 #ggplot
