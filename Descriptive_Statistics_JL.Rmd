@@ -133,7 +133,7 @@ loadPkg("ggplot2")
 #Histogram of dependent variable
 hist(dat1$TotalPop, 
         col = "#a8c2fb",
-        main = "population Count",
+        main = "Population Count",
         xlab = "US Dollars")
 
 #ggplot
@@ -188,7 +188,7 @@ str(GroupEF)
 
 #Boxplot of IncomePerCap by Economic Freedom
 plot(IncomePerCap ~ GroupEF, data=dat1, main="IncomePerCap and GroupEF", col=c("#ffd18b","#ffb76d","#ffa264", "#ff875f") )
-summary(full_2017IPC$EconomicFreedom)
+summary(dat1$EconomicFreedom)
 
 #Histogram of Economic Freedom
 hist(dat1$EconomicFreedom, 
@@ -414,10 +414,10 @@ qqnorm(dat1$Hispanic, main="Q-Q plot of Hspanic")
 qqline(dat1$Hispanic)
 
 #Group by Asians
-GroupAsian <- quant_groups(dat1$Asian, 3)
+GroupAsian <- quant_groups(dat1$Asian, 4)
 str(GroupAsian)
 #Boxplot of IncomePerCap by Asian Population
-plot(IncomePerCap ~ GroupAsian, data=dat1, main="IncomePerCap and GroupAsian", col=c("#FFE6C8","#FFCCBE", "#EFABA0", "#D6806F") )
+plot(IncomePerCap ~ GroupAsian, data=dat1, main="IncomePerCap and GroupAsian", col=c("#FFE6C8","#FFCCBE", "#EFABA0" ) )
 summary(dat1$Asian)
 #Histogram of Asian
 hist(dat1$Asian, 
@@ -443,6 +443,22 @@ hist(dat1$White,
 qqnorm(dat1$White, main="Q-Q plot of White")
 qqline(dat1$White)
 
+#Group by native
+#GroupNative1<-dat1[-order(dat1$Native),]
+#order(x, decreasing=TRUE)
+#GroupNative <- quant_groups(dat1$Native, 4)
+#str(GroupNative)
+#Boxplot of IncomePerCap by White Population
+#plot(IncomePerCap ~ GroupNative, data=dat1, main="IncomePerCap and GroupNative", col=c("#A9AB98","#949180", "#7D7968", "#5E594F") )
+summary(dat1$Native)
+#Histogram of Native
+hist(dat1$Native, 
+        col = "#949180",
+        main = "Native")
+
+#qqplot of Native
+qqnorm(dat1$Native, main="Q-Q plot of Native")
+qqline(dat1$Native)
 
 
 ```
