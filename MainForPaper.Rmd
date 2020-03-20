@@ -406,7 +406,8 @@ qqnorm(dat1$SelfEmployed, main="Q-Q plot of Selfemployed")
 qqline(dat1$SelfEmployed)
 ```
 
-```{r  Ethnic Variatons} 
+```{r  Ethnic Variatons}
+loadPkg("dvmisc")
 #Group by Black
 GroupBlack <- quant_groups(dat1$Black, 4)
 str(GroupBlack)
@@ -439,7 +440,7 @@ qqnorm(dat1$Hispanic, main="Q-Q plot of Hspanic")
 qqline(dat1$Hispanic)
 
 #Group by Asians
-GroupAsian <- quant_groups(dat1$Asian, 3)
+GroupAsian <- quant_groups(dat1$Asian, 4)
 str(GroupAsian)
 #Boxplot of IncomePerCap by Asian Population
 plot(IncomePerCap ~ GroupAsian, data=dat1, main="IncomePerCap and GroupAsian", col=c("#FFE6C8","#FFCCBE", "#EFABA0", "#D6806F") )
@@ -468,6 +469,21 @@ hist(dat1$White,
 qqnorm(dat1$White, main="Q-Q plot of White")
 qqline(dat1$White)
 
+#Group by native
+#GroupNative <- quant_groups(dat1$Native, 4)
+#str(GroupNative)
+
+#Boxplot of IncomePerCap by Native Population
+#plot(IncomePerCap ~ GroupNative, data=dat1, main="IncomePerCap and GroupNative", col=c("#F3D8F2","#E6B2E4", "#D88DD5", "#CA68C7") )
+summary(dat1$Native)
+#Histogram of Native
+hist(dat1$Native, 
+        col = "#F5F8FA",
+        main = "Native")
+
+#qqplot of White
+qqnorm(dat1$Native, main="Q-Q plot of Native")
+qqline(dat1$Native)
 
 
 ```
