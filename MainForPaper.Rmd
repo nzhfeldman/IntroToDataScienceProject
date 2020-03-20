@@ -12,9 +12,8 @@ knitr::opts_chunk$set(warning = F, results = T, message = T)
 loadPkg = function(x) { if (!require(x,character.only=T, quietly =T)) { install.packages(x,dep=T,repos="http://cran.us.r-project.org"); if(!require(x,character.only=T)) stop("Package not found") } }
 ```
 
-## Functions and Data Load
 
-```{r Functions}
+```{r Functions} 
 loadPkg = function(pkg, character.only = FALSE) { 
   if (!character.only) { pkg <- as.character(substitute(pkg)) }
   if (!require(pkg,character.only=T, quietly =T)) {  install.packages(pkg,dep=T,repos="http://cran.us.r-project.org"); if(!require(pkg,character.only=T)) stop("Package not found") } 
@@ -22,7 +21,7 @@ loadPkg = function(pkg, character.only = FALSE) {
 loadPkg(knitr)
 ```
 
-```{r Remove Outliers}
+```{r Remove Outliers} 
 # Fix outliers
 
 outlierKD2 <- function(df, var, rm=FALSE) { 
@@ -44,7 +43,7 @@ outlierKD2 <- function(df, var, rm=FALSE) {
     var_name <- eval(substitute(var),eval(dt))
     na1 <- sum(is.na(var_name))
     m1 <- mean(var_name, na.rm = T)
-    par(mfrow=c(2, 2), oma=c(0,0,3,0))
+    #par(mfrow=c(2, 2), oma=c(0,0,3,0))
     boxplot(var_name, main="With outliers")
     hist(var_name, main="With outliers", xlab=NA, ylab=NA)
     outlier <- boxplot.stats(var_name)$out
@@ -102,9 +101,16 @@ full_2015_varOfInterest <- full_2015 %>%  select(IncomePerCap,Hispanic:Asian,Pro
 
 ```
 
-# "First Attempts" Geo Plots
+# Introduction
 
-```{r geo scatter}
+
+# Dataset 
+
+# Description of Variables
+
+## "First Attempts" Geo Plots
+
+```{r geo scatter} 
 full_2015_2 <- subset(full_2015, INTPTLONG > -150 & INTPTLONG < -50 & INTPTLAT > 24 & INTPTLAT < 50) 
 
 
@@ -121,9 +127,12 @@ ggplot(full_2015_eduProp, aes( x= Professional, y = IncomePerCap, color = State 
         x="Professional (% of pop in census tract)",
         y = "IncomePerCap")
 ```
-# Population Histogram and QQ
 
-```{r population}
+# Baseline EDA of Income and Population
+
+## Population Histogram and QQ
+
+```{r population} 
 loadPkg("ggplot2")
 
 # NA's
@@ -152,9 +161,9 @@ sd(dat1$TotalPop, na.rm = TRUE)
 
 ```
 
-# Income Histogram and QQ
+## Income Histogram and QQ
 
-```{r income including outliers}
+```{r income including outliers} 
 #Histogram of dependent variable
 hist(dat0$IncomePerCap, 
         col = "#a8c2fb",
@@ -174,7 +183,7 @@ summary(dat0$IncomePerCap)
 sd(dat0$IncomePerCap, na.rm = TRUE)
 ```
 
-```{r income no outliers}
+```{r income no outliers} 
 #Histogram of dependent variable
 hist(dat1$IncomePerCap, 
         col = "#a8c2fb",
@@ -194,10 +203,10 @@ summary(dat1$IncomePerCap)
 sd(dat1$IncomePerCap, na.rm = TRUE)
 ```
 
-# EDA By Group
+# Individual EDA of independent variables.
 
 
-```{r Freedom scores}
+```{r Freedom scores} 
 loadPkg("dvmisc")
 #Group by Economic Freedom
 GroupEF <- quant_groups(dat1$EconomicFreedom, 4)
@@ -397,7 +406,7 @@ qqnorm(dat1$SelfEmployed, main="Q-Q plot of Selfemployed")
 qqline(dat1$SelfEmployed)
 ```
 
-```{r  Ethnic Variatons}
+```{r  Ethnic Variatons} 
 #Group by Black
 GroupBlack <- quant_groups(dat1$Black, 4)
 str(GroupBlack)
@@ -465,23 +474,23 @@ qqline(dat1$White)
 
 # Correlations
 
+### !! full2015_varofInterest
+```{r DF and cor Setup} 
+dat1_varOfInterest <- dat1 %>% select(colnames(full_2015_varOfInterest))
 
-```{r DF and cor Setup}
-full_2015_cor <- cor(full_2015_varOfInterest, use = "complete.obs")
+full_2015_cor <- cor(dat1_varOfInterest, use = "complete.obs")
 
 loadPkg("corrplot")
 corrplot(full_2015_cor)
 ```
 
+```{r Subsetting} 
+Freedom_2015 <- subset(dat1_varOfInterest, select = c(IncomePerCap, OverallFreedom, EconomicFreedom, PersonalFreedom, RegulatoryPolicy, FiscalPolicy))
 
-```{r Subsetting}
-Freedom_2015 <- subset(full_2015_varOfInterest, select = c(IncomePerCap, OverallFreedom, EconomicFreedom, PersonalFreedom, RegulatoryPolicy, FiscalPolicy))
+Work_2015 <- subset(dat1_varOfInterest, select = c(IncomePerCap, Professional, Service, Office, Construction, Production, SelfEmployed, Unemployment))
 
-Work_2015 <- subset(full_2015_varOfInterest, select = c(IncomePerCap, Professional, Service, Office, Construction, Production, SelfEmployed, Unemployment))
-
-Ethnic_2015 <- subset(full_2015_varOfInterest, select = c(IncomePerCap, Hispanic, White, Black, Native, Asian))
+Ethnic_2015 <- subset(dat1_varOfInterest, select = c(IncomePerCap, Hispanic, White, Black, Native, Asian))
 ```
-
 
 ```{r Cor w/i Freedom}
 Freedom_2015_cor <- cor(Freedom_2015, use = "complete.obs")
@@ -495,7 +504,6 @@ Work_2015_cor <- cor(Work_2015, use = "complete.obs")
 #corrplot(Work_2015_cor)
 corrplot.mixed(Work_2015_cor, tl.pos = "lt")
 ```
-
 
 ```{r Cor w/i Ethnic Background}
 Ethnic_2015_cor <- cor(Ethnic_2015, use = "complete.obs")
@@ -536,7 +544,9 @@ ggplot(dat1, aes( x= EconomicFreedom, y = IncomePerCap, color = White)) +
 
 # ANOVA
 
-```{r Majority Ethnicities Dataset}
+### !! full_2015_varOfInterest
+
+```{r Majority Ethnicities Dataset} 
 #' @title Returns the max value of each row of a data.frame or matrix
 #'
 #' @description
@@ -566,18 +576,18 @@ rowMaxs <- function(df, na.rm=TRUE) {
   # Value returned is vector, each element is max of a row of df
 }
 
-full_2015_varOfInterest1 <- full_2015_varOfInterest %>% mutate(EthnicMajority = case_when(
+dat1_varOfInterest1 <- dat1_varOfInterest %>% mutate(EthnicMajority = case_when(
   White >= 50 ~ "White",
   Hispanic >= 50 ~ "Hispanic",
   Black >= 50 ~ "Black",
   Native >= 50 ~ "Native",
   Asian >= 50 ~ "Asian",
   TRUE ~ "Diverse"))
-EthnicityMaxes <- rowMaxs(full_2015_varOfInterest1 %>%  select(White, Hispanic, Black, Native, Asian))
-WorkMaxes <- rowMaxs(full_2015_varOfInterest1 %>%  select(Professional:Unemployment))
-full_2015_varOfInterest2 <- cbind(full_2015_varOfInterest1, EthnicityMaxes, WorkMaxes)
+EthnicityMaxes <- rowMaxs(dat1_varOfInterest1 %>%  select(White, Hispanic, Black, Native, Asian))
+WorkMaxes <- rowMaxs(dat1_varOfInterest1 %>%  select(Professional:Unemployment))
+dat1_varOfInterest2 <- cbind(dat1_varOfInterest1, EthnicityMaxes, WorkMaxes)
 
-full_2015_varOfInterest_withMajorityEthnicity <- full_2015_varOfInterest2 %>% mutate(EthnicPlurality = case_when(
+dat1_varOfInterest_withMajorityEthnicity <- dat1_varOfInterest2 %>% mutate(EthnicPlurality = case_when(
   White == EthnicityMaxes ~ "White",
   Hispanic == EthnicityMaxes ~ "Hispanic",
   Black == EthnicityMaxes ~ "Black",
@@ -593,16 +603,16 @@ full_2015_varOfInterest_withMajorityEthnicity <- full_2015_varOfInterest2 %>% mu
   SelfEmployed == WorkMaxes ~ "SelfEmployed",
   Unemployment == WorkMaxes ~ "Unemployment",
   TRUE ~ "Error"))
-full_2015_varOfInterest_withMajorityEthnicity$EthnicMajority <-
-  as.factor(full_2015_varOfInterest_withMajorityEthnicity$EthnicMajority)
-full_2015_varOfInterest_withMajorityEthnicity$EthnicPlurality <-
-  as.factor(full_2015_varOfInterest_withMajorityEthnicity$EthnicPlurality)
-full_2015_varOfInterest_withMajorityEthnicity$WorkPlurality <-
-  as.factor(full_2015_varOfInterest_withMajorityEthnicity$WorkPlurality)
+dat1_varOfInterest_withMajorityEthnicity$EthnicMajority <-
+  as.factor(dat1_varOfInterest_withMajorityEthnicity$EthnicMajority)
+dat1_varOfInterest_withMajorityEthnicity$EthnicPlurality <-
+  as.factor(dat1_varOfInterest_withMajorityEthnicity$EthnicPlurality)
+dat1_varOfInterest_withMajorityEthnicity$WorkPlurality <-
+  as.factor(dat1_varOfInterest_withMajorityEthnicity$WorkPlurality)
 ```
 
-```{r dataset}
-anova_dat <- full_2015_varOfInterest_withMajorityEthnicity %>% filter(EthnicPlurality!= "Error",
+```{r dataset} 
+anova_dat <- dat1_varOfInterest_withMajorityEthnicity %>% filter(EthnicPlurality!= "Error",
                                                                  WorkPlurality!= "Error")
 ```
 
@@ -613,7 +623,7 @@ names(Ethnic_2015_anova)
 summary(Ethnic_2015_anova)
 ```
 
-```{r Ethnic Graph}
+```{r Ethnic Graph} 
 ggplot(anova_dat, aes(x=EthnicPlurality, y=IncomePerCap)) + 
   geom_boxplot(outlier.shape=8, outlier.size=4) +
   labs(title="Income/Capita with Different Ethnic Majority", x="Ethnic Majority", y = "Income per Cap")
@@ -623,8 +633,7 @@ ggplot(anova_dat, aes(x=EthnicPlurality, y=IncomePerCap)) +
 TukeyHSD(Ethnic_2015_anova)
 ```
 
-
-```{r Work ANOVA}
+```{r Work ANOVA} 
 Work_2015_anova = aov(IncomePerCap ~ WorkPlurality, data = anova_dat)
 Work_2015_anova
 names(Work_2015_anova)
@@ -643,26 +652,27 @@ TukeyHSD(Work_2015_anova)
 
 # Chi Squared Tests
 
-```{r Chi Squared Test}
+```{r Chi Squared Test} 
 loadPkg('sjPlot')
 loadPkg('visualize')
 
-chi_table_dat <- full_2015_varOfInterest_withMajorityEthnicity %>%
+chi_table_dat <- dat1_varOfInterest_withMajorityEthnicity %>%
   select(c(WorkPlurality, EthnicPlurality)) %>% filter(WorkPlurality != "Error")
 
 chi_table_dat %>%
   sjtab(fun = "xtab", var.labels=c("Work", "Ethnicity"),
        show.summary=T, show.exp=T, show.legend=T)
 
-chi.test <- chisq.test(full_2015_varOfInterest_withMajorityEthnicity$EthnicPlurality, full_2015_varOfInterest_withMajorityEthnicity$WorkPlurality)
+chi.test <- chisq.test(dat1_varOfInterest_withMajorityEthnicity$EthnicPlurality, dat1_varOfInterest_withMajorityEthnicity$WorkPlurality)
 ```
 
-#Exhaustive Search
+# Regression
+##Exhaustive Search
 
-```{r}
+```{r} 
 loadPkg('leaps')
 #This is essentially best fit 
-reg.best10 <- regsubsets(IncomePerCap~. , data = full_2015_varOfInterest, nvmax = 17)  
+reg.best10 <- regsubsets(IncomePerCap~. , data = dat1_varOfInterest, nvmax = 17)  
 plot(reg.best10, scale = "adjr2", main = "Adjusted R^2")
 plot(reg.best10, scale = "r2", main = "R^2")
 # In the "leaps" package, we can use scale=c("bic","Cp","adjr2","r2")
@@ -687,10 +697,10 @@ points(10,reg.summary$bic[12],col = "red",cex = 2, pch =20)
 
 ```
 
-# Forward Selection
+## Forward Selection
 
 ```{r}
-reg.forward10 <- regsubsets(IncomePerCap~. , data = full_2015_varOfInterest, nvmax = 17, nbest = 2, method = "forward")
+reg.forward10 <- regsubsets(IncomePerCap~. , data = dat1_varOfInterest, nvmax = 17, nbest = 2, method = "forward")
 plot(reg.forward10, scale = "adjr2", main = "Adjusted R^2")
 plot(reg.forward10, scale = "bic", main = "BIC")
 plot(reg.forward10, scale = "Cp", main = "Cp")
@@ -698,24 +708,26 @@ plot(reg.forward10, scale = "Cp", main = "Cp")
 ```
 
 
-# Backward Selection
+## Backward Selection
 
 Now backwards (`nvmax=10` and `nbest=2`)
 
 ```{r}
-reg.back10 <- regsubsets(IncomePerCap~. , data = full_2015_varOfInterest, nvmax = 17, nbest = 2, method = "backward")
+reg.back10 <- regsubsets(IncomePerCap~. , data = dat1_varOfInterest, nvmax = 17, nbest = 2, method = "backward")
 plot(reg.back10, scale = "adjr2", main = "Adjusted R^2")
 plot(reg.back10, scale = "bic", main = "BIC")
 plot(reg.back10, scale = "Cp", main = "Cp")
 summary(reg.back10)
 ```
 
-# Sequential Replacement seqrep  
+## Sequential Replacement seqrep  
 
 ```{r}
-reg.seqrep <- regsubsets(IncomePerCap~. , data = full_2015_varOfInterest, nvmax = 17, nbest = 2 , method = "seqrep")
+reg.seqrep <- regsubsets(IncomePerCap~. , data = dat1_varOfInterest, nvmax = 17, nbest = 2 , method = "seqrep")
 plot(reg.seqrep, scale = "adjr2", main = "Adjusted R^2")
 plot(reg.seqrep, scale = "bic", main = "BIC")
 plot(reg.seqrep, scale = "Cp", main = "Cp")
 summary(reg.seqrep)
 ```
+
+# Conclusion
