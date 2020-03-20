@@ -444,8 +444,8 @@ qqnorm(dat1$White, main="Q-Q plot of White")
 qqline(dat1$White)
 
 #Group by native
-GroupNative <- quant_groups(dat1$Native, 4)
-str(GroupNative)
+#GroupNative <- quant_groups(dat1$Native, 4)
+#str(GroupNative)
 
 #Boxplot of IncomePerCap by Native Population
 #plot(IncomePerCap ~ GroupNative, data=dat1, main="IncomePerCap and GroupNative", col=c("#F3D8F2","#E6B2E4", "#D88DD5", "#CA68C7") )
