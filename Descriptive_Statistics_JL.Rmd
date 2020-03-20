@@ -188,7 +188,7 @@ str(GroupEF)
 
 #Boxplot of IncomePerCap by Economic Freedom
 plot(IncomePerCap ~ GroupEF, data=dat1, main="IncomePerCap and GroupEF", col=c("#ffd18b","#ffb76d","#ffa264", "#ff875f") )
-summary(dat1$EconomicFreedom)
+summary(full_2017IPC$EconomicFreedom)
 
 #Histogram of Economic Freedom
 hist(dat1$EconomicFreedom, 
@@ -417,7 +417,7 @@ qqline(dat1$Hispanic)
 GroupAsian <- quant_groups(dat1$Asian, 4)
 str(GroupAsian)
 #Boxplot of IncomePerCap by Asian Population
-plot(IncomePerCap ~ GroupAsian, data=dat1, main="IncomePerCap and GroupAsian", col=c("#FFE6C8","#FFCCBE", "#EFABA0" ) )
+plot(IncomePerCap ~ GroupAsian, data=dat1, main="IncomePerCap and GroupAsian", col=c("#FFE6C8","#FFCCBE", "#EFABA0", "#D6806F") )
 summary(dat1$Asian)
 #Histogram of Asian
 hist(dat1$Asian, 
@@ -444,19 +444,18 @@ qqnorm(dat1$White, main="Q-Q plot of White")
 qqline(dat1$White)
 
 #Group by native
-#GroupNative1<-dat1[-order(dat1$Native),]
-#order(x, decreasing=TRUE)
-#GroupNative <- quant_groups(dat1$Native, 4)
-#str(GroupNative)
-#Boxplot of IncomePerCap by White Population
-#plot(IncomePerCap ~ GroupNative, data=dat1, main="IncomePerCap and GroupNative", col=c("#A9AB98","#949180", "#7D7968", "#5E594F") )
+GroupNative <- quant_groups(dat1$Native, 4)
+str(GroupNative)
+
+#Boxplot of IncomePerCap by Native Population
+#plot(IncomePerCap ~ GroupNative, data=dat1, main="IncomePerCap and GroupNative", col=c("#F3D8F2","#E6B2E4", "#D88DD5", "#CA68C7") )
 summary(dat1$Native)
 #Histogram of Native
 hist(dat1$Native, 
-        col = "#949180",
+        col = "#F5F8FA",
         main = "Native")
 
-#qqplot of Native
+#qqplot of White
 qqnorm(dat1$Native, main="Q-Q plot of Native")
 qqline(dat1$Native)
 
@@ -468,7 +467,7 @@ full_2015_2 <- subset(full_2015, INTPTLONG > -150 & INTPTLONG < -50 & INTPTLAT >
 full_2017_2 <- subset(full_2017, INTPTLONG > -150 & INTPTLONG < -50 & INTPTLAT > 24 & INTPTLAT < 50) 
 
 #Hispanic 
-loadPkg("ggplot2")
+("ggplot2")
 ggplot(full_2015_2, aes( x= INTPTLONG, y = INTPTLAT, color = Hispanic)) + 
   geom_point(size=0.005) + scale_color_gradient(low="orange", high="red") +
   labs (title="Scatter Plot: Spanish Ethnicity in 2015",
