@@ -481,7 +481,7 @@ hist(dat1$Native,
         col = "#F5F8FA",
         main = "Native")
 
-#qqplot of White
+#qqplot of Native
 qqnorm(dat1$Native, main="Q-Q plot of Native")
 qqline(dat1$Native)
 
