@@ -7,13 +7,13 @@ date: "3/09/2020"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(warning = F, results = T, message = T)
+```{r setup, include=FALSE, echo=FALSE}
+knitr::opts_chunk$set(warning = F, results = T, message = T, echo = F)
 loadPkg = function(x) { if (!require(x,character.only=T, quietly =T)) { install.packages(x,dep=T,repos="http://cran.us.r-project.org"); if(!require(x,character.only=T)) stop("Package not found") } }
 ```
 
 
-```{r Functions} 
+```{r Functions, include=FALSE} 
 loadPkg = function(pkg, character.only = FALSE) { 
   if (!character.only) { pkg <- as.character(substitute(pkg)) }
   if (!require(pkg,character.only=T, quietly =T)) {  install.packages(pkg,dep=T,repos="http://cran.us.r-project.org"); if(!require(pkg,character.only=T)) stop("Package not found") } 
@@ -21,7 +21,7 @@ loadPkg = function(pkg, character.only = FALSE) {
 loadPkg(knitr)
 ```
 
-```{r Remove Outliers} 
+```{r Remove Outliers, include=FALSE} 
 # Fix outliers
 
 outlierKD2 <- function(df, var, rm=FALSE) { 
@@ -75,7 +75,7 @@ outlierKD2 <- function(df, var, rm=FALSE) {
 
 ```
 
-```{r Load 2015 data}
+```{r Load 2015 data, include=FALSE}
 loadPkg('dplyr')
 loadPkg('readxl')
 loadPkg('readr')
@@ -132,7 +132,7 @@ ggplot(full_2015_eduProp, aes( x= Professional, y = IncomePerCap, color = State 
 
 ## Population Histogram and QQ
 
-```{r population} 
+```{r population, include=FALSE} 
 loadPkg("ggplot2")
 
 # NA's
@@ -163,7 +163,7 @@ sd(dat1$TotalPop, na.rm = TRUE)
 
 ## Income Histogram and QQ
 
-```{r income including outliers} 
+```{r income including outliers, include=FALSE} 
 #Histogram of dependent variable
 hist(dat0$IncomePerCap, 
         col = "#a8c2fb",
@@ -500,7 +500,7 @@ loadPkg("corrplot")
 corrplot(full_2015_cor)
 ```
 
-```{r Subsetting} 
+```{r Subsetting, include=FALSE} 
 Freedom_2015 <- subset(dat1_varOfInterest, select = c(IncomePerCap, OverallFreedom, EconomicFreedom, PersonalFreedom, RegulatoryPolicy, FiscalPolicy))
 
 Work_2015 <- subset(dat1_varOfInterest, select = c(IncomePerCap, Professional, Service, Office, Construction, Production, SelfEmployed, Unemployment))
@@ -645,7 +645,7 @@ ggplot(anova_dat, aes(x=EthnicPlurality, y=IncomePerCap)) +
   labs(title="Income/Capita with Different Ethnic Majority", x="Ethnic Majority", y = "Income per Cap")
 ```
 
-```{r Ethnic Tukey}
+```{r Ethnic Tukey, include=FALSE}
 TukeyHSD(Ethnic_2015_anova)
 ```
 
@@ -662,7 +662,7 @@ ggplot(anova_dat, aes(x=WorkPlurality, y=IncomePerCap)) +
   labs(title="Income/Capita with Different Work Majority", x="Work Majority", y = "Income per Cap")
 ```
 
-```{r Work Tukey}
+```{r Work Tukey, include=FALSE}
 TukeyHSD(Work_2015_anova)
 ```
 
@@ -678,8 +678,6 @@ chi_table_dat <- dat1_varOfInterest_withMajorityEthnicity %>%
 chi_table_dat %>%
   sjtab(fun = "xtab", var.labels=c("Work", "Ethnicity"),
        show.summary=T, show.exp=T, show.legend=T)
-
-chi.test <- chisq.test(dat1_varOfInterest_withMajorityEthnicity$EthnicPlurality, dat1_varOfInterest_withMajorityEthnicity$WorkPlurality)
 ```
 
 # Regression
@@ -733,7 +731,7 @@ reg.back10 <- regsubsets(IncomePerCap~. , data = dat1_varOfInterest, nvmax = 17,
 plot(reg.back10, scale = "adjr2", main = "Adjusted R^2")
 plot(reg.back10, scale = "bic", main = "BIC")
 plot(reg.back10, scale = "Cp", main = "Cp")
-summary(reg.back10)
+#summary(reg.back10)
 ```
 
 ## Sequential Replacement seqrep  
@@ -743,7 +741,7 @@ reg.seqrep <- regsubsets(IncomePerCap~. , data = dat1_varOfInterest, nvmax = 17,
 plot(reg.seqrep, scale = "adjr2", main = "Adjusted R^2")
 plot(reg.seqrep, scale = "bic", main = "BIC")
 plot(reg.seqrep, scale = "Cp", main = "Cp")
-summary(reg.seqrep)
+#summary(reg.seqrep)
 ```
 
 # Conclusion
