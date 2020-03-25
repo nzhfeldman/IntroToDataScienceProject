@@ -490,7 +490,7 @@ qqline(dat1$Native)
 
 # Correlations
 
-### !! full2015_varofInterest
+
 ```{r DF and cor Setup} 
 dat1_varOfInterest <- dat1 %>% select(colnames(full_2015_varOfInterest))
 
@@ -560,7 +560,7 @@ ggplot(dat1, aes( x= EconomicFreedom, y = IncomePerCap, color = White)) +
 
 # ANOVA
 
-### !! full_2015_varOfInterest
+
 
 ```{r Majority Ethnicities Dataset} 
 #' @title Returns the max value of each row of a data.frame or matrix
@@ -736,7 +736,7 @@ plot(reg.back10, scale = "Cp", main = "Cp")
 
 ## Sequential Replacement seqrep  
 
-```{r}
+```{r} 
 reg.seqrep <- regsubsets(IncomePerCap~. , data = dat1_varOfInterest, nvmax = 17, nbest = 2 , method = "seqrep")
 plot(reg.seqrep, scale = "adjr2", main = "Adjusted R^2")
 plot(reg.seqrep, scale = "bic", main = "BIC")
