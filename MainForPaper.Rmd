@@ -105,7 +105,7 @@ full_2015_varOfInterest <- full_2015 %>%  select(IncomePerCap,Hispanic:Asian,Pro
 
 America is a highly diverse country. It is not only diverse in terms of ethnicity, but also in terms of income, industry, and law. This opens the doors for a variety of possible interactions between these variables. What factors drive the way that income is distributed in the United States? What factors reliably predict whether the average income per capita in a specific area is high or low? How does state level variations in law and freedom impact income?
 
-#How are these questions SMART?
+## How are these questions SMART?
 
 These questions are important because they tell many facets of the story of consumption in the United States. Income serves both as a measure of productivity and lifetime consumption (although this analysis does not disentangle the two). Although their scope is broad, they remain specific to the concepts of income, demographics, and freedom, and maintain a consistent structure: how do demographics and freedom drive income in the United States, at the census tract level. 
 
@@ -143,7 +143,7 @@ According to this report, some examples that are included in the study on how re
 ### Why use this dataset as potential variables that affect income per capita?
 It is valuable to determine how different combinations of public policies in these areas can affect income per capita. This allows to roughly establish if higher or lower levels of fiscal, regulatory or personal freedom (as defined by the Cato’s formulas) have any relationship with the income per capita level in a community.
 
-# Merging datasets
+## Merging datasets
 The Freedom in the 50 States dataset, though, was calculated at the state, rather than census tract, level. Therefore, when merging, each census tract has freedom scores identical to the score at the overarching state level. So, for example, since the fiscal policy score for Alabama was 0.122, then all census tracts located in Alabama have  a “fiscal policy score” of 0.122. Unfortunately, this project does not allow the inspection of differences in policies below the state level (so policies enacted by municipalities are ignored). 
 
 
