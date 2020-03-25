@@ -131,7 +131,7 @@ ggplot(full_2015_eduProp, aes( x= Professional, y = IncomePerCap, color = State 
 # Baseline EDA of Income and Population
 
 ## Population Histogram and QQ
-
+  A baseline analysis of population and income was conducted. The histogram for population appeared skewed to the right. The different census tracts had similar population counts with a mean of about 4000. Counties were not evenly spread out as some had a population of 1 million and others 10 million. With similar populations, census tracts were easier to investigate instead of counties. The Q-Q plot confirmed the non-normality as the values between quartiles 3 and 4 were far away from the line. 
 ```{r population, include=FALSE} 
 loadPkg("ggplot2")
 
@@ -162,7 +162,7 @@ sd(dat1$TotalPop, na.rm = TRUE)
 ```
 
 ## Income Histogram and QQ
-
+  The raw data for income appeared very skewed to the right as well. The data appeared to follow a power-law curve as some individuals have amassed a large amount of income and these outliers can skew the data. Thus, the outliers and NA values were removed; checking again, the “cleaned data” appeared normal. The histogram appears monomodal and the error terms along the Q-Q plot did not stray away from the line.
 ```{r income including outliers, include=FALSE} 
 #Histogram of dependent variable
 hist(dat0$IncomePerCap, 
@@ -203,8 +203,8 @@ summary(dat1$IncomePerCap)
 sd(dat1$IncomePerCap, na.rm = TRUE)
 ```
 
-# Individual EDA of independent variables.
-
+## Individual EDA of Freedom scores 
+  Next, the seventeen independent variables were analyzed. The freedom scores were  economic freedom, personal freedom, regulatory policy, fiscal policy, and overall freedom. The box plots were split up into four evenly distributed quartiles by the income per capita in each quartile. For all the five sets of boxplots, there did not appear to be any differences between the quartiles as they all overlapped roughly the same range of their respective independent variables. The histograms did not appear normal as overall the data was randomly spread out with huge gaps between bins. The Q-Q plots told a similar story as the error terms tended to follow a sin-like trend over the line and there were big tails on either end. None of the freedom scores appeared to be distributed normally. 
 
 ```{r Freedom scores} 
 loadPkg("dvmisc")
@@ -293,6 +293,9 @@ hist(dat1$OverallFreedom,
 qqnorm(dat1$OverallFreedom, main="Q-Q plot of Overall Freedom")
 qqline(dat1$OverallFreedom)
 ```
+
+## Individual EDA of Work Variations
+  Next the seven variables for work variations (professional, production, unemployment, office, service, construction, self-employed) were assessed for normality. The boxplots that exhibited a decrease in income, as more of the specific work variation was included in the census tract, were unemployment, service, construction, and production. That is to say, as more unemployed individuals were accounted for in a given census tract, the income per capita decreased. The only work variation that exhibited an increase in average income was professional work. The remaining variables of office and self-employed remained relatively stable across quartiles. Looking at the histograms of each of the variables it appeared that only the proportion of professionals was distributed normally. The remaining six work variations were all skewed to the right. For professionals, the Q-Q plots affirmed the normality as the plot did not have the error terms straying far from the line with very small right and left tails. The same cannot be said for the other variables as each had an oversized right tail and a relatively small left tail. Overall the proportion of professionals appeared normally distributed while the other work variations did not.
 
 ```{r Work variations}
 #Group by Unemployment
@@ -405,7 +408,8 @@ hist(dat1$SelfEmployed,
 qqnorm(dat1$SelfEmployed, main="Q-Q plot of Selfemployed")
 qqline(dat1$SelfEmployed)
 ```
-
+## Individual EDA of ethnicities
+  Finally the five ethnic variables (Native, White, Black, Hispanic, and Asian) were investigated. The boxplots for White showed an increase in average income between the first second and third quartiles but no change in the fourth. The boxplot for Asian showed an increase from the first through the fourth quartile. The boxplots for Hispanic slightly increased between the first and second quartile but did not change for the third quartile. The fourth quantile for Hispanic decreased significantly. The boxplot for Black increased in average income between the first and second quartile. Then there was a decrease in average income from the second to the fourth quartiles. Overall, it appeared that average income did change based on concentration of ethnicities in a census tract. The histogram for White was bimodal with the highest frequency at over 8,000. The histograms for the other four ethnicities were skewed to the right. Based on the histogram, it appeared that white had the highest responses followed by Hispanic, Black, Asian, and Native. All of the error terms along the Q-Q plot line for each of the ethnicity variables followed a curve with large left and right tails. Also, there were not enough responses from the Native ethnicity to construct a meaningful boxplot.  For the native Q-Q plot, there was a clear pattern of the error terms along the line implying non-normality. Therefore, based on the assessment of the boxplots, histograms, and Q-Q plots, none of the ethnicities appear normally distributed.
 ```{r  Ethnic Variatons}
 loadPkg("dvmisc")
 #Group by Black
@@ -681,7 +685,11 @@ chi_table_dat %>%
 ```
 
 # Regression
+  17 variables from the dataset were chosen to perform the regression. Using measures such as R-square, Adjusted R-Square, Complexity Parameter (CP) , Bayesian Information Criterion (BIC) and Residual Sum of Square (RSS) the best variable that could fit the model was selected. To begin with different measures v/s number of variables were plotted.
 ##Exhaustive Search
+  From the distribution graph, almost all the variables are included which was not helpful. If we were to select the best variables then it would be ‘WHITE’, 'Native', 'Asian','‘Professional’,'Office','Construction','Production',‘Unemployment’, 'Fiscal Policy'‘Personal Freedom’ and ‘service’ which is at highest R2 Value .68. 
+  Adjusted R2 - The highest adjusted R2 is obtained at .68 and this is similar to that of R2, the only difference is the variable ‘Service’ is excluded.
+  For BIC and CP, the lowest values are 12 and 10 and they are obtained when we include 12 and 8 variables in the regression
 
 ```{r} 
 loadPkg('leaps')
@@ -712,6 +720,10 @@ points(10,reg.summary$bic[12],col = "red",cex = 2, pch =20)
 ```
 
 ## Forward Selection
+  R2 is not used as a criteria , which usually improves with number of variables and leads to overfitting.
+For Adjusted R2,we could choose the range of  best variables from 4 to 10. 
+The best variables are ‘WHITE’, ‘Professional’, ‘Unemployment’, ‘Personal Freedom’, ‘service’ which is at highest R2 Value .68. 
+For BIC and CP, the lowest measure value variables are 12 and 10 respectively.
 
 ```{r}
 reg.forward10 <- regsubsets(IncomePerCap~. , data = dat1_varOfInterest, nvmax = 17, nbest = 2, method = "forward")
@@ -724,7 +736,10 @@ plot(reg.forward10, scale = "Cp", main = "Cp")
 
 ## Backward Selection
 
-Now backwards (`nvmax=10` and `nbest=2`)
+Now backwards (`nvmax=17` and `nbest=2`)
+Best variables from the range of 9 to 11 could be choosen and they are 
+‘WHITE’, 'Native', 'Asian','‘Professional’,'Office','Construction', 'Production',‘Unemployment’, 'Fiscal Policy'‘Personal Freedom’ and ‘service’.
+For BIC and CP, the lowest measure value variables are 12 and 10 respectively.
 
 ```{r}
 reg.back10 <- regsubsets(IncomePerCap~. , data = dat1_varOfInterest, nvmax = 17, nbest = 2, method = "backward")
@@ -735,6 +750,9 @@ plot(reg.back10, scale = "Cp", main = "Cp")
 ```
 
 ## Sequential Replacement seqrep  
+  Lastly Sequential Replacement. 
+How accurate and precise are these models ? 
+we don’t know yet, until we run some validation set approach or cross validations.
 
 ```{r} 
 reg.seqrep <- regsubsets(IncomePerCap~. , data = dat1_varOfInterest, nvmax = 17, nbest = 2 , method = "seqrep")
