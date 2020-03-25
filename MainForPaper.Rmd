@@ -147,8 +147,13 @@ According to this report, some examples that are included in the study on how re
 ### Why use this dataset as potential variables that affect income per capita?
 It is valuable to determine how different combinations of public policies in these areas can affect income per capita. This allows to roughly establish if higher or lower levels of fiscal, regulatory or personal freedom (as defined by the Cato’s formulas) have any relationship with the income per capita level in a community.
 
+
 ## Merging datasets
 The Freedom in the 50 States dataset, though, was calculated at the state, rather than census tract, level. Therefore, when merging, each census tract has freedom scores identical to the score at the overarching state level. So, for example, since the fiscal policy score for Alabama was 0.122, then all census tracts located in Alabama have  a “fiscal policy score” of 0.122. Unfortunately, this project does not allow the inspection of differences in policies below the state level (so policies enacted by municipalities are ignored). 
+
+## What analysis has already been completed related to the content in this dataset?
+An analysis using this dataset was uploaded to Kaggle in 2018. It is titled "Child Poverty in New York City: A Comprehensive Study" and analyzed child poverty rates in New York City and how they vary by location and other factors (RNA, 2018). Although it was conducted using the same dataset, it focused only in New York city and not the entire country.
+
 
 
 # Description of Variables
@@ -868,3 +873,6 @@ U.S. Census Bureau (2019). "Annual Estimates of the Resident Population for the 
 U.S. Census Bureau (2017).   "American FactFinder - Results". U.S. Census Bureau. Retrieved 2017-12-13.
 
 U.S. Census Bureau (2013). "2010 Census Summary File 1: GEOGRAPHIC IDENTIFIERS". American Factfinder. US Census. Retrieved 18 October 2013.
+
+BigironSphere (2018). Child Poverty in New York City: A Comprehensive Study
+. Retrieved March 23, 2020, from https://www.kaggle.com/bigironsphere/tutorial-maps-eda-and-models-with-nyc-census-data
