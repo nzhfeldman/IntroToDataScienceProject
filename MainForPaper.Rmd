@@ -105,7 +105,11 @@ full_2015_varOfInterest <- full_2015 %>%  select(IncomePerCap,Hispanic:Asian,Pro
 
 America is a highly diverse country. It is not only diverse in terms of ethnicity, but also in terms of income, industry, and law. This opens the doors for a variety of possible interactions between these variables. What factors drive the way that income is distributed in the United States? What factors reliably predict whether the average income per capita in a specific area is high or low? How does state level variations in law and freedom impact income?
 
+<<<<<<< HEAD
+# How are these questions SMART?
+=======
 ## How are these questions SMART?
+>>>>>>> bf17a0fd9d4a0e88d5f63c0c520d588a0f101b73
 
 These questions are important because they tell many facets of the story of consumption in the United States. Income serves both as a measure of productivity and lifetime consumption (although this analysis does not disentangle the two). Although their scope is broad, they remain specific to the concepts of income, demographics, and freedom, and maintain a consistent structure: how do demographics and freedom drive income in the United States, at the census tract level. 
 
@@ -114,7 +118,7 @@ These questions also correspond to a set of highly measurable (And luckily, prem
 Finally, these questions are relevant to policy makers who want to improve the incomes of their constituents as well as to researchers interested in establishing a baseline for the average income they should expect a community would earn based on its demographics. These are critical questions, because the ability of communities to support themselves economically has massive impacts on the wellbeing of their members.
 
 # Content
-First, an examination was conducted on how the US Census Bureau database is structured, and which variables were included. Secondly, an analysis of Cato Institute's Freedom in the 50 States shows whether or not it worked as a potential meaningful independent variable. Later on, the groups of independent variables and how each of them could affect the income per capita of a community is presented. Then, an exploratory data analysis and some statistical tests are made to evaluate the significance of our variables and a first preview of a regression analysis. Finally, a conclusion looks into further challenges and questions that will impact upcoming analyses.
+First, an examination is conducted on how the US Census Bureau database is structured, and which variables were included. Secondly, an analysis of Cato Institute's Freedom in the 50 States shows whether or not it worked as a potential meaningful independent variable. Later on, the groups of independent variables and how each of them could affect the income per capita of a community is presented. Then, an exploratory data analysis and some statistical tests are made to evaluate the significance of our variables and a first preview of a regression analysis. Finally, a conclusion looks into further challenges and questions necessary to enhance future analyses.
 
 # Dataset
 ## U.S. Census Bureau Dataset
@@ -143,16 +147,9 @@ According to this report, some examples that are included in the study on how re
 ### Why use this dataset as potential variables that affect income per capita?
 It is valuable to determine how different combinations of public policies in these areas can affect income per capita. This allows to roughly establish if higher or lower levels of fiscal, regulatory or personal freedom (as defined by the Cato’s formulas) have any relationship with the income per capita level in a community.
 
-
 ## Merging datasets
 The Freedom in the 50 States dataset, though, was calculated at the state, rather than census tract, level. Therefore, when merging, each census tract has freedom scores identical to the score at the overarching state level. So, for example, since the fiscal policy score for Alabama was 0.122, then all census tracts located in Alabama have  a “fiscal policy score” of 0.122. Unfortunately, this project does not allow the inspection of differences in policies below the state level (so policies enacted by municipalities are ignored). 
 
-## What analysis has already been completed related to the content in this dataset?
-An analysis using this dataset was uploaded to Kaggle in 2018. It is titled "Child Poverty in New York City: A Comprehensive Study" and analyzed child poverty rates in New York City and how they vary by location and other factors (BigironSphere, 2018). Although it was conducted using the same dataset, it focused only in New York city and not the entire country.
-
-Another Kaggle user conducted a study titled "Comprehensive Look at the 2015 ACS estimate" (Pstetz, 2018), where he made a descriptive analysis for all the ACS variables. However, this study did not emphasize a particular variable over another one. 
-
-Several articles have been written using the Freedom in the 50 States dataset. Most of them coming from the Cato Institute or other institutions alike such as Mercatus Center from George Mason University. 
 
 # Description of Variables
 The complete dataset includes 17 independent variables and 1 dependent variable.
@@ -376,9 +373,7 @@ hist(dat1$OverallFreedom,
 qqnorm(dat1$OverallFreedom, main="Q-Q plot of Overall Freedom")
 qqline(dat1$OverallFreedom)
 ```
-
-Next, the seventeen independent variables were analyzed. The freedom scores were  economic freedom, personal freedom, regulatory policy, fiscal policy, and overall freedom. The box plots were split up into four evenly distributed quartiles by the income per capita in each quartile. For all the five sets of boxplots, there did not appear to be any differences between the quartiles as they all overlapped roughly the same range of their respective independent variables. The histograms did not appear normal as overall the data was randomly spread out with huge gaps between bins. The Q-Q plots told a similar story as the error terms tended to follow a sin-like trend over the line and there were big tails on either end. None of the freedom scores appeared to be distributed normally.
-
+  Next, the seventeen independent variables were analyzed. The freedom scores were  economic freedom, personal freedom, regulatory policy, fiscal policy, and overall freedom. The box plots were split up into four evenly distributed quartiles by the income per capita in each quartile. For all the five sets of boxplots, there did not appear to be any differences between the quartiles as they all overlapped roughly the same range of their respective independent variables. The histograms did not appear normal as overall the data was randomly spread out with huge gaps between bins. The Q-Q plots told a similar story as the error terms tended to follow a sin-like trend over the line and there were big tails on either end. None of the freedom scores appeared to be distributed normally.
 ## Individual EDA of Work Variations
 ```{r Work variations}
 #Group by Unemployment
@@ -491,9 +486,7 @@ hist(dat1$SelfEmployed,
 qqnorm(dat1$SelfEmployed, main="Q-Q plot of Selfemployed")
 qqline(dat1$SelfEmployed)
 ```
-
-
-Next the seven variables for work variations (professional, production, unemployment, office, service, construction, self-employed) were assessed for normality. The boxplots that exhibited a decrease in income, as more of the specific work variation was included in the census tract, were unemployment, service, construction, and production. That is to say, as more unemployed individuals were accounted for in a given census tract, the income per capita decreased. The only work variation that exhibited an increase in average income was professional work. The remaining variables of office and self-employed remained relatively stable across quartiles. Looking at the histograms of each of the variables it appeared that only the proportion of professionals was distributed normally. The remaining six work variations were all skewed to the right. For professionals, the Q-Q plots affirmed the normality as the plot did not have the error terms straying far from the line with very small right and left tails. The same cannot be said for the other variables as each had an oversized right tail and a relatively small left tail. Overall the proportion of professionals appeared normally distributed while the other work variations did not.  
+  Next the seven variables for work variations (professional, production, unemployment, office, service, construction, self-employed) were assessed for normality. The boxplots that exhibited a decrease in income, as more of the specific work variation was included in the census tract, were unemployment, service, construction, and production. That is to say, as more unemployed individuals were accounted for in a given census tract, the income per capita decreased. The only work variation that exhibited an increase in average income was professional work. The remaining variables of office and self-employed remained relatively stable across quartiles. Looking at the histograms of each of the variables it appeared that only the proportion of professionals was distributed normally. The remaining six work variations were all skewed to the right. For professionals, the Q-Q plots affirmed the normality as the plot did not have the error terms straying far from the line with very small right and left tails. The same cannot be said for the other variables as each had an oversized right tail and a relatively small left tail. Overall the proportion of professionals appeared normally distributed while the other work variations did not.  
 ## Individual EDA of ethnicities
 ```{r  Ethnic Variatons}
 loadPkg("dvmisc")
@@ -576,8 +569,9 @@ qqline(dat1$Native)
 
 
 ```
+  Finally the five ethnic variables (Native, White, Black, Hispanic, and Asian) were investigated. The boxplots for White showed an increase in average income between the first second and third quartiles but no change in the fourth. The boxplot for Asian showed an increase from the first through the fourth quartile. The boxplots for Hispanic slightly increased between the first and second quartile but did not change for the third quartile. The fourth quantile for Hispanic decreased significantly. The boxplot for Black increased in average income between the first and second quartile. Then there was a decrease in average income from the second to the fourth quartiles. Overall, it appeared that average income did change based on concentration of ethnicities in a census tract. The histogram for White was bimodal with the highest frequency at over 8,000. The histograms for the other four ethnicities were skewed to the right. Based on the histogram, it appeared that white had the highest responses followed by Hispanic, Black, Asian, and Native. All of the error terms along the Q-Q plot line for each of the ethnicity variables followed a curve with large left and right tails. Also, there were not enough responses from the Native ethnicity to construct a meaningful boxplot.  For the native Q-Q plot, there was a clear pattern of the error terms along the line implying non-normality. Therefore, based on the assessment of the boxplots, histograms, and Q-Q plots, none of the ethnicities appear normally distributed.
 
-Finally the five ethnic variables (Native, White, Black, Hispanic, and Asian) were investigated. The boxplots for White showed an increase in average income between the first second and third quartiles but no change in the fourth. The boxplot for Asian showed an increase from the first through the fourth quartile. The boxplots for Hispanic slightly increased between the first and second quartile but did not change for the third quartile. The fourth quantile for Hispanic decreased significantly. The boxplot for Black increased in average income between the first and second quartile. Then there was a decrease in average income from the second to the fourth quartiles. Overall, it appeared that average income did change based on concentration of ethnicities in a census tract. The histogram for White was bimodal with the highest frequency at over 8,000. The histograms for the other four ethnicities were skewed to the right. Based on the histogram, it appeared that white had the highest responses followed by Hispanic, Black, Asian, and Native. All of the error terms along the Q-Q plot line for each of the ethnicity variables followed a curve with large left and right tails. Also, there were not enough responses from the Native ethnicity to construct a meaningful boxplot.  For the native Q-Q plot, there was a clear pattern of the error terms along the line implying non-normality. Therefore, based on the assessment of the boxplots, histograms, and Q-Q plots, none of the ethnicities appear normally distributed.
+
 # Correlations
 
 
@@ -729,15 +723,12 @@ dat1_varOfInterest_withMajorityEthnicity$WorkPlurality <-
 ```
 
 ```{r dataset} 
+loadPkg("car")
 anova_dat <- dat1_varOfInterest_withMajorityEthnicity %>% filter(EthnicPlurality!= "Error",
                                                                  WorkPlurality!= "Error")
-```
 
-```{r Ethnic ANOVA}
-Ethnic_2015_anova = aov(IncomePerCap ~ EthnicPlurality, data = anova_dat)
-Ethnic_2015_anova
-names(Ethnic_2015_anova)
-summary(Ethnic_2015_anova)
+leveneTest(IncomePerCap ~ EthnicPlurality, data = anova_dat)
+leveneTest(IncomePerCap ~ WorkPlurality, data = anova_dat)
 ```
 
 ```{r Ethnic Graph} 
@@ -746,25 +737,10 @@ ggplot(anova_dat, aes(x=EthnicPlurality, y=IncomePerCap)) +
   labs(title="Income/Capita with Different Ethnic Majority", x="Ethnic Majority", y = "Income per Cap")
 ```
 
-```{r Ethnic Tukey, include=FALSE}
-TukeyHSD(Ethnic_2015_anova)
-```
-
-```{r Work ANOVA} 
-Work_2015_anova = aov(IncomePerCap ~ WorkPlurality, data = anova_dat)
-Work_2015_anova
-names(Work_2015_anova)
-summary(Work_2015_anova)
-```
-
 ```{r Work Graph}
 ggplot(anova_dat, aes(x=WorkPlurality, y=IncomePerCap)) + 
   geom_boxplot(outlier.shape=8, outlier.size=4) +
   labs(title="Income/Capita with Different Work Majority", x="Work Majority", y = "Income per Cap")
-```
-
-```{r Work Tukey, include=FALSE}
-TukeyHSD(Work_2015_anova)
 ```
 
 An ANOVA test was attempted to determine if there were significant differences in income based on which ethnicity or work was the most prevalent in a census tract. The first step was identifying which ethnic variable and which work variable had the highest percentage, not necessarily the majority, in each census tract. These variables were named EthnicPlurality and WorkPlurality. It was notable that most census tracts were both plurality white and plurality professional (41484/73199).  The Levene’s test performed for both plurality variables returned p-values of 2.2E-16 (the smallest value R recognizes above zero), indicating heterogeneity of variances; in short, the ANOVA test was not performed due to this failed assumption.  However, from a more rudimentary perusal of the variables it seemed plausible that there was some relationship between the most common employment status in a census tract and the most populous ethnic group within it. 
@@ -788,7 +764,6 @@ chi_table_dat %>%
 
 # Regression
   Variables from the dataset were chosen to perform the regression. Using measures such as R-square, Adjusted R-Square, Complexity Parameter (CP) , Bayesian Information Criterion (BIC) and Residual Sum of Square (RSS) the best variable that could fit the model was selected. To begin with different measures v/s number of variables were plotted.
-
 ## Exhaustive Search
 
 ```{r} 
@@ -818,8 +793,7 @@ plot(reg.summary$bic,xlab = '# of Varibales', ylab = 'BIC', type = "l")
 points(10,reg.summary$bic[12],col = "red",cex = 2, pch =20)
 
 ```
-
-From the distribution graph, almost all the variables are included which was not helpful. If we were to select the best variables then it would be ‘WHITE’, 'Native', 'Asian','‘Professional’,'Office','Construction','Production',‘Unemployment’, 'Fiscal Policy'‘Personal Freedom’ and ‘service’ which is at highest R2 Value .68. 
+  From the distribution graph, almost all the variables are included which was not helpful. If we were to select the best variables then it would be ‘WHITE’, 'Native', 'Asian','‘Professional’,'Office','Construction','Production',‘Unemployment’, 'Fiscal Policy'‘Personal Freedom’ and ‘service’ which is at highest R2 Value .68. 
 Adjusted R2 - The highest adjusted R2 is obtained at .68 and this is similar to that of R2, the only difference is the variable ‘Service’ is excluded.
 For BIC and CP, the lowest values are 12 and 10 and they are obtained when we include 12 and 8 variables in the regression
 
@@ -833,8 +807,7 @@ plot(reg.forward10, scale = "bic", main = "BIC")
 plot(reg.forward10, scale = "Cp", main = "Cp")
 #summary(reg.forward10)
 ```
-
-R2 is not used as a criteria , which usually improves with number of variables and leads to overfitting.
+  R2 is not used as a criteria , which usually improves with number of variables and leads to overfitting.
 For Adjusted R2,we could choose the range of  best variables from 4 to 10. 
 The best variables are ‘WHITE’, ‘Professional’, ‘Unemployment’, ‘Personal Freedom’, ‘service’ which is at highest R2 Value .68. 
 For BIC and CP, the lowest measure value variables are 12 and 10 respectively.
@@ -848,8 +821,7 @@ plot(reg.back10, scale = "bic", main = "BIC")
 plot(reg.back10, scale = "Cp", main = "Cp")
 #summary(reg.back10)
 ```
-
-Now backwards (`nvmax=17` and `nbest=2`)
+  Now backwards (`nvmax=17` and `nbest=2`)
 Best variables from the range of 9 to 11 could be choosen and they are ‘WHITE’, 'Native', 'Asian','‘Professional’,'Office','Construction', 'Production',‘Unemployment’, 'Fiscal Policy'‘Personal Freedom’ and ‘service’.For BIC and CP, the lowest measure value variables are 12 and 10 respectively.
 
 ## Sequential Replacement seqrep  
@@ -861,19 +833,15 @@ plot(reg.seqrep, scale = "bic", main = "BIC")
 plot(reg.seqrep, scale = "Cp", main = "Cp")
 #summary(reg.seqrep)
 ```
-
-Lastly Sequential Replacement. 
+  Lastly Sequential Replacement. 
 How accurate and precise are these models ? 
 we don’t know yet, until we run some validation set approach or cross validations.
 
 # Conclusion
 	Overall, this analysis found that there are several ways in which our independent variables reliably predict income in communities across the United States. The Freedom variables we drew from the Cato Institute performed poorest, with a high internal correlation and little predictive power. Ethnicity and work type proportions had stronger predictive power, with the latter having the most powerful effects.  However, these variables suffer from being largely non-normal, with a rightward skew, and from having high internal correlations, both between and within the two categories. Altogether, these variables allow us to predict income per capita at the census tract level with high reliability (R-squared = .67); this is actually quite impressive given the simplicity of this data. For instance, it does not directly include any information about the age or education of the population.
-	
 	Moving forward, this analysis allows for several expansions. The first is to integrate new data, such as age and education status of census tract residents. Additionally, it may be valuable to consider each of the individual freedom measures on its own, to negate the influence of high internal correlation. Finally, it is interesting if there are differences driven by geographic density, which can be estimated with just the currently accessible data.
 	
 # Bibliography
-
-BigironSphere (2018). Child Poverty in New York City: A Comprehensive Study. Retrieved March 23, 2020, from https://www.kaggle.com/bigironsphere/tutorial-maps-eda-and-models-with-nyc-census-data
 
 Cato Institute. (2018) Freedom In the Fifty States. UpToDate. Retrieved March 23, 2020, from https://www.freedominthe50states.org/how-its-calculated
 
@@ -884,6 +852,3 @@ U.S. Census Bureau (2019). "Annual Estimates of the Resident Population for the 
 U.S. Census Bureau (2017).   "American FactFinder - Results". U.S. Census Bureau. Retrieved 2017-12-13.
 
 U.S. Census Bureau (2013). "2010 Census Summary File 1: GEOGRAPHIC IDENTIFIERS". American Factfinder. US Census. Retrieved 18 October 2013.
-
-BigironSphere (2018). Child Poverty in New York City: A Comprehensive Study
-. Retrieved March 23, 2020, from https://www.kaggle.com/bigironsphere/tutorial-maps-eda-and-models-with-nyc-census-data
