@@ -101,6 +101,12 @@ full_2015_varOfInterest <- full_2015 %>%  select(IncomePerCap,Hispanic:Asian,Pro
 
 ```
 
+# Test
+## Test
+### Test
+#### Test
+##### Test
+###### Test
 # Introduction 
 
 America is a highly diverse country. It is not only diverse in terms of ethnicity, but also in terms of income, industry, and law. This opens the doors for a variety of possible interactions between these variables. What factors drive the way that income is distributed in the United States? What factors reliably predict whether the average income per capita in a specific area is high or low? How does state level variations in law and freedom impact income?
