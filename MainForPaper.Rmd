@@ -105,7 +105,7 @@ full_2015_varOfInterest <- full_2015 %>%  select(IncomePerCap,Hispanic:Asian,Pro
 
 America is a highly diverse country. It is not only diverse in terms of ethnicity, but also in terms of income, industry, and law. This opens the doors for a variety of possible interactions between these variables. What factors drive the way that income is distributed in the United States? What factors reliably predict whether the average income per capita in a specific area is high or low? How does state level variations in law and freedom impact income?
 
-#How are these questions SMART?
+# How are these questions SMART?
 
 These questions are important because they tell many facets of the story of consumption in the United States. Income serves both as a measure of productivity and lifetime consumption (although this analysis does not disentangle the two). Although their scope is broad, they remain specific to the concepts of income, demographics, and freedom, and maintain a consistent structure: how do demographics and freedom drive income in the United States, at the census tract level. 
 
@@ -122,7 +122,7 @@ The U.S. Census Bureau Data holds the yearly American Community Survey: a projec
 The dataset includes two variables related to income: the median household income and income per capita. The variable income per capita was prefered because it adjusts per person, and not per household given that it's unknown how many people can live in an average household. 
 The variable income per capita (IncomePerCap) is calculated as the average income per capita of the population of a specific census tract. But, what is a census tract and why use them?
 
-###Census tracts
+### Census tracts
 Household's income in America varies significantly by geographical location. The richest counties in the country are concentrated in urban areas near big metropolises where most businesses are located. The bay area in northern California, Northeast Virginia and New York are some examples. However, counties have been an insufficient unit to compare different variables among them. There are 3,142 counties in a country of 300 million inhabitants (U.S. Census Bureau, 2019), but among them are several inconsistencies.
 Texas, for example, has 254 counties (U.S. Census Bureau, 2017). California, a state with approximately 10 million people more than Texas, has only 58 counties (U.S. Census Bureau, 2017). Population-wise California has the largest county in the country with more than 10 million inhabitants (Los Angeles), whereas Texas has more than 80 counties with less than 10,000 people (U.S. Census Bureau, 2017). Density-wise, New York has 4 of 5  of the most dense counties in the country, some of them 60,000 times more dense than counties in Hawaii, Alaska or Nevada (U.S. Census Bureau, 2013).
 As a response to these inconsistencies found in counties in America, the U.S. Census Bureau delineated "Census Tracts" at the beginning of the twentieth century.  A census tract is "geographic region defined for the purpose of taking a census." Over the years, the U.S. Census Bureau has established census tracts in every county in America. There are over 74,000 census tracts in the country and a typical one has around 4,000 or so residents. There is a strength that comes from this consistency: census tracts are by and large similar in population size, and the population size of census tracts does not vary much from state to state.
@@ -151,61 +151,61 @@ The Freedom in the 50 States dataset, though, was calculated at the state, rathe
 The complete dataset includes 17 independent variables and 1 dependent variable.
 Thanks to their nature, the independent variables were classified in three groups: Freedom Scores, Work Variation and Ethnic Variation.
 
-## Freedom Scores
+### Freedom Scores
 
-###Overall Freedom:
+#### Overall Freedom:
 The weighted sum of all the variables is used to produce the overall freedom ranking of the states. The overall freedom scores rate states on how free they are relative to other states. A score of 1 would correspond to a state’s being one standard deviation above average in every single variable, although in reality, every state scores better on some variables and worse on others. A score of 0 would be equivalent to a state’s being absolutely average on every variable, and a score of ¬1 to a state’s being one standard deviation below average on every variable (Cato Institute, 2018).
 
-###Economic Freedom:
+#### Economic Freedom:
 Economic freedom is calculated as the sum of the fiscal and regulatory freedom indices (Cato Institute, 2018).
 
-###Personal Freedom:
+#### Personal Freedom:
 The personal freedom consists of the following categories: (a) incarceration and arrests for victimless crimes, (b) gun rights, (c) gambling freedom, (d) marriage freedom, (e) educational freedom, (f) alcohol freedom, (g) asset forfeiture, (h) marijuana freedom, (i) tobacco freedom, (j) travel freedom, (k) campaign finance freedom, and (l) other mala prohibita and miscellaneous civil liberties (Cato Institute, 2018). 
 
-###Regulatory Policy:
+#### Regulatory Policy:
 The regulatory policy dimension includes categories for land-use freedom and environmental policy, health insurance freedom, labor-market freedom, lawsuit freedom, occupational freedom, miscellaneous regulations that do not fit under another category (such as certificate of need requirements), and cable and telecommunications freedom (Cato Institute, 2018).
 
-###Fiscal Policy:
+#### Fiscal Policy:
 The fiscal policy dimension consists of six variables: (a) state tax revenues, (b) government consumption, (c) local tax revenues, (d) government employment, (e) government debt, and (f) cash and security assets (Cato Institute, 2018).
 
-##Work Variation:
+### Work Variation:
 
-###Professional:
+#### Professional:
 Percentage (%) employed in management, business, science, and arts in a census tract.
 
-###Service:
+#### Service:
 Percentage (%) employed in service jobs in a census tract.
 
-###Office:
+#### Office:
 Percentage (%) employed in sales and office jobs in a census tract.
 
-###Construction:
+#### Construction:
 Percentage (%) employed in natural resources, construction, and maintenance in a census tract.
 
-###Production:
+#### Production:
 Percentage (%) employed in production, transportation, and material movement in a census tract.
 
-###Unemployed:
+#### Unemployed:
 Unemployment rate (%) in a census tract.
 
-###Self-employed:
+#### Self-employed:
 Percentage (%) self-employed in a census tract.
 
-##Ethnic Variation
+### Ethnic Variation
 
-###Native:
+#### Native:
 Percentage (%) of population that is Native American or Native Alaskan in a census tract.
 
-###White:
+#### White:
 Percentage (%) of population that is white in a census tract.
 
-###Black:
+#### Black:
 Percentage (%) of population that is black in a census tract.
 
-###Hispanic:
+#### Hispanic:
 Percentage (%) of population that is Hispanic/Latino in a census tract.
 
-###Asian:
+#### Asian:
 Percentage (%) of population that is Asian in a census tract.
 
 
