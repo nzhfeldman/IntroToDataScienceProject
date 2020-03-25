@@ -106,6 +106,10 @@ full_2015_varOfInterest <- full_2015 %>%  select(IncomePerCap,Hispanic:Asian,Pro
 America is a highly diverse country. It is not only diverse in terms of ethnicity, but also in terms of income, industry, and law. This opens the doors for a variety of possible interactions between these variables. What factors drive the way that income is distributed in the United States? What factors reliably predict whether the average income per capita in a specific area is high or low? How does state level variations in law and freedom impact income?
 
 ## How are these questions SMART?
+<<<<<<< HEAD
+=======
+
+>>>>>>> 13f6411994396ebcd0fdb7c3e74c324a987c3a59
 
 These questions are important because they tell many facets of the story of consumption in the United States. Income serves both as a measure of productivity and lifetime consumption (although this analysis does not disentangle the two). Although their scope is broad, they remain specific to the concepts of income, demographics, and freedom, and maintain a consistent structure: how do demographics and freedom drive income in the United States, at the census tract level. 
 
@@ -114,7 +118,7 @@ These questions also correspond to a set of highly measurable (And luckily, prem
 Finally, these questions are relevant to policy makers who want to improve the incomes of their constituents as well as to researchers interested in establishing a baseline for the average income they should expect a community would earn based on its demographics. These are critical questions, because the ability of communities to support themselves economically has massive impacts on the wellbeing of their members.
 
 # Content
-First, an examination is conducted on how the US Census Bureau database is structured, and which variables were included. Secondly, an analysis of Cato Institute's Freedom in the 50 States shows whether or not it worked as a potential meaningful independent variable. Later on, the groups of independent variables and how each of them could affect the income per capita of a community is presented. Then, an exploratory data analysis and some statistical tests are made to evaluate the significance of our variables and a first preview of a regression analysis. Finally, a conclusion looks into further challenges and questions necessary to enhance future analyses.
+First, an examination was conducted on how the US Census Bureau database is structured, and which variables were included. Secondly, an analysis of Cato Institute's Freedom in the 50 States shows whether or not it worked as a potential meaningful independent variable. Later on, the groups of independent variables and how each of them could affect the income per capita of a community is presented. Then, an exploratory data analysis and some statistical tests are made to evaluate the significance of our variables and a first preview of a regression analysis. Finally, a conclusion looks into further challenges and questions that will impact upcoming analyses.
 
 # Dataset
 ## U.S. Census Bureau Dataset
