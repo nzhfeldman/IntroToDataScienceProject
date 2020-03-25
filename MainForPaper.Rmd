@@ -578,15 +578,6 @@ ggplot(dat1, aes( x= EconomicFreedom, y = IncomePerCap, color = White)) +
 
 
 ```{r Majority Ethnicities Dataset} 
-#' @title Returns the max value of each row of a data.frame or matrix
-#'
-#' @description
-#' Returns maximum value of each row of a data.frame or matrix.
-#' @param df Data.frame or matrix, required.
-#' @param na.rm Logical value, optional, TRUE by default. Defines whether NA values should be removed first. Otherwise result will be NA when any NA is in the given vector.
-#' @return Returns a vector of numbers of length equal to number of rows in df.
-#' @template maxmin
-#' @export
 rowMaxs <- function(df, na.rm=TRUE) {
 
   if (is.matrix(df)) {df <- data.frame(df, stringsAsFactors=FALSE, drop = FALSE)}
