@@ -768,4 +768,12 @@ plot(reg.seqrep, scale = "Cp", main = "Cp")
 	
 # Bibliography
 
+Cato Institute. (2018) Freedom In the Fifty States. UpToDate. Retrieved March 23, 2020, from https://www.freedominthe50states.org/how-its-calculated
 
+MuonNeutrino. (2015). US Census Demographic Data: Demographic and Economic Data for Tracts and Counties. UpToDate. Retrieved March 23, 2020, from https://www.kaggle.com/muonneutrino/us-census-demographic-dataD
+
+U.S. Census Bureau (2019). "Annual Estimates of the Resident Population for the United States, Regions, States, and Puerto Rico: April 1, 2010 to July 1, 2019". 2010-2019 Population Estimates. United States Census Bureau, Population Division. December 30, 2019. Retrieved January 27, 2020.
+
+U.S. Census Bureau (2017).   "American FactFinder - Results". U.S. Census Bureau. Retrieved 2017-12-13.
+
+U.S. Census Bureau (2013). "2010 Census Summary File 1: GEOGRAPHIC IDENTIFIERS". American Factfinder. US Census. Retrieved 18 October 2013.
