@@ -211,8 +211,7 @@ Percentage (%) of population that is Asian in a census tract.
 
 # Baseline EDA of Income and Population
 
-## Population Histogram and QQ
-  A baseline analysis of population and income was conducted. The histogram for population appeared skewed to the right. The different census tracts had similar population counts with a mean of about 4000. Counties were not evenly spread out as some had a population of 1 million and others 10 million. With similar populations, census tracts were easier to investigate instead of counties. The Q-Q plot confirmed the non-normality as the values between quartiles 3 and 4 were far away from the line. 
+
 ```{r population, include=FALSE} 
 loadPkg("ggplot2")
 
@@ -241,9 +240,8 @@ summary(dat1$TotalPop)
 sd(dat1$TotalPop, na.rm = TRUE)
 
 ```
-
-## Income Histogram and QQ
-  The raw data for income appeared very skewed to the right as well. The data appeared to follow a power-law curve as some individuals have amassed a large amount of income and these outliers can skew the data. Thus, the outliers and NA values were removed; checking again, the “cleaned data” appeared normal. The histogram appears monomodal and the error terms along the Q-Q plot did not stray away from the line.
+## Population Histogram and QQ
+  A baseline analysis of population and income was conducted. The histogram for population appeared skewed to the right. The different census tracts had similar population counts with a mean of about 4000. Counties were not evenly spread out as some had a population of 1 million and others 10 million. With similar populations, census tracts were easier to investigate instead of counties. The Q-Q plot confirmed the non-normality as the values between quartiles 3 and 4 were far away from the line. 
 ```{r income including outliers, include=FALSE} 
 #Histogram of dependent variable
 hist(dat0$IncomePerCap, 
@@ -283,10 +281,8 @@ summary(dat1$IncomePerCap)
 #standard deviation
 sd(dat1$IncomePerCap, na.rm = TRUE)
 ```
-
-## Individual EDA of Freedom scores 
-  Next, the seventeen independent variables were analyzed. The freedom scores were  economic freedom, personal freedom, regulatory policy, fiscal policy, and overall freedom. The box plots were split up into four evenly distributed quartiles by the income per capita in each quartile. For all the five sets of boxplots, there did not appear to be any differences between the quartiles as they all overlapped roughly the same range of their respective independent variables. The histograms did not appear normal as overall the data was randomly spread out with huge gaps between bins. The Q-Q plots told a similar story as the error terms tended to follow a sin-like trend over the line and there were big tails on either end. None of the freedom scores appeared to be distributed normally. 
-
+## Income Histogram and QQ
+  The raw data for income appeared very skewed to the right as well. The data appeared to follow a power-law curve as some individuals have amassed a large amount of income and these outliers can skew the data. Thus, the outliers and NA values were removed; checking again, the “cleaned data” appeared normal. The histogram appears monomodal and the error terms along the Q-Q plot did not stray away from the line.
 ```{r Freedom scores} 
 loadPkg("dvmisc")
 #Group by Economic Freedom
@@ -374,10 +370,8 @@ hist(dat1$OverallFreedom,
 qqnorm(dat1$OverallFreedom, main="Q-Q plot of Overall Freedom")
 qqline(dat1$OverallFreedom)
 ```
-
-## Individual EDA of Work Variations
-  Next the seven variables for work variations (professional, production, unemployment, office, service, construction, self-employed) were assessed for normality. The boxplots that exhibited a decrease in income, as more of the specific work variation was included in the census tract, were unemployment, service, construction, and production. That is to say, as more unemployed individuals were accounted for in a given census tract, the income per capita decreased. The only work variation that exhibited an increase in average income was professional work. The remaining variables of office and self-employed remained relatively stable across quartiles. Looking at the histograms of each of the variables it appeared that only the proportion of professionals was distributed normally. The remaining six work variations were all skewed to the right. For professionals, the Q-Q plots affirmed the normality as the plot did not have the error terms straying far from the line with very small right and left tails. The same cannot be said for the other variables as each had an oversized right tail and a relatively small left tail. Overall the proportion of professionals appeared normally distributed while the other work variations did not.
-
+## Individual EDA of Freedom scores 
+  Next, the seventeen independent variables were analyzed. The freedom scores were  economic freedom, personal freedom, regulatory policy, fiscal policy, and overall freedom. The box plots were split up into four evenly distributed quartiles by the income per capita in each quartile. For all the five sets of boxplots, there did not appear to be any differences between the quartiles as they all overlapped roughly the same range of their respective independent variables. The histograms did not appear normal as overall the data was randomly spread out with huge gaps between bins. The Q-Q plots told a similar story as the error terms tended to follow a sin-like trend over the line and there were big tails on either end. None of the freedom scores appeared to be distributed normally.
 ```{r Work variations}
 #Group by Unemployment
 GroupUnemployment <- quant_groups(dat1$Unemployment, 4)
@@ -489,8 +483,8 @@ hist(dat1$SelfEmployed,
 qqnorm(dat1$SelfEmployed, main="Q-Q plot of Selfemployed")
 qqline(dat1$SelfEmployed)
 ```
-## Individual EDA of ethnicities
-  Finally the five ethnic variables (Native, White, Black, Hispanic, and Asian) were investigated. The boxplots for White showed an increase in average income between the first second and third quartiles but no change in the fourth. The boxplot for Asian showed an increase from the first through the fourth quartile. The boxplots for Hispanic slightly increased between the first and second quartile but did not change for the third quartile. The fourth quantile for Hispanic decreased significantly. The boxplot for Black increased in average income between the first and second quartile. Then there was a decrease in average income from the second to the fourth quartiles. Overall, it appeared that average income did change based on concentration of ethnicities in a census tract. The histogram for White was bimodal with the highest frequency at over 8,000. The histograms for the other four ethnicities were skewed to the right. Based on the histogram, it appeared that white had the highest responses followed by Hispanic, Black, Asian, and Native. All of the error terms along the Q-Q plot line for each of the ethnicity variables followed a curve with large left and right tails. Also, there were not enough responses from the Native ethnicity to construct a meaningful boxplot.  For the native Q-Q plot, there was a clear pattern of the error terms along the line implying non-normality. Therefore, based on the assessment of the boxplots, histograms, and Q-Q plots, none of the ethnicities appear normally distributed.
+## Individual EDA of Work Variations
+  Next the seven variables for work variations (professional, production, unemployment, office, service, construction, self-employed) were assessed for normality. The boxplots that exhibited a decrease in income, as more of the specific work variation was included in the census tract, were unemployment, service, construction, and production. That is to say, as more unemployed individuals were accounted for in a given census tract, the income per capita decreased. The only work variation that exhibited an increase in average income was professional work. The remaining variables of office and self-employed remained relatively stable across quartiles. Looking at the histograms of each of the variables it appeared that only the proportion of professionals was distributed normally. The remaining six work variations were all skewed to the right. For professionals, the Q-Q plots affirmed the normality as the plot did not have the error terms straying far from the line with very small right and left tails. The same cannot be said for the other variables as each had an oversized right tail and a relatively small left tail. Overall the proportion of professionals appeared normally distributed while the other work variations did not.
 ```{r  Ethnic Variatons}
 loadPkg("dvmisc")
 #Group by Black
@@ -572,7 +566,8 @@ qqline(dat1$Native)
 
 
 ```
-
+## Individual EDA of ethnicities
+  Finally the five ethnic variables (Native, White, Black, Hispanic, and Asian) were investigated. The boxplots for White showed an increase in average income between the first second and third quartiles but no change in the fourth. The boxplot for Asian showed an increase from the first through the fourth quartile. The boxplots for Hispanic slightly increased between the first and second quartile but did not change for the third quartile. The fourth quantile for Hispanic decreased significantly. The boxplot for Black increased in average income between the first and second quartile. Then there was a decrease in average income from the second to the fourth quartiles. Overall, it appeared that average income did change based on concentration of ethnicities in a census tract. The histogram for White was bimodal with the highest frequency at over 8,000. The histograms for the other four ethnicities were skewed to the right. Based on the histogram, it appeared that white had the highest responses followed by Hispanic, Black, Asian, and Native. All of the error terms along the Q-Q plot line for each of the ethnicity variables followed a curve with large left and right tails. Also, there were not enough responses from the Native ethnicity to construct a meaningful boxplot.  For the native Q-Q plot, there was a clear pattern of the error terms along the line implying non-normality. Therefore, based on the assessment of the boxplots, histograms, and Q-Q plots, none of the ethnicities appear normally distributed.
 # Correlations
 
 
@@ -648,15 +643,6 @@ ggplot(dat1, aes( x= EconomicFreedom, y = IncomePerCap, color = White)) +
 
 
 ```{r Majority Ethnicities Dataset} 
-#' @title Returns the max value of each row of a data.frame or matrix
-#'
-#' @description
-#' Returns maximum value of each row of a data.frame or matrix.
-#' @param df Data.frame or matrix, required.
-#' @param na.rm Logical value, optional, TRUE by default. Defines whether NA values should be removed first. Otherwise result will be NA when any NA is in the given vector.
-#' @return Returns a vector of numbers of length equal to number of rows in df.
-#' @template maxmin
-#' @export
 rowMaxs <- function(df, na.rm=TRUE) {
 
   if (is.matrix(df)) {df <- data.frame(df, stringsAsFactors=FALSE, drop = FALSE)}
@@ -849,3 +835,15 @@ plot(reg.seqrep, scale = "Cp", main = "Cp")
 # Conclusion
 	Overall, this analysis found that there are several ways in which our independent variables reliably predict income in communities across the United States. The Freedom variables we drew from the Cato Institute performed poorest, with a high internal correlation and little predictive power. Ethnicity and work type proportions had stronger predictive power, with the latter having the most powerful effects.  However, these variables suffer from being largely non-normal, with a rightward skew, and from having high internal correlations, both between and within the two categories. Altogether, these variables allow us to predict income per capita at the census tract level with high reliability (R-squared = .67); this is actually quite impressive given the simplicity of this data. For instance, it does not directly include any information about the age or education of the population.
 	Moving forward, this analysis allows for several expansions. The first is to integrate new data, such as age and education status of census tract residents. Additionally, it may be valuable to consider each of the individual freedom measures on its own, to negate the influence of high internal correlation. Finally, it is interesting if there are differences driven by geographic density, which can be estimated with just the currently accessible data.
+	
+# Bibliography
+
+Cato Institute. (2018) Freedom In the Fifty States. UpToDate. Retrieved March 23, 2020, from https://www.freedominthe50states.org/how-its-calculated
+
+MuonNeutrino. (2015). US Census Demographic Data: Demographic and Economic Data for Tracts and Counties. UpToDate. Retrieved March 23, 2020, from https://www.kaggle.com/muonneutrino/us-census-demographic-dataD
+
+U.S. Census Bureau (2019). "Annual Estimates of the Resident Population for the United States, Regions, States, and Puerto Rico: April 1, 2010 to July 1, 2019". 2010-2019 Population Estimates. United States Census Bureau, Population Division. December 30, 2019. Retrieved January 27, 2020.
+
+U.S. Census Bureau (2017).   "American FactFinder - Results". U.S. Census Bureau. Retrieved 2017-12-13.
+
+U.S. Census Bureau (2013). "2010 Census Summary File 1: GEOGRAPHIC IDENTIFIERS". American Factfinder. US Census. Retrieved 18 October 2013.
