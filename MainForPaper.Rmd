@@ -788,6 +788,7 @@ chi_table_dat %>%
 
 # Regression
   Variables from the dataset were chosen to perform the regression. Using measures such as R-square, Adjusted R-Square, Complexity Parameter (CP) , Bayesian Information Criterion (BIC) and Residual Sum of Square (RSS) the best variable that could fit the model was selected. To begin with different measures v/s number of variables were plotted.
+
 ## Exhaustive Search
 
 ```{r} 
@@ -817,7 +818,8 @@ plot(reg.summary$bic,xlab = '# of Varibales', ylab = 'BIC', type = "l")
 points(10,reg.summary$bic[12],col = "red",cex = 2, pch =20)
 
 ```
-  From the distribution graph, almost all the variables are included which was not helpful. If we were to select the best variables then it would be ‘WHITE’, 'Native', 'Asian','‘Professional’,'Office','Construction','Production',‘Unemployment’, 'Fiscal Policy'‘Personal Freedom’ and ‘service’ which is at highest R2 Value .68. 
+
+From the distribution graph, almost all the variables are included which was not helpful. If we were to select the best variables then it would be ‘WHITE’, 'Native', 'Asian','‘Professional’,'Office','Construction','Production',‘Unemployment’, 'Fiscal Policy'‘Personal Freedom’ and ‘service’ which is at highest R2 Value .68. 
 Adjusted R2 - The highest adjusted R2 is obtained at .68 and this is similar to that of R2, the only difference is the variable ‘Service’ is excluded.
 For BIC and CP, the lowest values are 12 and 10 and they are obtained when we include 12 and 8 variables in the regression
 
@@ -831,7 +833,8 @@ plot(reg.forward10, scale = "bic", main = "BIC")
 plot(reg.forward10, scale = "Cp", main = "Cp")
 #summary(reg.forward10)
 ```
-  R2 is not used as a criteria , which usually improves with number of variables and leads to overfitting.
+
+R2 is not used as a criteria , which usually improves with number of variables and leads to overfitting.
 For Adjusted R2,we could choose the range of  best variables from 4 to 10. 
 The best variables are ‘WHITE’, ‘Professional’, ‘Unemployment’, ‘Personal Freedom’, ‘service’ which is at highest R2 Value .68. 
 For BIC and CP, the lowest measure value variables are 12 and 10 respectively.
@@ -845,7 +848,8 @@ plot(reg.back10, scale = "bic", main = "BIC")
 plot(reg.back10, scale = "Cp", main = "Cp")
 #summary(reg.back10)
 ```
-  Now backwards (`nvmax=17` and `nbest=2`)
+
+Now backwards (`nvmax=17` and `nbest=2`)
 Best variables from the range of 9 to 11 could be choosen and they are ‘WHITE’, 'Native', 'Asian','‘Professional’,'Office','Construction', 'Production',‘Unemployment’, 'Fiscal Policy'‘Personal Freedom’ and ‘service’.For BIC and CP, the lowest measure value variables are 12 and 10 respectively.
 
 ## Sequential Replacement seqrep  
@@ -857,15 +861,19 @@ plot(reg.seqrep, scale = "bic", main = "BIC")
 plot(reg.seqrep, scale = "Cp", main = "Cp")
 #summary(reg.seqrep)
 ```
-  Lastly Sequential Replacement. 
+
+Lastly Sequential Replacement. 
 How accurate and precise are these models ? 
 we don’t know yet, until we run some validation set approach or cross validations.
 
 # Conclusion
 	Overall, this analysis found that there are several ways in which our independent variables reliably predict income in communities across the United States. The Freedom variables we drew from the Cato Institute performed poorest, with a high internal correlation and little predictive power. Ethnicity and work type proportions had stronger predictive power, with the latter having the most powerful effects.  However, these variables suffer from being largely non-normal, with a rightward skew, and from having high internal correlations, both between and within the two categories. Altogether, these variables allow us to predict income per capita at the census tract level with high reliability (R-squared = .67); this is actually quite impressive given the simplicity of this data. For instance, it does not directly include any information about the age or education of the population.
+	
 	Moving forward, this analysis allows for several expansions. The first is to integrate new data, such as age and education status of census tract residents. Additionally, it may be valuable to consider each of the individual freedom measures on its own, to negate the influence of high internal correlation. Finally, it is interesting if there are differences driven by geographic density, which can be estimated with just the currently accessible data.
 	
 # Bibliography
+
+BigironSphere (2018). Child Poverty in New York City: A Comprehensive Study. Retrieved March 23, 2020, from https://www.kaggle.com/bigironsphere/tutorial-maps-eda-and-models-with-nyc-census-data
 
 Cato Institute. (2018) Freedom In the Fifty States. UpToDate. Retrieved March 23, 2020, from https://www.freedominthe50states.org/how-its-calculated
 
