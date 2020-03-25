@@ -101,7 +101,18 @@ full_2015_varOfInterest <- full_2015 %>%  select(IncomePerCap,Hispanic:Asian,Pro
 
 ```
 
-# Introduction
+# Introduction 
+
+America is a highly diverse country. It is not only diverse in terms of ethnicity, but also in terms of income, industry, and law. This opens the doors for a variety of possible interactions between these variables. What factors drive the way that income is distributed in the United States? What factors reliably predict whether the average income per capita in a specific area is high or low? How does state level variations in law and freedom impact income?
+
+#How are these questions SMART?
+
+These questions are important because they tell many facets of the story of consumption in the United States. Income serves both as a measure of productivity and lifetime consumption (although this analysis does not disentangle the two). Although their scope is broad, they remain specific to the concepts of income, demographics, and freedom, and maintain a consistent structure: how do demographics and freedom drive income in the United States, at the census tract level. 
+
+These questions also correspond to a set of highly measurable (And luckily, premeasured) variables. Income can be imputed from tax records, while ethnicity and work status are available from census forms. The Freedom variables are somewhat more abstract, but come from an analysis from the Cato Institute (2015) which rigorously measures and weights different legal stances that each state might take. Achieving the answers to the questions is made simple by the cleanliness and availability of this data; since few data points are missing across all census tracts throughout the 50 states of interest, it is simple to form statistical tests.
+
+Finally, these questions are relevant to policy makers who want to improve the incomes of their constituents as well as to researchers interested in establishing a baseline for the average income they should expect a community would earn based on its demographics. These are critical questions, because the ability of communities to support themselves economically has massive impacts on the wellbeing of their members.
+
 
 
 # Dataset 
@@ -670,7 +681,7 @@ ggplot(anova_dat, aes(x=WorkPlurality, y=IncomePerCap)) +
 TukeyHSD(Work_2015_anova)
 ```
 
-# Chi Squared Tests
+# Chi Squared Test of Independence
 
 ```{r Chi Squared Test} 
 loadPkg('sjPlot')
@@ -683,6 +694,9 @@ chi_table_dat %>%
   sjtab(fun = "xtab", var.labels=c("Work", "Ethnicity"),
        show.summary=T, show.exp=T, show.legend=T)
 ```
+
+	A Chi Squared test of independence was used to further investigate the relationship between plurality work type and plurality ethnicity.  With a p-value below the table’s printing threshold, the test strongly indicates that there is a strong relationship between these two variables .  As noted above, there are many more tracts that are both plurality white and where the largest work type is professional than would be expected due to chance. Note that when a tract has a plurality of ethnicity X and work type Y, it doesn’t necessarily mean that the workers of X ethnicity are working in positions of type Y. For instance, consider a case where 60% of the people in a given census tract are black, and they are evenly split between service work and construction, and the remaining 40% of the population are white  and they work in professional jobs. In this imaginary and extremely segregated census tract, the plurality ethnicity is black and the plurality work type is professional, despite the fact that no black residents are working professional jobs. Thus, we must be careful not to overstate the implications for which individuals are working in which jobs.
+
 
 # Regression
   17 variables from the dataset were chosen to perform the regression. Using measures such as R-square, Adjusted R-Square, Complexity Parameter (CP) , Bayesian Information Criterion (BIC) and Residual Sum of Square (RSS) the best variable that could fit the model was selected. To begin with different measures v/s number of variables were plotted.
@@ -763,3 +777,5 @@ plot(reg.seqrep, scale = "Cp", main = "Cp")
 ```
 
 # Conclusion
+	Overall, this analysis found that there are several ways in which our independent variables reliably predict income in communities across the United States. The Freedom variables we drew from the Cato Institute performed poorest, with a high internal correlation and little predictive power. Ethnicity and work type proportions had stronger predictive power, with the latter having the most powerful effects.  However, these variables suffer from being largely non-normal, with a rightward skew, and from having high internal correlations, both between and within the two categories. Altogether, these variables allow us to predict income per capita at the census tract level with high reliability (R-squared = .67); this is actually quite impressive given the simplicity of this data. For instance, it does not directly include any information about the age or education of the population.
+	Moving forward, this analysis allows for several expansions. The first is to integrate new data, such as age and education status of census tract residents. Additionally, it may be valuable to consider each of the individual freedom measures on its own, to negate the influence of high internal correlation. Finally, it is interesting if there are differences driven by geographic density, which can be estimated with just the currently accessible data.
