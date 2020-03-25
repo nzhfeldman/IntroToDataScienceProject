@@ -594,6 +594,7 @@ Freedom_2015_cor <- cor(Freedom_2015, use = "complete.obs")
 corrplot.mixed(Freedom_2015_cor, tl.pos = "lt")
 ```
 
+An analysis of correlation between and within the predictors was performed and resulted in the correlation matrix above.  From this matrix, it was apparent that there was large positive correlation between certain variables within the “freedom” category.  This was especially apparent between economic and overall freedom scores, where the correlation coefficient was 0.98, but was also notable between Fiscal/Economic, RegulatoryPolicy/Economic, RegulatoryPolicy/Overall and FiscalPolicy/Overall with correlation coefficients ranging from 0.87 to 0.9. The correlation between Fiscal/Regulatory Policy was notable as well, with an r of 0.62.  The respective correlation coefficients between all of these variables was positive, indicating that an increase in one type of freedom corresponded to an increase in the other.  This is likely because overall freedom was made up of the sum of regulatory, fiscal and personal scores, and economic freedom was the sum of regulatory and fiscal scores.  There was some correlation between the different ethnicities and freedom variables as well, but at much lower magnitude.
 
 ```{r Cor w/i Work}
 Work_2015_cor <- cor(Work_2015, use = "complete.obs")
@@ -601,13 +602,20 @@ Work_2015_cor <- cor(Work_2015, use = "complete.obs")
 corrplot.mixed(Work_2015_cor, tl.pos = "lt")
 ```
 
+Within the work category, there was some negative correlation between professional and multiple variables including service, construction, production and unemployment.  This implied that census tracts with larger proportions of professional workers had smaller proportions of individuals employed in service, construction or production fields or not employed at all.  This was not surprising since theoretically these proportions should sum to 1. It was thus stranger to note that there was a positive correlation between Service work and Unemployment, with a value of 0.47.
+
 ```{r Cor w/i Ethnic Background}
 Ethnic_2015_cor <- cor(Ethnic_2015, use = "complete.obs")
 #corrplot(Ethnic_2015_cor)
 corrplot.mixed(Ethnic_2015_cor, tl.pos = "lt")
 ```
 
+Within the ethnicity category, there was some negative correlation between White and the two variables Hispanic and Black.  This implied that census tracts with larger proportions of White individuals in turn had smaller proportions of Hispanic and Black individuals.  It is worth saying here that there was a negative correlation between all of the ethnic variables because the values sum to one and as one percentage increased the sum of the others must decrease.
+
+
 # Scatter PLots
+
+Scatter plots of a few of the more significant variables according to the correlation matrix were created in order to form a better understanding of the relationships.  The plots displayed three variables: Income per capita on the vertical axis, the work variable on the horizontal axis, and the color of each data point indicating the percentage of White individuals in that particular census tract.
 
 ```{r}
 ggplot(dat1, aes( x= Professional, y = IncomePerCap, color = White)) + 
@@ -615,27 +623,39 @@ ggplot(dat1, aes( x= Professional, y = IncomePerCap, color = White)) +
   labs (title="Scatter Plot of IncomePerCap and Professional",
         x="Professional",
         y = "IncomePerCap")
+```
 
+The first scatter plot laid out IncomePerCap and the percent White as it related to professional work.  The trend of the data points from bottom left to upper right indicated that a census tract with more Professional individuals tended to have a larger Income Per Capita.  The color of the data points as they moved from the bottom left to the upper right became lighter, which implied that census tracts with medium or high percentages of White individuals had more medium or high income per capita.
+
+```{r}
 ggplot(dat1, aes( x= Unemployment, y = IncomePerCap, color = White)) + 
   geom_point(size=0.1) + geom_smooth(method='lm', formula= IncomerPerCap~Unemployment) +
   labs (title="Scatter Plot of IncomePerCap and Unemployment",
         x="Unemployment",
         y = "IncomePerCap")
+```
 
+The second scatter plot laid out IncomePerCap and percent White as it related to service work.  The trend of the data points from top left to bottom middle indicated that a census tract with fewer Service workers tended to have a larger income per capita.  The color of the data points as they move right become darker, which implies that census tracts with medium or high percentages of White individuals have more medium or high Income Per Capita.
 
+```{r}
 ggplot(dat1, aes( x= Service, y = IncomePerCap, color = White)) + 
   geom_point(size=0.1) + geom_smooth(method='lm', formula= IncomerPerCap~Service) +
   labs (title="Scatter Plot of IncomePerCap and Service",
         x="Service",
         y = "IncomePerCap")
+```
 
+The third scatter plot, which instead looked at IncomePerCap and percent White as it related to Unemployment, relayed much the same information as the plot for Service work.  However, the trend was not as robust, which corroborated the results of the correlation matrix where there was a smaller magnitude correlation between Service and IncomePerCap.
 
+```{r}
 ggplot(dat1, aes( x= EconomicFreedom, y = IncomePerCap, color = White)) + 
   geom_point(size=0.1) + geom_smooth(method='lm', formula= IncomerPerCap~EconomicFreedom) +
   labs (title="Scatter Plot of IncomePerCap and EconomicFreedom",
         x="EconomicFreedom",
         y = "IncomePerCap")
 ```
+
+The fourth scatter plot looked at IncomePerCap and percent White as it related to EconomicFreedom.  There were 50 lines in this scatter plot because the data from the freedom dataset only varied at the state level.  This demonstrated how the freedom data was used to help measure IncomePerCap in the census tracts.  The lines to the right were the states with more economic freedom.  The colors  of the lines suggested that White individuals tend to live in states with higher Economic freedom and tend to have more income per capita.
 
 
 # ANOVA
@@ -736,6 +756,8 @@ ggplot(anova_dat, aes(x=WorkPlurality, y=IncomePerCap)) +
 ```{r Work Tukey, include=FALSE}
 TukeyHSD(Work_2015_anova)
 ```
+
+An ANOVA test was attempted to determine if there were significant differences in income based on which ethnicity or work was the most prevalent in a census tract. The first step was identifying which ethnic variable and which work variable had the highest percentage, not necessarily the majority, in each census tract. These variables were named EthnicPlurality and WorkPlurality. It was notable that most census tracts were both plurality white and plurality professional (41484/73199).  The Levene’s test performed for both plurality variables returned p-values of 2.2E-16 (the smallest value R recognizes above zero), indicating heterogeneity of variances; in short, the ANOVA test was not performed due to this failed assumption.  However, from a more rudimentary perusal of the variables it seemed plausible that there was some relationship between the most common employment status in a census tract and the most populous ethnic group within it. 
 
 # Chi Squared Test of Independence
 
