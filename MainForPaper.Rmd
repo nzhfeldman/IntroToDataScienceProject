@@ -780,7 +780,7 @@ chi_table_dat %>%
 
 # Regression
   Variables from the dataset were chosen to perform the regression. Using measures such as R-square, Adjusted R-Square, Complexity Parameter (CP) , Bayesian Information Criterion (BIC) and Residual Sum of Square (RSS) the best variable that could fit the model was selected. To begin with different measures v/s number of variables were plotted.
-##Exhaustive Search
+## Exhaustive Search
 
 ```{r} 
 loadPkg('leaps')
