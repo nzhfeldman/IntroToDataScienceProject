@@ -685,7 +685,11 @@ chi_table_dat %>%
 ```
 
 # Regression
+  17 variables from the dataset were chosen to perform the regression. Using measures such as R-square, Adjusted R-Square, Complexity Parameter (CP) , Bayesian Information Criterion (BIC) and Residual Sum of Square (RSS) the best variable that could fit the model was selected. To begin with different measures v/s number of variables were plotted.
 ##Exhaustive Search
+  From the distribution graph, almost all the variables are included which was not helpful. If we were to select the best variables then it would be ‘WHITE’, 'Native', 'Asian','‘Professional’,'Office','Construction','Production',‘Unemployment’, 'Fiscal Policy'‘Personal Freedom’ and ‘service’ which is at highest R2 Value .68. 
+  Adjusted R2 - The highest adjusted R2 is obtained at .68 and this is similar to that of R2, the only difference is the variable ‘Service’ is excluded.
+  For BIC and CP, the lowest values are 12 and 10 and they are obtained when we include 12 and 8 variables in the regression
 
 ```{r} 
 loadPkg('leaps')
@@ -716,6 +720,10 @@ points(10,reg.summary$bic[12],col = "red",cex = 2, pch =20)
 ```
 
 ## Forward Selection
+  R2 is not used as a criteria , which usually improves with number of variables and leads to overfitting.
+For Adjusted R2,we could choose the range of  best variables from 4 to 10. 
+The best variables are ‘WHITE’, ‘Professional’, ‘Unemployment’, ‘Personal Freedom’, ‘service’ which is at highest R2 Value .68. 
+For BIC and CP, the lowest measure value variables are 12 and 10 respectively.
 
 ```{r}
 reg.forward10 <- regsubsets(IncomePerCap~. , data = dat1_varOfInterest, nvmax = 17, nbest = 2, method = "forward")
@@ -728,7 +736,10 @@ plot(reg.forward10, scale = "Cp", main = "Cp")
 
 ## Backward Selection
 
-Now backwards (`nvmax=10` and `nbest=2`)
+Now backwards (`nvmax=17` and `nbest=2`)
+Best variables from the range of 9 to 11 could be choosen and they are 
+‘WHITE’, 'Native', 'Asian','‘Professional’,'Office','Construction', 'Production',‘Unemployment’, 'Fiscal Policy'‘Personal Freedom’ and ‘service’.
+For BIC and CP, the lowest measure value variables are 12 and 10 respectively.
 
 ```{r}
 reg.back10 <- regsubsets(IncomePerCap~. , data = dat1_varOfInterest, nvmax = 17, nbest = 2, method = "backward")
@@ -739,6 +750,9 @@ plot(reg.back10, scale = "Cp", main = "Cp")
 ```
 
 ## Sequential Replacement seqrep  
+  Lastly Sequential Replacement. 
+How accurate and precise are these models ? 
+we don’t know yet, until we run some validation set approach or cross validations.
 
 ```{r}
 reg.seqrep <- regsubsets(IncomePerCap~. , data = dat1_varOfInterest, nvmax = 17, nbest = 2 , method = "seqrep")
