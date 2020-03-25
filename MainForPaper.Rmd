@@ -113,31 +113,101 @@ These questions also correspond to a set of highly measurable (And luckily, prem
 
 Finally, these questions are relevant to policy makers who want to improve the incomes of their constituents as well as to researchers interested in establishing a baseline for the average income they should expect a community would earn based on its demographics. These are critical questions, because the ability of communities to support themselves economically has massive impacts on the wellbeing of their members.
 
+# Content
+First, an examination is conducted on how the US Census Bureau database is structured, and which variables were included. Secondly, an analysis of Cato Institute's Freedom in the 50 States shows whether or not it worked as a potential meaningful independent variable. Later on, the groups of independent variables and how each of them could affect the income per capita of a community is presented. Then, an exploratory data analysis and some statistical tests are made to evaluate the significance of our variables and a first preview of a regression analysis. Finally, a conclusion looks into further challenges and questions necessary to enhance future analyses.
 
+# Dataset
+## U.S. Census Bureau Dataset
+The U.S. Census Bureau Data holds the yearly American Community Survey: a project which asks Americans around the country about several dimensions of their lives, including work, income, demographics, and other activities. The dataset from 2015 was available via Kaggle, and included more than 74,000 observations, with 37 columns (variables).
+The dataset includes two variables related to income: the median household income and income per capita. The variable income per capita was prefered because it adjusts per person, and not per household given that it's unknown how many people can live in an average household. 
+The variable income per capita (IncomePerCap) is calculated as the average income per capita of the population of a specific census tract. But, what is a census tract and why use them?
 
-# Dataset 
+###Census tracts
+Household's income in America varies significantly by geographical location. The richest counties in the country are concentrated in urban areas near big metropolises where most businesses are located. The bay area in northern California, Northeast Virginia and New York are some examples. However, counties have been an insufficient unit to compare different variables among them. There are 3,142 counties in a country of 300 million inhabitants (U.S. Census Bureau, 2019), but among them are several inconsistencies.
+Texas, for example, has 254 counties (U.S. Census Bureau, 2017). California, a state with approximately 10 million people more than Texas, has only 58 counties (U.S. Census Bureau, 2017). Population-wise California has the largest county in the country with more than 10 million inhabitants (Los Angeles), whereas Texas has more than 80 counties with less than 10,000 people (U.S. Census Bureau, 2017). Density-wise, New York has 4 of 5  of the most dense counties in the country, some of them 60,000 times more dense than counties in Hawaii, Alaska or Nevada (U.S. Census Bureau, 2013).
+As a response to these inconsistencies found in counties in America, the U.S. Census Bureau delineated "Census Tracts" at the beginning of the twentieth century.  A census tract is "geographic region defined for the purpose of taking a census." Over the years, the U.S. Census Bureau has established census tracts in every county in America. There are over 74,000 census tracts in the country and a typical one has around 4,000 or so residents. There is a strength that comes from this consistency: census tracts are by and large similar in population size, and the population size of census tracts does not vary much from state to state.
+
+## Freedom in the 50 States
+The Freedom in the 50 States project presents a ranking of the American states based on how their policies promote freedom in the fiscal, regulatory, and personal realms. It was published by the libertarian-leaning think tank Cato Institute in 2015 and receives biannual updates. The index gathers data on more than 230 variables to measure "local government intervention across a wide range of policy categories—from taxation to debt, from eminent domain laws to occupational licensing, and from drug policy to educational choice."
+Before relying on this index, it is important to delve into the author's preferred definition of "freedom". Fortunately, the methodology of the index is very transparent about their criteria. The chapter dedicated to "defining freedom" in the report states: 
+
+"We ground our conception of freedom on an individual rights framework. In our view, individuals should not be prevented from ordering their lives, liberties, and property as they see fit, so long as they do not infringe on the rights of others. [...]  This index attempts to measure the extent to which state and local public policies conform to this ideal regime of maximum, equal freedom. For us, the fundamental problem with state intervention in consensual acts is that it violates people’s rights." 
+
+In other words, the report by the Cato Institute gives a higher score to those states whose laws protect individual rights, free markets, limited and small government and will punish those states with more regulations on trade and businesses, and restrictions on individual liberties.
+According to this report, some examples that are included in the study on how restrictions on freedom, in an economic, personal, regulatory or fiscal level, would be:
+- Aspiring professionals wanting to ply a trade without paying onerous examination and education costs.
+- Less-skilled workers priced out of the market by minimum wage laws.
+- Arrests for non drug victimless crimes, % of population
+- Prohibition of same-sex partnership
+
+### Why use this dataset as potential variables that affect income per capita?
+It is valuable to determine how different combinations of public policies in these areas can affect income per capita. This allows to roughly establish if higher or lower levels of fiscal, regulatory or personal freedom (as defined by the Cato’s formulas) have any relationship with the income per capita level in a community.
+
+# Merging datasets
+The Freedom in the 50 States dataset, though, was calculated at the state, rather than census tract, level. Therefore, when merging, each census tract has freedom scores identical to the score at the overarching state level. So, for example, since the fiscal policy score for Alabama was 0.122, then all census tracts located in Alabama have  a “fiscal policy score” of 0.122. Unfortunately, this project does not allow the inspection of differences in policies below the state level (so policies enacted by municipalities are ignored). 
+
 
 # Description of Variables
+The complete dataset includes 17 independent variables and 1 dependent variable.
+Thanks to their nature, the independent variables were classified in three groups: Freedom Scores, Work Variation and Ethnic Variation.
 
-## "First Attempts" Geo Plots
+## Freedom Scores
 
-```{r geo scatter} 
-full_2015_2 <- subset(full_2015, INTPTLONG > -150 & INTPTLONG < -50 & INTPTLAT > 24 & INTPTLAT < 50) 
+###Overall Freedom:
+The weighted sum of all the variables is used to produce the overall freedom ranking of the states. The overall freedom scores rate states on how free they are relative to other states. A score of 1 would correspond to a state’s being one standard deviation above average in every single variable, although in reality, every state scores better on some variables and worse on others. A score of 0 would be equivalent to a state’s being absolutely average on every variable, and a score of ¬1 to a state’s being one standard deviation below average on every variable.
 
+###Economic Freedom:
+Economic freedom is calculated as the sum of the fiscal and regulatory freedom indices.
 
-loadPkg("ggplot2")
-ggplot(full_2015_2, aes( x= INTPTLONG, y = INTPTLAT, color = Hispanic)) + 
-  geom_point(size=0.005) + scale_color_gradient(low="orange", high="red") +
-  labs (title="Scatter Plot: Spanish Ethnicity in 2015",
-        x=" Latitude",
-        y = "Longitude")
+###Personal Freedom:
+The personal freedom consists of the following categories: (a) incarceration and arrests for victimless crimes, (b) gun rights, (c) gambling freedom, (d) marriage freedom, (e) educational freedom, (f) alcohol freedom, (g) asset forfeiture, (h) marijuana freedom, (i) tobacco freedom, (j) travel freedom, (k) campaign finance freedom, and (l) other mala prohibita and miscellaneous civil liberties. 
 
-ggplot(full_2015_eduProp, aes( x= Professional, y = IncomePerCap, color = State == "New York", size = TotalPop)) +
-  geom_point() +
-  labs (title="Scatter Plot: IncomePerCap and Work type: Professional",
-        x="Professional (% of pop in census tract)",
-        y = "IncomePerCap")
-```
+###Regulatory Policy:
+The regulatory policy dimension includes categories for land-use freedom and environmental policy, health insurance freedom, labor-market freedom, lawsuit freedom, occupational freedom, miscellaneous regulations that do not fit under another category (such as certificate of need requirements), and cable and telecommunications freedom.
+
+###Fiscal Policy:
+The fiscal policy dimension consists of six variables: (a) state tax revenues, (b) government consumption, (c) local tax revenues, (d) government employment, (e) government debt, and (f) cash and security assets.
+
+##Work Variation:
+
+###Professional:
+Percentage (%) employed in management, business, science, and arts in a census tract.
+
+###Service:
+Percentage (%) employed in service jobs in a census tract.
+
+###Office:
+Percentage (%) employed in sales and office jobs in a census tract.
+
+###Construction:
+Percentage (%) employed in natural resources, construction, and maintenance in a census tract.
+
+###Production:
+Percentage (%) employed in production, transportation, and material movement in a census tract.
+
+###Unemployed:
+Unemployment rate (%) in a census tract.
+
+###Self-employed:
+Percentage (%) self-employed in a census tract.
+
+##Ethnic Variation
+
+###Native:
+Percentage (%) of population that is Native American or Native Alaskan in a census tract.
+
+###White:
+Percentage (%) of population that is white in a census tract.
+
+###Black:
+Percentage (%) of population that is black in a census tract.
+
+###Hispanic:
+Percentage (%) of population that is Hispanic/Latino in a census tract.
+
+###Asian:
+Percentage (%) of population that is Asian in a census tract.
+
 
 # Baseline EDA of Income and Population
 
