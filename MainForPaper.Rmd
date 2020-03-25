@@ -567,6 +567,8 @@ qqline(dat1$Native)
 
 ```
   Finally the five ethnic variables (Native, White, Black, Hispanic, and Asian) were investigated. The boxplots for White showed an increase in average income between the first second and third quartiles but no change in the fourth. The boxplot for Asian showed an increase from the first through the fourth quartile. The boxplots for Hispanic slightly increased between the first and second quartile but did not change for the third quartile. The fourth quantile for Hispanic decreased significantly. The boxplot for Black increased in average income between the first and second quartile. Then there was a decrease in average income from the second to the fourth quartiles. Overall, it appeared that average income did change based on concentration of ethnicities in a census tract. The histogram for White was bimodal with the highest frequency at over 8,000. The histograms for the other four ethnicities were skewed to the right. Based on the histogram, it appeared that white had the highest responses followed by Hispanic, Black, Asian, and Native. All of the error terms along the Q-Q plot line for each of the ethnicity variables followed a curve with large left and right tails. Also, there were not enough responses from the Native ethnicity to construct a meaningful boxplot.  For the native Q-Q plot, there was a clear pattern of the error terms along the line implying non-normality. Therefore, based on the assessment of the boxplots, histograms, and Q-Q plots, none of the ethnicities appear normally distributed.
+
+
 # Correlations
 
 
@@ -722,13 +724,6 @@ anova_dat <- dat1_varOfInterest_withMajorityEthnicity %>% filter(EthnicPlurality
                                                                  WorkPlurality!= "Error")
 ```
 
-```{r Ethnic ANOVA}
-Ethnic_2015_anova = aov(IncomePerCap ~ EthnicPlurality, data = anova_dat)
-Ethnic_2015_anova
-names(Ethnic_2015_anova)
-summary(Ethnic_2015_anova)
-```
-
 ```{r Ethnic Graph} 
 ggplot(anova_dat, aes(x=EthnicPlurality, y=IncomePerCap)) + 
   geom_boxplot(outlier.shape=8, outlier.size=4) +
@@ -737,13 +732,6 @@ ggplot(anova_dat, aes(x=EthnicPlurality, y=IncomePerCap)) +
 
 ```{r Ethnic Tukey, include=FALSE}
 TukeyHSD(Ethnic_2015_anova)
-```
-
-```{r Work ANOVA} 
-Work_2015_anova = aov(IncomePerCap ~ WorkPlurality, data = anova_dat)
-Work_2015_anova
-names(Work_2015_anova)
-summary(Work_2015_anova)
 ```
 
 ```{r Work Graph}
