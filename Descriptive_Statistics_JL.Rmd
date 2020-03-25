@@ -188,7 +188,7 @@ str(GroupEF)
 
 #Boxplot of IncomePerCap by Economic Freedom
 plot(IncomePerCap ~ GroupEF, data=dat1, main="IncomePerCap and GroupEF", col=c("#ffd18b","#ffb76d","#ffa264", "#ff875f") )
-summary(full_2017IPC$EconomicFreedom)
+summary(dat1$EconomicFreedom)
 
 #Histogram of Economic Freedom
 hist(dat1$EconomicFreedom, 
@@ -455,7 +455,7 @@ hist(dat1$Native,
         col = "#F5F8FA",
         main = "Native")
 
-#qqplot of White
+#qqplot of Native
 qqnorm(dat1$Native, main="Q-Q plot of Native")
 qqline(dat1$Native)
 
