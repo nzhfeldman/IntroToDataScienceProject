@@ -105,11 +105,7 @@ full_2015_varOfInterest <- full_2015 %>%  select(IncomePerCap,Hispanic:Asian,Pro
 
 America is a highly diverse country. It is not only diverse in terms of ethnicity, but also in terms of income, industry, and law. This opens the doors for a variety of possible interactions between these variables. What factors drive the way that income is distributed in the United States? What factors reliably predict whether the average income per capita in a specific area is high or low? How does state level variations in law and freedom impact income?
 
-<<<<<<< HEAD
-# How are these questions SMART?
-=======
 ## How are these questions SMART?
->>>>>>> bf17a0fd9d4a0e88d5f63c0c520d588a0f101b73
 
 These questions are important because they tell many facets of the story of consumption in the United States. Income serves both as a measure of productivity and lifetime consumption (although this analysis does not disentangle the two). Although their scope is broad, they remain specific to the concepts of income, demographics, and freedom, and maintain a consistent structure: how do demographics and freedom drive income in the United States, at the census tract level. 
 
@@ -154,7 +150,9 @@ The Freedom in the 50 States dataset, though, was calculated at the state, rathe
 ## What analysis has already been completed related to the content in this dataset?
 An analysis using this dataset was uploaded to Kaggle in 2018. It is titled "Child Poverty in New York City: A Comprehensive Study" and analyzed child poverty rates in New York City and how they vary by location and other factors (BigironSphere, 2018). Although it was conducted using the same dataset, it focused only in New York city and not the entire country.
 
+Another Kaggle user conducted a study titled "Comprehensive Look at the 2015 ACS estimate" (Pstetz, 2018), where he made a descriptive analysis for all the ACS variables. However, this study did not emphasize a particular variable over another one. 
 
+Several articles have been written using the Freedom in the 50 States dataset. Most of them coming from the Cato Institute or other institutions alike such as Mercatus Center from George Mason University. 
 
 # Description of Variables
 The complete dataset includes 17 independent variables and 1 dependent variable.
