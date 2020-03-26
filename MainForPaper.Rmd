@@ -794,16 +794,9 @@ plot(reg.summary$bic,xlab = '# of Varibales', ylab = 'BIC', type = "l")
 points(10,reg.summary$bic[12],col = "red",cex = 2, pch =20)
 
 ```
-<<<<<<< HEAD
 
-From the distribution graph, almost all the variables are included which was not helpful. If we were to select the best variables then it would be ‘WHITE’, 'Native', 'Asian','‘Professional’,'Office','Construction','Production',‘Unemployment’, 'Fiscal Policy'‘Personal Freedom’ and ‘service’ which is at highest R2 Value .68. 
-Adjusted R2 - The highest adjusted R2 is obtained at .68 and this is similar to that of R2, the only difference is the variable ‘Service’ is excluded.
-For BIC and CP, the lowest values are 12 and 10 and they are obtained when we include 12 and 8 variables in the regression
-=======
   From the distribution graph, almost all the variables are included which was not helpful. If we were to select the best variables then it would be ‘WHITE’, 'Native', 'Asian','‘Professional’,'Office','Construction','Production',‘Unemployment’, 'Fiscal Policy'‘Personal Freedom’ and ‘service’ which is at highest R2 Value .68.For Adjusted R2, the highest adjusted R2 is obtained at .68 and this is similar to that of R2, the only difference is the variable ‘Service’ is excluded.
 For BIC and CP, the lowest values are 12 and 10 and they are obtained when we include 12 and 8 variables in the regression.
->>>>>>> e10ecb7e92eda6e21960a3b03702808a59e0c663
-
 
 ## Forward Selection
   
