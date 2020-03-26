@@ -793,9 +793,8 @@ plot(reg.summary$bic,xlab = '# of Varibales', ylab = 'BIC', type = "l")
 points(10,reg.summary$bic[12],col = "red",cex = 2, pch =20)
 
 ```
-  From the distribution graph, almost all the variables are included which was not helpful. If we were to select the best variables then it would be ‘WHITE’, 'Native', 'Asian','‘Professional’,'Office','Construction','Production',‘Unemployment’, 'Fiscal Policy'‘Personal Freedom’ and ‘service’ which is at highest R2 Value .68. 
-Adjusted R2 - The highest adjusted R2 is obtained at .68 and this is similar to that of R2, the only difference is the variable ‘Service’ is excluded.
-For BIC and CP, the lowest values are 12 and 10 and they are obtained when we include 12 and 8 variables in the regression
+  From the distribution graph, almost all the variables are included which was not helpful. If we were to select the best variables then it would be ‘WHITE’, 'Native', 'Asian','‘Professional’,'Office','Construction','Production',‘Unemployment’, 'Fiscal Policy'‘Personal Freedom’ and ‘service’ which is at highest R2 Value .68.For Adjusted R2, the highest adjusted R2 is obtained at .68 and this is similar to that of R2, the only difference is the variable ‘Service’ is excluded.
+For BIC and CP, the lowest values are 12 and 10 and they are obtained when we include 12 and 8 variables in the regression.
 
 
 ## Forward Selection
@@ -807,10 +806,7 @@ plot(reg.forward10, scale = "bic", main = "BIC")
 plot(reg.forward10, scale = "Cp", main = "Cp")
 #summary(reg.forward10)
 ```
-  R2 is not used as a criteria , which usually improves with number of variables and leads to overfitting.
-For Adjusted R2,we could choose the range of  best variables from 4 to 10. 
-The best variables are ‘WHITE’, ‘Professional’, ‘Unemployment’, ‘Personal Freedom’, ‘service’ which is at highest R2 Value .68. 
-For BIC and CP, the lowest measure value variables are 12 and 10 respectively.
+  R2 is not used as a criteria , which usually improves with number of variables and leads to overfitting.For Adjusted R2,we could choose the range of  best variables from 4 to 10.The best variables are ‘WHITE’, ‘Professional’, ‘Unemployment’, ‘Personal Freedom’, ‘service’ which is at highest R2 Value .68. For BIC and CP, the lowest measure value variables are 12 and 10 respectively.
 
 ## Backward Selection
 
@@ -822,7 +818,7 @@ plot(reg.back10, scale = "Cp", main = "Cp")
 #summary(reg.back10)
 ```
   Now backwards (`nvmax=17` and `nbest=2`)
-Best variables from the range of 9 to 11 could be choosen and they are ‘WHITE’, 'Native', 'Asian','‘Professional’,'Office','Construction', 'Production',‘Unemployment’, 'Fiscal Policy'‘Personal Freedom’ and ‘service’.For BIC and CP, the lowest measure value variables are 12 and 10 respectively.
+Best variables from the range of 9 to 11 could be choosen and they are ‘WHITE’, 'Native', 'Asian','‘Professional’,'Office','Construction','Production',‘Unemployment’, 'Fiscal Policy'‘Personal Freedom’ and ‘service’.For BIC and CP, the lowest measure value variables are 12 and 10 respectively.
 
 ## Sequential Replacement seqrep  
   
