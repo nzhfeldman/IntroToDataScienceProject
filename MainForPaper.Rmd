@@ -764,6 +764,7 @@ chi_table_dat %>%
 
 # Regression
   Variables from the dataset were chosen to perform the regression. Using measures such as R-square, Adjusted R-Square, Complexity Parameter (CP) , Bayesian Information Criterion (BIC) and Residual Sum of Square (RSS) the best variable that could fit the model was selected. To begin with different measures v/s number of variables were plotted.
+  
 ## Exhaustive Search
 
 ```{r} 
@@ -793,7 +794,8 @@ plot(reg.summary$bic,xlab = '# of Varibales', ylab = 'BIC', type = "l")
 points(10,reg.summary$bic[12],col = "red",cex = 2, pch =20)
 
 ```
-  From the distribution graph, almost all the variables are included which was not helpful. If we were to select the best variables then it would be ‘WHITE’, 'Native', 'Asian','‘Professional’,'Office','Construction','Production',‘Unemployment’, 'Fiscal Policy'‘Personal Freedom’ and ‘service’ which is at highest R2 Value .68. 
+
+From the distribution graph, almost all the variables are included which was not helpful. If we were to select the best variables then it would be ‘WHITE’, 'Native', 'Asian','‘Professional’,'Office','Construction','Production',‘Unemployment’, 'Fiscal Policy'‘Personal Freedom’ and ‘service’ which is at highest R2 Value .68. 
 Adjusted R2 - The highest adjusted R2 is obtained at .68 and this is similar to that of R2, the only difference is the variable ‘Service’ is excluded.
 For BIC and CP, the lowest values are 12 and 10 and they are obtained when we include 12 and 8 variables in the regression
 
