@@ -4,27 +4,145 @@ author: "Jake Lieberfarb"
 date: "4/3/2020"
 output: html_document
 ---
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+```{r setup, include=FALSE, echo=FALSE}
+knitr::opts_chunk$set(warning = F, results = T, message = T, echo = F)
+loadPkg = function(x) { if (!require(x,character.only=T, quietly =T)) { install.packages(x,dep=T,repos="http://cran.us.r-project.org"); if(!require(x,character.only=T)) stop("Package not found") } }
 ```
 
-## R Markdown
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+```{r Functions, include=FALSE} 
+loadPkg = function(pkg, character.only = FALSE) { 
+  if (!character.only) { pkg <- as.character(substitute(pkg)) }
+  if (!require(pkg,character.only=T, quietly =T)) {  install.packages(pkg,dep=T,repos="http://cran.us.r-project.org"); if(!require(pkg,character.only=T)) stop("Package not found") } 
+}
+loadPkg(knitr)
 ```
 
-## Including Plots
+```{r Remove Outliers, include=FALSE} 
+# Fix outliers
 
-You can also embed plots, for example:
+outlierKD2 <- function(df, var, rm=FALSE) { 
+    #' Original outlierKD functino by By Klodian Dhana,
+    #' https://www.r-bloggers.com/identify-describe-plot-and-remove-the-outliers-from-the-dataset/
+    #' Modified to have third argument for removing outliers inwtead of interactive prompt, 
+    #' and after removing outlier, original df will not be changed. The function returns the new df, 
+    #' which can be saved as original df name if desired.
+    #' Check outliers, and option to remove them, save as a new dataframe. 
+    #' @param df The dataframe.
+    #' @param var The variable in the dataframe to be checked for outliers
+    #' @param rm Boolean. Whether to remove outliers or not.
+    #' @return The dataframe with outliers replaced by NA if rm==TRUE, or df if nothing changed
+    #' @examples
+    #' outlierKD2(mydf, height, FALSE)
+    #' mydf = outlierKD2(mydf, height, TRUE)
+    #' mydfnew = outlierKD2(mydf, height, TRUE)
+    dt = df # duplicate the dataframe for potential alteration
+    var_name <- eval(substitute(var),eval(dt))
+    na1 <- sum(is.na(var_name))
+    m1 <- mean(var_name, na.rm = T)
+    #par(mfrow=c(2, 2), oma=c(0,0,3,0))
+    boxplot(var_name, main="With outliers")
+    hist(var_name, main="With outliers", xlab=NA, ylab=NA)
+    outlier <- boxplot.stats(var_name)$out
+    mo <- mean(outlier)
+    var_name <- ifelse(var_name %in% outlier, NA, var_name)
+    boxplot(var_name, main="Without outliers")
+    hist(var_name, main="Without outliers", xlab=NA, ylab=NA)
+    title("Outlier Check", outer=TRUE)
+    na2 <- sum(is.na(var_name))
+    cat("Outliers identified:", na2 - na1, "\n")
+    cat("Propotion (%) of outliers:", round((na2 - na1) / sum(!is.na(var_name))*100, 1), "\n")
+    cat("Mean of the outliers:", round(mo, 2), "\n")
+    m2 <- mean(var_name, na.rm = T)
+    cat("Mean without removing outliers:", round(m1, 2), "\n")
+    cat("Mean if we remove outliers:", round(m2, 2), "\n")
+    
+    # response <- readline(prompt="Do you want to remove outliers and to replace with NA? [yes/no]: ")
+    # if(response == "y" | response == "yes"){
+    if(rm){
+        dt[as.character(substitute(var))] <- invisible(var_name)
+        #assign(as.character(as.list(match.call())$dt), dt, envir = .GlobalEnv)
+        cat("Outliers successfully removed", "\n")
+        return(invisible(dt))
+    } else {
+        cat("Nothing changed", "\n")
+        return(invisible(df))
+    }
+}
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+loadPkg("car")
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+```{r Load 2015 data, include=FALSE}
+loadPkg('dplyr')
+loadPkg('readxl')
+loadPkg('readr')
+
+#Read in general census data
+census_2015 <- read.csv(file = 'acs2015updated.csv')
+
+#Read in Specifically Education Data
+edu_data_2015 <- read_csv("ACS_15_5YR_B15003_renamed.csv", skip = 1) %>% mutate(Id2 = as.numeric(Id2))
+
+#Read in Freedom Data
+freedom <- read_excel("Freedom_In_The_50_States_2018.xlsx", sheet = "Overall")
+
+#Combine
+census_edu_2015 <- left_join(census_2015, edu_data_2015, by = c("CensusTract" = "Id2"))
+full_2015 <- full_join(census_edu_2015, freedom %>% filter(Year == 2015), by = "State") 
+
+#For the education data, we will need to divide the count by the total
+full_2015_eduProp <- full_2015 %>% mutate(PropHighSchool = EstHighSchool/EstTotal,
+                                          PropBachelors = EstBachelors/EstTotal,
+                                          PropDoctorate = EstDoctorate/EstTotal)
+full_2015_varOfInterest <- full_2015 %>%  select(IncomePerCap,Hispanic:Asian,Professional:Production, SelfEmployed, Unemployment, FiscalPolicy,EconomicFreedom, RegulatoryPolicy, PersonalFreedom, OverallFreedom)
+
+```
+
+```{r income including outliers, include=FALSE} 
+#Histogram of dependent variable
+hist(dat0$IncomePerCap, 
+        col = "#a8c2fb",
+        main = "Income per Capita",
+        xlab = "US Dollars")
+
+#ggplot
+qqnorm(dat0$IncomePerCap, main="Q-Q plot of IncomePerCap")
+qqline(dat0$IncomePerCap)
+
+#Mean after removing NA's
+format(mean(dat0$IncomePerCap, na.rm = TRUE))
+
+#Summary after removing NA's
+summary(dat0$IncomePerCap)
+#standard deviation
+sd(dat0$IncomePerCap, na.rm = TRUE)
+```
+## Income Histogram and QQ
+```{r income no outliers} 
+#Histogram of dependent variable
+hist(dat1$IncomePerCap, 
+        col = "#a8c2fb",
+        main = "Income per Capita",
+        xlab = "US Dollars")
+
+#ggplot
+qqnorm(dat1$IncomePerCap, main="Q-Q plot of IncomePerCap")
+qqline(dat1$IncomePerCap)
+
+#Mean after removing NA's
+format(mean(dat1$IncomePerCap, na.rm = TRUE))
+
+#Summary after removing NA's
+summary(dat1$IncomePerCap)
+#standard deviation
+sd(dat1$IncomePerCap, na.rm = TRUE)
+```
+
+```{r analysis}
+loadPkg("dvmisc")
+GroupIncome <- quant_groups(dat1$IncomePerCap, 4)
+str(GroupIncome)
+
+```
+
