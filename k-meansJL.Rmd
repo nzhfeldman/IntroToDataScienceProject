@@ -130,19 +130,25 @@ hist(dat1$IncomePerCap,
 qqnorm(dat1$IncomePerCap, main="Q-Q plot of IncomePerCap")
 qqline(dat1$IncomePerCap)
 
+#remove NAs
+dat2 <- subset(dat1, IncomePerCap > 0 )
+sum(is.na(dat2$IncomePerCap))
 #Mean after removing NA's
-format(mean(dat1$IncomePerCap, na.rm = TRUE))
+format(mean(dat2$IncomePerCap, na.rm = TRUE))
 
 #Summary after removing NA's
-summary(dat1$IncomePerCap)
+summary(dat2$IncomePerCap)
 #standard deviation
-sd(dat1$IncomePerCap, na.rm = TRUE)
+sd(dat2$IncomePerCap, na.rm = TRUE)
 ```
 
 ```{r analysis}
-loadPkg("dvmisc")
-GroupIncome <- quant_groups(dat1$IncomePerCap, 4)
-str(GroupIncome)
+v1=c(dat2$IncomePerCap) # column 20
+dat3 <- subset(dat2$State, dat2$IncomePerCap)
+# We need to scale the data to have zero mean and unit variance 
+data <- scale(dat3$IncomePerCap)  
+
+
 
 ```
 
