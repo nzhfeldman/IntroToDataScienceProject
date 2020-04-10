@@ -1,0 +1,138 @@
+---
+title: "BB_PCA"
+author: "BB"
+date: "4/10/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r PCA_PCR_xform_fcns}
+PCAxform <- function(df, z=TRUE) { 
+  #' Obtain the dataframe with the Principal Components after the rotation. 
+  #' ELo 201911 GWU DATS
+  #' @param df The dataframe.
+  #' @param z T/F or 0/1 for z-score to be used
+  #' @return The transformed dataframe.
+  #' @examples
+  #' tmp = PCAxform(USArrests,TRUE)
+
+  z = ifelse(z==TRUE || z=="true" || z=="True" || z=="T" || z=="t" || z==1 || z=="1", TRUE, FALSE) # standardize z 
+  if(z) { df = data.frame(scale(df))}  # scale not safe for non-numeric colunms, but PCA requires all variables numerics to begin with.
+  pr.out = prcomp(df,scale=z)
+  df1 = data.frame( as.matrix(df) %*% pr.out$rotation ) # use matrix multiplication in R:  %*% 
+  return(df1)
+}
+# Sample 
+# USArrests.z.pc = PCAxform(USArrests,TRUE)
+# summary(USArrests.z.pc)
+
+PCRxform <- function(df, y, zX=TRUE, zy=FALSE) { 
+  #' Obtain the dataframe with the Principal Components after the rotation for PCRegression. Requires related function PCAxform()
+  #' ELo 201903 GWU DATS
+  #' @param df The dataframe.
+  #' @param y The y-variable column index number(int), or the name of y-variable
+  #' @param zX T/F or 0/1 for z-score used on X-variables
+  #' @param zy T/F or 0/1 for z-score used on the target y-variable
+  #' @return The transformed dataframe.
+  #' @examples
+  #' tmp = PCAxform(USArrests,TRUE)
+
+  # take care of y target
+  zy = ifelse(zy==TRUE || zy=="true" || zy=="True" || zy=="T" || zy=="t" || zy==1 || zy=="1", TRUE, FALSE) # standardize target y
+  if( is.integer(y) ) { # y is integer
+    if( y>length(df) || y<1 ) {
+      print("Invalid column number")
+      return(NULL)
+    }
+    if(zy) { df1 = data.frame( scale(df[y]) ) } else { df1 = df[y] } # save y-var in df1
+    df = df[-y] # remove y-variable in df
+  } else { # y is not integer, so interpret as name
+    if(zy) { df1 = data.frame( scale( df[names(df) == y] ) ) } else { df1 = df[names(df) == y] }
+    df = df[names(df) != y] # remove y-variable in df
+  }
+  if( length(df1)<1 ) {
+    print("Variable name not found in data.frame")
+    return(NULL)
+  }
+  # now transform X-vars
+  zX = ifelse(zX==TRUE || zX=="true" || zX=="True" || zX=="T" || zX=="t" || zX==1 || zX=="1", TRUE, FALSE) # standardize X-vars 
+  df2 = PCAxform(df,zX)
+  df1 = data.frame(df1,df2) # piece them back together
+  return(df1)
+}
+# Sample 
+# USArrests.z.pcr = PCRxform(USArrests,3,TRUE) # OR
+# USArrests.z.pcr = PCRxform(USArrests,"UrbanPop",TRUE) 
+# summary(USArrests.z.pcr)
+```
+
+```{r matrices}
+comp <- full_2015_varOfInterest[complete.cases(full_2015_varOfInterest), ]
+
+comp_cov <- cov(comp)
+comp_cor <- cor(comp)
+```
+
+```{r scaled}
+comp_scale <- scale(comp)
+scale_cov <- cov(comp_scale)
+scale_cor <- cor(comp_scale)
+```
+
+```{r PCs}
+pc <- prcomp(comp, scale = TRUE)
+summary(pc)
+pc$rotation
+```
+
+```{r plots}
+biplot(pc, scale = 0)
+```
+
+
+```{r rotation}
+comp_rot <- PCAxform(comp,FALSE)
+```
+
+```{r matrices}
+comp_rot_cov <- cov(comp_rot)
+comp_rot_cor <- cor(comp_rot)
+```
+
+```{r scaled}
+comp_rot_scale <- scale(comp_rot)
+scale_rot_cov <- cov(comp_rot_scale)
+scale_rot_cor <- cor(comp_rot_scale)
+```
+
+```{r PCs}
+pc_rot <- prcomp(comp_rot, scale = TRUE)
+summary(pc_rot)
+```
+
+```{r plots}
+biplot(pc_rot, scale = 0)
+```
+
+
+```{r var}
+#Let us plot the cumulation of variance using the sd
+pr.var <- (pr.out$sdev^2)
+pve <- pr.var/sum(pr.var)
+plot(cumsum(pve), xlab="Principal Component (standardized)", ylab ="Cumulative Proportion of Variance Explained",ylim=c(0,1),type="b")
+pr.var.nc <- (pr.out.nc$sdev^2)
+pve.nc <- pr.var.nc/sum(pr.var.nc)
+plot(cumsum(pve.nc), xlab="Principal Component (non-standardized)", ylab ="Cumulative Proportion of Variance Explained",ylim=c(0,1),type="b")
+```
+
+
+
+
+
+
+
+
+
