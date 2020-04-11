@@ -187,7 +187,7 @@ qqline(dat1$IncomePerCap)
   The raw data for income appeared very skewed to the right as well. The data appeared to follow a power-law curve as some individuals have amassed a large amount of income and these outliers can skew the data. Thus, the outliers and NA values were removed; checking again, the “cleaned data” appeared normal. The histogram appears monomodal and the error terms along the Q-Q plot did not stray away from the line.
 
 
-```{r Dividing Income in 3 groups} 
+```{r Dividing Income in 2 groups} 
 
 
 loadPkg("dvmisc")
@@ -279,8 +279,6 @@ dat.testLabels <- dat1[dat_sample==2, 12]
 
 
 **KNN results**  
-
-
 ```{r}
 #So now we will deploy our model 
 dat_pred <- knn(train = dat_training, test = dat_test, cl=dat.trainLabels, k=3)
