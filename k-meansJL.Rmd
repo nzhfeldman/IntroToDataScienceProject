@@ -143,11 +143,32 @@ sd(dat2$IncomePerCap, na.rm = TRUE)
 ```
 
 ```{r analysis}
-v1=c(dat2$IncomePerCap) # column 20
-dat3 <- subset(dat2$State, dat2$IncomePerCap)
-# We need to scale the data to have zero mean and unit variance 
-data <- scale(dat3$IncomePerCap)  
+library(tidyverse)  # data manipulation
+library(cluster)    # clustering algorithms
+install.packages(factoextra)
+library(factoextra)
+library(ggplot2)
 
+dat3 <- data.frame(dat2$IncomePerCap,dat2$Hispanic,dat2$White, dat2$Black, dat2$Asian, dat2$Native)
+# include work variables {look at luis'} 
+df1 <- scale(dat3)
+set.seed(1000)
+k2 <- kmeans(df1, centers = 7, nstart = 25)
+str(k2)
+k2
+
+
+
+
+
+v1=c(dat2$IncomePerCap) # column 20
+ # use the example in the pptx, try k=2 clusters
+data <- scale(v1)
+
+# We need to scale the data to have zero mean and unit variance 
+  
+
+  
 
 
 ```
