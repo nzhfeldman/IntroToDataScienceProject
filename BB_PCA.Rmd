@@ -88,37 +88,86 @@ summary(pc)
 pc$rotation
 ```
 
-```{r plots}
+```{r plot - too big}
 biplot(pc, scale = 0)
 ```
 
 
+
+
+
+
+
+
+
+
+
+```{r sample matrices}
+set.seed(100)
+#what should we set the sample size to?
+mysample <- comp[sample(1:nrow(comp), 50,
+   replace=FALSE),]
+
+sample_cov <- cov(mysample)
+sample_cor <- cor(mysample)
+```
+
+```{r sample scaled}
+sample_scale <- scale(mysample)
+sample_scale_cov <- cov(sample_scale)
+sample_scale_cor <- cor(sample_scale)
+```
+
+```{r sample PCs}
+sample_pc <- prcomp(mysample, scale = TRUE)
+summary(sample_pc)
+sample_pc$rotation
+```
+
+```{r sample plot}
+biplot(sample_pc, scale = 0)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ```{r rotation}
-comp_rot <- PCAxform(comp,FALSE)
+sample_rot <- PCAxform(mysample,FALSE)
 ```
 
-```{r matrices}
-comp_rot_cov <- cov(comp_rot)
-comp_rot_cor <- cor(comp_rot)
+```{r rot matrices}
+sample_rot_cov <- cov(sample_rot)
+sample_rot_cor <- cor(sample_rot)
 ```
 
-```{r scaled}
-comp_rot_scale <- scale(comp_rot)
-scale_rot_cov <- cov(comp_rot_scale)
-scale_rot_cor <- cor(comp_rot_scale)
+```{r rot scaled}
+sample_rot_scale <- scale(sample_rot)
+scale_sample_rot_cov <- cov(sample_rot_scale)
+scale_sample_rot_cor <- cor(sample_rot_scale)
+
 ```
 
-```{r PCs}
-pc_rot <- prcomp(comp_rot, scale = TRUE)
-summary(pc_rot)
+```{r rot PCs}
+pc_sample_rot <- prcomp(sample_rot, scale = TRUE)
+summary(pc_sample_rot)
 ```
 
-```{r plots}
-biplot(pc_rot, scale = 0)
+```{r rot plots}
+biplot(pc_sample_rot, scale = 0)
 ```
 
 
-```{r var}
+```{r rot var}
 #Let us plot the cumulation of variance using the sd
 pr.var <- (pr.out$sdev^2)
 pve <- pr.var/sum(pr.var)
