@@ -142,22 +142,62 @@ summary(dat2$IncomePerCap)
 sd(dat2$IncomePerCap, na.rm = TRUE)
 ```
 
-```{r analysis}
+```{r analysis for ethnicities }
 library(tidyverse)  # data manipulation
 library(cluster)    # clustering algorithms
 install.packages(factoextra)
 library(factoextra)
 library(ggplot2)
-
-dat3 <- data.frame(dat2$IncomePerCap,dat2$Hispanic,dat2$White, dat2$Black, dat2$Asian, dat2$Native)
 # include work variables {look at luis'} 
+#ethnicities clustering 
+#White
+dat3 <- data.frame(dat2$IncomePerCap,dat2$White)
+
 df1 <- scale(dat3)
 set.seed(1000)
-k2 <- kmeans(df1, centers = 7, nstart = 25)
+k2 <- kmeans(df1, centers = 2, nstart = 25)
 str(k2)
 k2
 
+# Elbow method for kmeans
+fviz_nbclust(df1, kmeans, method = "wss") +
+geom_vline(xintercept = 3, linetype = 2)
 
+
+
+
+
+
+
+
+#Hispanic 
+dat4 <- data.frame(dat2$IncomePerCap,dat2$Hispanic)
+df2 <- scale(dat4)
+set.seed(1000)
+k3 <- kmeans(df2, centers = 2, nstart = 25)
+str(k3)
+k3
+#black 
+dat5 <- data.frame(dat2$IncomePerCap,dat2$Black)
+df3 <- scale(dat5)
+set.seed(1000)
+k4 <- kmeans(df3, centers = 2, nstart = 25)
+str(k4)
+k4
+#Asian 
+dat6 <- data.frame(dat2$IncomePerCap,dat2$Asian)
+df4 <- scale(dat6)
+set.seed(1000)
+k5 <- kmeans(df4, centers = 2, nstart = 25)
+str(k5)
+k5
+#Native 
+dat7 <- data.frame(dat2$IncomePerCap,dat2$Native)
+df5 <- scale(dat7)
+set.seed(1000)
+k6 <- kmeans(df5, centers = 2, nstart = 25)
+str(k6)
+k6
 
 
 
@@ -169,6 +209,36 @@ data <- scale(v1)
   
 
   
+
+
+```
+
+```{r analysis of profession}
+#Work Variations 
+dat8 <- data.frame(na.omit(dat2$IncomePerCap,dat2$Professional))
+df6 <- scale(dat8)
+set.seed(1000)
+k7 <- kmeans(df6, centers = 2, nstart = 25)
+str(k7)
+k7
+#Professional
+dat9 <- data.frame(na.omit(dat2$IncomePerCap,dat2$Production))
+df7 <- scale(dat9)
+set.seed(1000)
+k8 <- kmeans(df7, centers = 2, nstart = 25)
+str(k8)
+k8
+#Production
+
+#Unemployment
+
+#Office
+
+#Service 
+
+#Construction
+
+#self Employed
 
 
 ```
