@@ -280,7 +280,8 @@ loadPkg(glmnet)
 grid=10^seq(10,-2,length=100) # prepare log scale grid for λ values, from 10^10 to 10^-2, in 100 segments
 ridge.mod=glmnet(x,y,alpha=0,lambda=grid) # build the ridge model. (alpha is elastic-net mixing parameter, between 0 and 1. Ridge is 0, Lasso is 1)
 dim(coef(ridge.mod))  # same as dim(coefficients(ridge.mod)), is the dimensions of all the models (100 of them), and the dimension is here: 20x100
-plot(ridge.mod)   
+plot(ridge.mod)
+legend("topleft",x, y, legend, fill, col, bg)
 
 ```
 
@@ -350,8 +351,17 @@ lasso_coef
 cat("\nThe non-zero coefficients : \n")
 lasso_coef[lasso_coef!=0]
 ```
+```{r lasso vs. regression}
+https://h1ros.github.io/posts/lasso-regression/
+```
+
+##Tree diagram
 
 
+
+
+
+##K- Means
 ```{r analysis for ethnicities }
 library(tidyverse)  # data manipulation
 library(cluster)    # clustering algorithms
