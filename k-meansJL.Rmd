@@ -73,6 +73,48 @@ outlierKD2 <- function(df, var, rm=FALSE) {
 loadPkg("car")
 ```
 
+```{r uzscale_fcn }
+uzscale <- function(df, append=0, excl=NULL) { 
+  #' Standardize dataframe to z scores, safe for non-numeric variables. 
+  #' ELo 201904 GWU DATS
+  #' @param df The dataframe.
+  #' @param append T/F or 0/1. Option to append scaled columns or replace original columns in the dataframe.
+  #' @param excl A list c(a,b,"d","ef") of excluded columns, either by their indexes and/or names.
+  #' @return The transformed dataframe, appended or replaced with standardized scores. Non-numeric columns will not be appended, or if "replace option" is chosen, the columns will be untouched.
+  #' @examples
+  #' library("ISLR")
+  #' tmp = uzscale( Hitters )
+  #' tmp = uzscale( Hitters, 1 )
+  #' tmp = uzscale( Hitters, TRUE, c(19,"NewLeague") )
+
+  append = ifelse(append==TRUE || append=="true" || append=="True" || append=="T" || append=="t" || append==1 || append=="1", TRUE, FALSE) # standardize append 
+  nmax = length(df)
+  if (nmax < 1 || !is.numeric(nmax) ) { return(df) }
+  df1 = df
+  onames = colnames(df)  # the original column names
+  cnames = onames  # the new column names, if needed start with the original ones
+  znames = paste("z",cnames, sep="")     # new column names added prefix 'z'. Those are non-numeric will not be used.
+  nadd = ifelse(append, nmax, 0) # add to the column index or replace the orig columns
+  j=1  # counting index
+  for( i in 1:nmax ) {
+    if ( is.numeric(df[,i]) && !( i %in% excl || onames[i] %in% excl ) ) { 
+      df1[,j+nadd] = scale(df[,i])
+      cnames = c(cnames, znames[i])
+      j=j+1
+    } else if ( !append ) { j=j+1
+    } # if append == 1 and (colunm non-numeric or excluded), do not advance j.
+  }
+  if (append) { colnames(df1) <- cnames }
+  return(df1)
+}
+# sample
+# loadPkg(ISLR)
+# HittersClean = subset(Hitters, Salary != "NA")
+# tmp = uzscale(HittersClean,0,c(2,"Salary") )
+# detach("package:ISLR", unload = T)
+```
+
+
 ```{r Load 2015 data, include=FALSE}
 loadPkg('dplyr')
 loadPkg('readxl')
@@ -99,6 +141,37 @@ full_2015_varOfInterest <- full_2015 %>%  select(IncomePerCap,Hispanic:Asian,Pro
 
 ```
 
+
+```{r population, include=FALSE} 
+loadPkg("ggplot2")
+
+# NA's
+dat0<-full_2015[!is.na(full_2015$IncomePerCap),]
+sum(is.na(dat0$IncomePerCap))
+
+#removed outliers 
+dat1 <- outlierKD2(dat0, IncomePerCap, TRUE)
+#Histogram of dependent variable
+hist(dat1$TotalPop, 
+        col = "#a8c2fb",
+        main = "population Count",
+        xlab = "US Dollars")
+
+#ggplot
+qqnorm(dat1$TotalPop, main="Q-Q plot of TotalPop")
+qqline(dat1$TotalPop)
+
+#Mean after removing NA's
+format(mean(dat1$TotalPop, na.rm = TRUE))
+
+#Summary after removing NA's
+summary(dat1$TotalPop)
+#standard deviation
+sd(dat1$TotalPop, na.rm = TRUE)
+
+```
+
+
 ```{r income including outliers, include=FALSE} 
 #Histogram of dependent variable
 hist(dat0$IncomePerCap, 
@@ -118,8 +191,12 @@ summary(dat0$IncomePerCap)
 #standard deviation
 sd(dat0$IncomePerCap, na.rm = TRUE)
 ```
+
+
+
 ## Income Histogram and QQ
 ```{r income no outliers} 
+
 #Histogram of dependent variable
 hist(dat1$IncomePerCap, 
         col = "#a8c2fb",
@@ -130,17 +207,150 @@ hist(dat1$IncomePerCap,
 qqnorm(dat1$IncomePerCap, main="Q-Q plot of IncomePerCap")
 qqline(dat1$IncomePerCap)
 
-#remove NAs
-dat2 <- subset(dat1, IncomePerCap > 0 )
-sum(is.na(dat2$IncomePerCap))
-#Mean after removing NA's
-format(mean(dat2$IncomePerCap, na.rm = TRUE))
+
+#Total NA Before
+sum(is.na(dat1$IncomePerCap))
+
+#Remove NA
+dat1 <- dat1[!is.na(dat1$IncomePerCap), ]
+
+#Total NA After
+sum(is.na(dat1$IncomePerCap))
+length(dat1$IncomePerCap)
+
 
 #Summary after removing NA's
-summary(dat2$IncomePerCap)
+summary(dat1$IncomePerCap)
 #standard deviation
-sd(dat2$IncomePerCap, na.rm = TRUE)
+sd(dat1$IncomePerCap, na.rm = TRUE)
+
+
+#Histogram of dependent variable
+hist(dat1$IncomePerCap, 
+        col = "#a8c2fb",
+        main = "Income per Capita",
+        xlab = "US Dollars")
+
+#ggplot
+qqnorm(dat1$IncomePerCap, main="Q-Q plot of IncomePerCap")
+qqline(dat1$IncomePerCap)
+
+
+
+
 ```
+
+
+```{r}
+#Subsetting
+datJL <- subset(dat1, select = c(Hispanic, White, Black, Asian, Professional, Service, Office, Construction, Production, Unemployment, IncomePerCap))
+               
+str(datJL)
+```
+
+### Lasso and Ridge 
+
+```{r}
+loadPkg(ISLR)
+
+
+#Total NA Before
+sum(is.na(datJL))
+
+#Remove NA
+dat1 <- na.omit(datJL)
+
+#Total NA After
+sum(is.na(datJL))
+length(datJL)
+
+str(datJL)
+
+datJLClean = uzscale(dat1, 0, "IncomePerCap")
+```
+
+
+```{r}
+x=model.matrix(IncomePerCap~.,datJLClean)[,-1]
+dim(x)
+y=datJLClean$IncomePerCap
+dim(y)
+
+loadPkg(glmnet)
+grid=10^seq(10,-2,length=100) # prepare log scale grid for λ values, from 10^10 to 10^-2, in 100 segments
+ridge.mod=glmnet(x,y,alpha=0,lambda=grid) # build the ridge model. (alpha is elastic-net mixing parameter, between 0 and 1. Ridge is 0, Lasso is 1)
+dim(coef(ridge.mod))  # same as dim(coefficients(ridge.mod)), is the dimensions of all the models (100 of them), and the dimension is here: 20x100
+plot(ridge.mod)   
+
+```
+
+
+```{r ridge predictions}
+ridge.mod$lambda[50] # 11498
+coef(ridge.mod)[,50]
+sqrt(sum(coef(ridge.mod)[-1,50]^2)) #3616
+ridge.mod$lambda[60] # 705
+coef(ridge.mod)[,60] 
+sqrt(sum(coef(ridge.mod)[-1,60]^2)) #5092
+
+predict(ridge.mod,s=50,type="coefficients")[1:11,]
+```
+## Train and Test sets
+
+```{r, warning=F}
+loadPkg(dplyr)
+set.seed(1)
+train = datJLClean %>% sample_frac(0.5)
+test = datJLClean %>% setdiff(train)
+
+x_train = model.matrix(IncomePerCap~., train)[,-1]
+x_test = model.matrix(IncomePerCap~., test)[,-1]
+
+y_train = train %>% select(IncomePerCap) %>% unlist() # %>% as.numeric()
+y_test = test %>% select(IncomePerCap) %>% unlist() # %>% as.numeric()
+
+
+
+```
+
+```{r cross validation}
+set.seed(1)
+cv.out.ridge=cv.glmnet(x_train,y_train,alpha=0)  # Fit ridge regression model on training data
+plot(cv.out.ridge)
+bestlam.ridge = cv.out.ridge$lambda.min  # Select lamda that minimizes training MSE
+bestlam.ridge
+cat("lowest lamda from CV: ", bestlam.ridge, "\n\n")
+ridge.pred=predict(ridge.mod,s=bestlam.ridge,newx=x_test)
+ridgeMeanMse = mean((ridge.pred-y_test)^2)
+cat("Mean MSE for best Ridge lamda: ", ridgeMeanMse, "\n\n")
+#
+out.ridge=glmnet(x,y,alpha=0)
+ridge_coef = predict(out.ridge,type="coefficients",s=bestlam.ridge)[1:11,]
+cat("\nAll the coefficients : \n")
+ridge_coef
+```
+##Lasso 
+```{r lasso}
+lasso.mod=glmnet(x_train,y_train,alpha=1,lambda=grid)
+plot(lasso.mod)
+set.seed(1)
+cv.out.lasso=cv.glmnet(x_train,y_train,alpha=1)
+plot(cv.out.lasso)
+bestlam.lasso=cv.out.lasso$lambda.min
+cat("lowest lamda from CV: ", bestlam.lasso, "\n\n")
+lasso.pred=predict(lasso.mod,s=bestlam.lasso,newx=x_test)
+#
+out.lasso = glmnet(x, y, alpha = 1, lambda = grid) # Fit lasso model on full dataset
+lassoMeanMse = mean((lasso.pred-y_test)^2)
+cat("Mean MSE for best Lasso lamda: ", lassoMeanMse, "\n\n")
+#
+lasso_coef = predict(out.lasso, type = "coefficients", s = bestlam.lasso)[1:11,] # Display coefficients using λ chosen by CV
+cat("\nAll the coefficients : \n")
+lasso_coef
+cat("\nThe non-zero coefficients : \n")
+lasso_coef[lasso_coef!=0]
+```
+
 
 ```{r analysis for ethnicities }
 library(tidyverse)  # data manipulation
@@ -162,12 +372,6 @@ k2
 # Elbow method for kmeans
 fviz_nbclust(df1, kmeans, method = "wss") +
 geom_vline(xintercept = 3, linetype = 2)
-
-
-
-
-
-
 
 
 #Hispanic 
@@ -242,4 +446,5 @@ k8
 
 
 ```
+
 
