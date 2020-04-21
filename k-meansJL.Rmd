@@ -330,6 +330,13 @@ out.ridge=glmnet(x,y,alpha=0)
 ridge_coef = predict(out.ridge,type="coefficients",s=bestlam.ridge)[1:11,]
 cat("\nAll the coefficients : \n")
 ridge_coef
+RidgeR2 <- max(1 - cv.out.ridge$cvm/var(y))
+RidgeR2
+
+rss2 <- sum((ridge.pred-y_test) ^ 2)
+tss2 <- sum((y_test - mean(y_test)) ^ 2)
+rsq2 <- 1 - rss2/tss2
+rsq2
 ```
 ##Lasso 
 ```{r lasso}
@@ -352,8 +359,15 @@ cat("\nAll the coefficients : \n")
 lasso_coef
 cat("\nThe non-zero coefficients : \n")
 lasso_coef[lasso_coef!=0]
-lassoR2 <- 1 - cv.out.lasso$cvm/var(y)
+lassoR2 <- max(1 - cv.out.lasso$cvm/var(y))
 lassoR2
+lo
+actual <- x_test$actual
+preds <- x_test$predicted
+rss <- sum((lasso.pred-y_test) ^ 2)
+tss <- sum((y_test - mean(y_test)) ^ 2)
+rsq <- 1 - rss/tss
+rsq
 ```
 says 8 but has 9 most likely bc Hispanic has low coefficient. The effect of white and professional is much stronger than the other coefficients.
 e^5.5 =
@@ -377,7 +391,6 @@ resamples(models) %>% summary( metric = "RMSE")
 loadPkg(tidyverse)  # data manipulation
 loadPkg(cluster)    # clustering algorithms
 loadPkg(factoextra)
-loadkPkg(ggplot2)
 loadPkg(fpc)
 # include work variables {look at luis'} 
 #ethnicities clustering 
