@@ -361,9 +361,8 @@ cat("\nThe non-zero coefficients : \n")
 lasso_coef[lasso_coef!=0]
 lassoR2 <- max(1 - cv.out.lasso$cvm/var(y))
 lassoR2
-lo
-actual <- x_test$actual
-preds <- x_test$predicted
+
+
 rss <- sum((lasso.pred-y_test) ^ 2)
 tss <- sum((y_test - mean(y_test)) ^ 2)
 rsq <- 1 - rss/tss
