@@ -78,10 +78,12 @@ pcadata_w_ipc <- subset(pcadata1, select = -c(FiscalPolicy, EconomicFreedom, Reg
 
 loadPkg("corrplot")
 pcadata_ipc_cor <- cor(pcadata_w_ipc)
-corrplot(pcadata_ipc_cor)
+corrplot::corrplot(pcadata_ipc_cor)
 
 pcadata_cov <- cov(pcadata)
 pcadata_cor <- cor(pcadata)
+round(pcadata_cor, 3)
+print(pcadata_cov)
 ```
 
 ```{r scaled}
