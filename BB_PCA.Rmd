@@ -93,6 +93,7 @@ pc$rotation
 
 ```{r plot}
 biplot(pc, scale = 0)
+biplot(pc, 11:12, scale = 0)
 ```
 
 ```{r rotation}
