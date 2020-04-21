@@ -272,16 +272,17 @@ datJLClean = uzscale(dat1, 0, "IncomePerCap")
 
 ```{r}
 x=model.matrix(IncomePerCap~.,datJLClean)[,-1]
-dim(x)
 y=datJLClean$IncomePerCap
-dim(y)
 
 loadPkg(glmnet)
 grid=10^seq(10,-2,length=100) # prepare log scale grid for λ values, from 10^10 to 10^-2, in 100 segments
 ridge.mod=glmnet(x,y,alpha=0,lambda=grid) # build the ridge model. (alpha is elastic-net mixing parameter, between 0 and 1. Ridge is 0, Lasso is 1)
 dim(coef(ridge.mod))  # same as dim(coefficients(ridge.mod)), is the dimensions of all the models (100 of them), and the dimension is here: 20x100
 plot(ridge.mod)
-legend("topleft",x, y, legend, fill, col, bg)
+
+
+#legend("topleft",x, y, legend = c("Hispanic", "White", "Black", "Asian", "Professional", "Service", "Office", "Construction", "Production", "Unemployment", "IncomePerCap"), col = c("orange", "blue", "green", "purple", "red", "violet", "aqua", "indigo", "brown", "peach", "black"))
+
 
 ```
 
@@ -334,6 +335,7 @@ ridge_coef
 ```{r lasso}
 lasso.mod=glmnet(x_train,y_train,alpha=1,lambda=grid)
 plot(lasso.mod)
+#legend("topleft",x, y, legend = c("Hispanic", "White", "Black", "Asian", "Professional", "Service", "Office", "Construction", "Production", "Unemployment", "IncomePerCap"), col = c("orange", "blue", "green", "purple", "red", "violet", "aqua", "indigo", "brown", "peach", "black"))
 set.seed(1)
 cv.out.lasso=cv.glmnet(x_train,y_train,alpha=1)
 plot(cv.out.lasso)
@@ -350,109 +352,107 @@ cat("\nAll the coefficients : \n")
 lasso_coef
 cat("\nThe non-zero coefficients : \n")
 lasso_coef[lasso_coef!=0]
+lassoR2 <- 1 - cv.out.lasso$cvm/var(y)
+lassoR2
 ```
+says 8 but has 9 most likely bc Hispanic has low coefficient. The effect of white and professional is much stronger than the other coefficients.
+e^5.5 =
 ```{r lasso vs. regression}
-https://h1ros.github.io/posts/lasso-regression/
+####I want to test to see which one is better 
+OLS <- lm(IncomePerCap~.,data = datJLClean)
+summary(OLS)
+#https://h1ros.github.io/posts/lasso-regression/
+library(tidyverse)
+library(caret)
+library(glmnet)
+models <- list(ridge = ridge.mod, lasso = lasso.mod, OLS = OLS)
+resamples(models) %>% summary( metric = "RMSE")
 ```
-
-##Tree diagram
-
 
 
 
 
 ##K- Means
 ```{r analysis for ethnicities }
-library(tidyverse)  # data manipulation
-library(cluster)    # clustering algorithms
-install.packages(factoextra)
-library(factoextra)
-library(ggplot2)
+loadPkg(tidyverse)  # data manipulation
+loadPkg(cluster)    # clustering algorithms
+loadPkg(factoextra)
+loadkPkg(ggplot2)
+loadPkg(fpc)
 # include work variables {look at luis'} 
 #ethnicities clustering 
 #White
-dat3 <- data.frame(dat2$IncomePerCap,dat2$White)
 
-df1 <- scale(dat3)
+#down fpc https://cran.r-project.org/web/packages/fpc/index.html
+#need help downloading 
+# cool website https://stats.stackexchange.com/questions/31083/how-to-produce-a-pretty-plot-of-the-results-of-k-means-cluster-analysis
+#k-2
 set.seed(1000)
-k2 <- kmeans(df1, centers = 2, nstart = 25)
+k2 <- kmeans(datJLClean, centers = 2, nstart = 25)
 str(k2)
 k2
-
-# Elbow method for kmeans
-fviz_nbclust(df1, kmeans, method = "wss") +
-geom_vline(xintercept = 3, linetype = 2)
-
-
-#Hispanic 
-dat4 <- data.frame(dat2$IncomePerCap,dat2$Hispanic)
-df2 <- scale(dat4)
+clusplot(datJLClean, k2$cluster, color=TRUE, shade=TRUE,
+   labels=0, lines=0)
+#k-3
 set.seed(1000)
-k3 <- kmeans(df2, centers = 2, nstart = 25)
+k3 <- kmeans(datJLClean, centers = 3, nstart = 25)
 str(k3)
 k3
-#black 
-dat5 <- data.frame(dat2$IncomePerCap,dat2$Black)
-df3 <- scale(dat5)
+clusplot(datJLClean, k3$cluster, color=TRUE, shade=TRUE,
+   labels=0, lines=0)
+#k-4
 set.seed(1000)
-k4 <- kmeans(df3, centers = 2, nstart = 25)
+k4 <- kmeans(datJLClean, centers = 4, nstart = 25)
 str(k4)
 k4
-#Asian 
-dat6 <- data.frame(dat2$IncomePerCap,dat2$Asian)
-df4 <- scale(dat6)
+clusplot(datJLClean, k4$cluster, color=TRUE, shade=TRUE,
+   labels=0, lines=0)
+#k-5
 set.seed(1000)
-k5 <- kmeans(df4, centers = 2, nstart = 25)
+k5 <- kmeans(datJLClean, centers = 5, nstart = 25)
 str(k5)
 k5
-#Native 
-dat7 <- data.frame(dat2$IncomePerCap,dat2$Native)
-df5 <- scale(dat7)
+clusplot(datJLClean, k5$cluster, color=TRUE, shade=TRUE,
+   labels=0, lines=0)
+#k-6
 set.seed(1000)
-k6 <- kmeans(df5, centers = 2, nstart = 25)
+k5 <- kmeans(datJLClean, centers = 5, nstart = 25)
+str(k5)
+k5
+clusplot(datJLClean, k5$cluster, color=TRUE, shade=TRUE,
+   labels=0, lines=0)
+#k-6
+k6 <- kmeans(datJLClean, centers = 6, nstart = 25)
 str(k6)
 k6
-
-
-
-v1=c(dat2$IncomePerCap) # column 20
- # use the example in the pptx, try k=2 clusters
-data <- scale(v1)
-
-# We need to scale the data to have zero mean and unit variance 
-  
-
-  
-
-
-```
-
-```{r analysis of profession}
-#Work Variations 
-dat8 <- data.frame(na.omit(dat2$IncomePerCap,dat2$Professional))
-df6 <- scale(dat8)
-set.seed(1000)
-k7 <- kmeans(df6, centers = 2, nstart = 25)
+clusplot(datJLClean, k6$cluster, color=TRUE, shade=TRUE,
+   labels=0, lines=0)
+#-7
+k7 <- kmeans(datJLClean, centers = 7, nstart = 25)
 str(k7)
 k7
-#Professional
-dat9 <- data.frame(na.omit(dat2$IncomePerCap,dat2$Production))
-df7 <- scale(dat9)
-set.seed(1000)
-k8 <- kmeans(df7, centers = 2, nstart = 25)
+clusplot(datJLClean, k7$cluster, color=TRUE, shade=TRUE,
+   labels=0, lines=0)
+#k-8
+k8 <- kmeans(datJLClean, centers = 8, nstart = 25)
 str(k8)
 k8
-#Production
-
-#Unemployment
-
-#Office
-
-#Service 
-
-#Construction
-
-#self Employed
+clusplot(datJLClean, k8$cluster, color=TRUE, shade=TRUE,
+   labels=0, lines=0)
+#k-9
+k9 <- kmeans(datJLClean, centers = 9, nstart = 25)
+str(k9)
+k9
+clusplot(datJLClean, k9$cluster, color=TRUE, shade=TRUE,
+   labels=0, lines=0)
+#k-10
+k10 <- kmeans(datJLClean, centers =10, nstart = 25)
+str(k10)
+k10
+clusplot(datJLClean, k10$cluster, color=TRUE, shade=TRUE,
+   labels=0, lines=0)
+kplot <-data.frame("K-clusters"= c(1,2,3,4,5,6,7,8,9,10), "Within cluster sum of squares by cluster:" = c(65.8,83.3,90.2,93.5,93.5,95.4,96.6,97.3,99.7,98.2))
+plot(kplot,"K-clusters","Within cluster sum of squares by cluster", type ="b")
 
 
 ```
