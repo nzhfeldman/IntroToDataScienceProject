@@ -100,11 +100,14 @@ pc$rotation
 
 ```{r plot}
 biplot(pc, scale = 0)
-biplot(pc, 11:12, scale = 0)
+biplot(pc, 10:11, scale = 0)
 ```
 
 ```{r rotation}
 pcadata_rot <- PCAxform(pcadata,TRUE)
+summary(pcadata_rot)
+cor(pcadata_rot)
+cov(pcadata_rot)
 ```
 
 ```{r rot matrices}
@@ -136,10 +139,19 @@ pve <- pr.var/sum(pr.var)
 plot(cumsum(pve), xlab="Principal Component (standardized)", ylab ="Cumulative Proportion of Variance Explained",ylim=c(0,1),type="b")
 ```
 
-```{r reg}
+```{r PCA reg}
 pcadata_pcr_rot = PCRxform(pcadata_w_ipc,"IncomePerCap",TRUE) 
 pcadata_rot_reg <- lm(IncomePerCap ~ ., data = pcadata_pcr_rot)
 summary(pcadata_rot_reg)
+```
+
+```{r PCA reg p2}
+#pcadata_pcr_rot = PCRxform(pcadata_w_ipc,"IncomePerCap",TRUE) 
+pcadata_rot_reg_pc1 <- lm(IncomePerCap ~ PC1, data = pcadata_pcr_rot)
+summary(pcadata_rot_reg_pc1)
+
+pcadata_rot_reg_pc2 <- lm(IncomePerCap ~ PC1 + PC2 + PC3 + PC4 + PC5 + PC6 + PC7 + PC8 + PC9 + PC10, data = pcadata_pcr_rot)
+summary(pcadata_rot_reg_pc2)
 ```
 
 ```{r pcr}
