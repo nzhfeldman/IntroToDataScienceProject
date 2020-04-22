@@ -145,6 +145,12 @@ pcadata_rot_reg <- lm(IncomePerCap ~ ., data = pcadata_pcr_rot)
 summary(pcadata_rot_reg)
 ```
 
+```{r PCA reg2}
+pcadata_pcr_rot = PCRxform(pcadata_w_ipc,"IncomePerCap",TRUE) 
+pcadata_rot_reg2 <- lm(IncomePerCap ~ PC1, data = pcadata_pcr_rot)
+summary(pcadata_rot_reg2)
+```
+
 ```{r pcr}
 loadPkg("pls")
 pcr_pcadata <- pcr(IncomePerCap ~ ., data = pcadata_w_ipc, scale = TRUE, validation = 'CV')
