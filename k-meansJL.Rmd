@@ -332,23 +332,18 @@ bestlam.ridge
 cat("lowest lamda from CV: ", bestlam.ridge, "\n\n")
 ridge.pred=predict(ridge.mod,s=bestlam.ridge,newx=x_test)
 ridgeMeanMse = mean((ridge.pred-y_test)^2)
-cat("Mean MSE for best Ridge lamda: ", ridgeMeanMse, "\n\n")
+cat("MSE for best Ridge lamda: ", ridgeMeanMse, "\n\n")
 #
 out.ridge=glmnet(x,y,alpha=0)
 ridge_coef = predict(out.ridge,type="coefficients",s=bestlam.ridge)[1:11,]
 cat("\nAll the coefficients : \n")
 ridge_coef
-
-
-
-ridge_coef
-RidgeR2 <- max(1 - cv.out.ridge$cvm/var(y))
-cat("\nR^2: \n")
-RidgeR2
+k2
 
 rss2 <- sum((ridge.pred-y_test) ^ 2)
 tss2 <- sum((y_test - mean(y_test)) ^ 2)
 rsq2 <- 1 - rss2/tss2
+cat("\nR^2: \n")
 rsq2
 ```
 ##Lasso 
@@ -365,23 +360,20 @@ lasso.pred=predict(lasso.mod,s=bestlam.lasso,newx=x_test)
 #
 out.lasso = glmnet(x, y, alpha = 1, lambda = grid) # Fit lasso model on full dataset
 lassoMeanMse = mean((lasso.pred-y_test)^2)
-cat("Mean MSE for best Lasso lamda: ", lassoMeanMse, "\n\n")
+cat(" MSE for best Lasso lamda: ", lassoMeanMse, "\n\n")
 #
 lasso_coef = predict(out.lasso, type = "coefficients", s = bestlam.lasso)[1:11,] # Display coefficients using λ chosen by CV
 cat("\nAll the coefficients : \n")
 lasso_coef
 cat("\nThe non-zero coefficients : \n")
 lasso_coef[lasso_coef!=0]
-lassoR2 <- max(1 - cv.out.lasso$cvm/var(y))
-lassoR2
 
-lassoR2 <- max(1 - cv.out.lasso$cvm/var(y))
-lassoR2
 rss <- sum((lasso.pred-y_test) ^ 2)
 tss <- sum((y_test - mean(y_test)) ^ 2)
 rsq <- 1 - rss/tss
 rsq
 ```
+lambda values are small so they do not deviate form the OLS much 
 says 8 but has 9 most likely bc Hispanic has low coefficient. The effect of white and professional is much stronger than the other coefficients.
 e^5.5 =
 ```{r lasso vs. regression vs full}
@@ -489,10 +481,10 @@ str(k10)
 k10
 clusplot(datJLClean, k10$cluster, color=TRUE, shade=TRUE,
    labels=0, lines=0)
-kplot <-data.frame("K-clusters"= c(1,2,3,4,5,6,7,8,9,10), "Percent w/n cluster sum of squares" = c(65.8,83.3,90.2,93.5,93.5,95.4,96.6,97.3,97.8,98.2))
-plot(kplot,"K-clusters","Percent w/n cluster sum of squares", type ="b")
+kplot <-data.frame("K-clusters"= c(2,3,4,5,6,7,8,9,10), "Percent of between_SS / total_SS" = c(65.8, 83.3, 90.2, 93.5, 95.4, 96.6, 97.3, 97.8, 98.2))
+plot(kplot,"K-clusters","Percent of between _SS / total_SS", type ="b")
 
-k4
+
 
 ```
 
