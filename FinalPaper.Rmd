@@ -598,10 +598,274 @@ Finally the five ethnic variables (Native, White, Black, Hispanic, and Asian) we
 
 ```{r}
 #Subsetting
-dat1 <- subset(dat1, select = c(Hispanic, White, Black, Asian, Professional, Service, Office, Construction, Production, Unemployment, IncomePerCap))
+dat_1 <- subset(dat1, select = c(Hispanic, White, Black, Asian, Professional, Service, Office, Construction, Production, Unemployment, IncomePerCap))
                
-str(dat1)
+str(dat_1)
 ```
+
+
+```{r}
+loadPkg(ISLR)
+
+
+#Total NA Before
+sum(is.na(dat_1))
+
+#Remove NA
+dat1 <- na.omit(dat_1)
+
+#Total NA After
+sum(is.na(dat_1))
+length(dat_1)
+
+str(dat_1)
+
+```
+
+##PCA
+
+```{r PCA_PCR_xform_fcns}
+PCAxform <- function(df, z=TRUE) { 
+  #' Obtain the dataframe with the Principal Components after the rotation. 
+  #' ELo 201911 GWU DATS
+  #' @param df The dataframe.
+  #' @param z T/F or 0/1 for z-score to be used
+  #' @return The transformed dataframe.
+  #' @examples
+  #' tmp = PCAxform(USArrests,TRUE)
+
+  z = ifelse(z==TRUE || z=="true" || z=="True" || z=="T" || z=="t" || z==1 || z=="1", TRUE, FALSE) # standardize z 
+  if(z) { df = data.frame(scale(df))}  # scale not safe for non-numeric colunms, but PCA requires all variables numerics to begin with.
+  pr.out = prcomp(df,scale=z)
+  df1 = data.frame( as.matrix(df) %*% pr.out$rotation ) # use matrix multiplication in R:  %*% 
+  return(df1)
+}
+# Sample 
+# USArrests.z.pc = PCAxform(USArrests,TRUE)
+# summary(USArrests.z.pc)
+
+PCRxform <- function(df, y, zX=TRUE, zy=FALSE) { 
+  #' Obtain the dataframe with the Principal Components after the rotation for PCRegression. Requires related function PCAxform()
+  #' ELo 201903 GWU DATS
+  #' @param df The dataframe.
+  #' @param y The y-variable column index number(int), or the name of y-variable
+  #' @param zX T/F or 0/1 for z-score used on X-variables
+  #' @param zy T/F or 0/1 for z-score used on the target y-variable
+  #' @return The transformed dataframe.
+  #' @examples
+  #' tmp = PCAxform(USArrests,TRUE)
+
+  # take care of y target
+  zy = ifelse(zy==TRUE || zy=="true" || zy=="True" || zy=="T" || zy=="t" || zy==1 || zy=="1", TRUE, FALSE) # standardize target y
+  if( is.integer(y) ) { # y is integer
+    if( y>length(df) || y<1 ) {
+      print("Invalid column number")
+      return(NULL)
+    }
+    if(zy) { df1 = data.frame( scale(df[y]) ) } else { df1 = df[y] } # save y-var in df1
+    df = df[-y] # remove y-variable in df
+  } else { # y is not integer, so interpret as name
+    if(zy) { df1 = data.frame( scale( df[names(df) == y] ) ) } else { df1 = df[names(df) == y] }
+    df = df[names(df) != y] # remove y-variable in df
+  }
+  if( length(df1)<1 ) {
+    print("Variable name not found in data.frame")
+    return(NULL)
+  }
+  # now transform X-vars
+  zX = ifelse(zX==TRUE || zX=="true" || zX=="True" || zX=="T" || zX=="t" || zX==1 || zX=="1", TRUE, FALSE) # standardize X-vars 
+  df2 = PCAxform(df,zX)
+  df1 = data.frame(df1,df2) # piece them back together
+  return(df1)
+}
+# Sample 
+# USArrests.z.pcr = PCRxform(USArrests,3,TRUE) # OR
+# USArrests.z.pcr = PCRxform(USArrests,"UrbanPop",TRUE) 
+# summary(USArrests.z.pcr)
+```
+
+```{r matrices}
+#use dataset from FinalPaper line 623, titled dat1
+
+pcadata1 <- full_2015_varOfInterest[complete.cases(full_2015_varOfInterest), ]
+pcadata <- subset(pcadata1, select = -c(IncomePerCap, FiscalPolicy, EconomicFreedom, RegulatoryPolicy, PersonalFreedom, OverallFreedom))
+pcadata_w_ipc <- subset(pcadata1, select = -c(FiscalPolicy, EconomicFreedom, RegulatoryPolicy, PersonalFreedom, OverallFreedom))
+
+loadPkg("corrplot")
+pcadata_ipc_cor <- cor(pcadata_w_ipc)
+corrplot::corrplot(pcadata_ipc_cor)
+
+pcadata_cov <- cov(pcadata)
+pcadata_cor <- cor(pcadata)
+round(pcadata_cor, 3)
+print(pcadata_cov)
+```
+
+```{r scaled}
+pcadata_scale <- scale(pcadata)
+scale_cov <- cov(pcadata_scale)
+scale_cor <- cor(pcadata_scale)
+```
+
+```{r PCs}
+pc <- prcomp(pcadata, scale = TRUE)
+summary(pc)
+pc$rotation
+```
+
+```{r plot}
+biplot(pc, scale = 0)
+biplot(pc, 10:11, scale = 0)
+```
+
+```{r rotation}
+pcadata_rot <- PCAxform(pcadata,TRUE)
+summary(pcadata_rot)
+cor(pcadata_rot)
+cov(pcadata_rot)
+```
+
+```{r rot matrices}
+pcadata_rot_cov <- cov(pcadata_rot)
+pcadata_rot_cor <- cor(pcadata_rot)
+```
+
+```{r rot scaled}
+pcadata_rot_scale <- scale(pcadata_rot)
+scale_pcadata_rot_cov <- cov(pcadata_rot_scale)
+scale_pcadata_rot_cor <- cor(pcadata_rot_scale)
+
+```
+
+```{r rot PCs}
+pc_pcadata_rot <- prcomp(pcadata_rot, scale = FALSE)
+summary(pc_pcadata_rot)
+```
+
+```{r rot plots}
+biplot(pc_pcadata_rot, scale = 0)
+```
+
+
+```{r rot var}
+#plot the cumulation of variance using the sd
+pr.var <- (pc$sdev^2)
+pve <- pr.var/sum(pr.var)
+plot(cumsum(pve), xlab="Principal Component (standardized)", ylab ="Cumulative Proportion of Variance Explained",ylim=c(0,1),type="b")
+```
+
+```{r PCA reg}
+pcadata_pcr_rot = PCRxform(pcadata_w_ipc,"IncomePerCap",TRUE) 
+pcadata_rot_reg <- lm(IncomePerCap ~ ., data = pcadata_pcr_rot)
+summary(pcadata_rot_reg)
+```
+
+```{r pcr}
+loadPkg("pls")
+pcr_pcadata <- pcr(IncomePerCap ~ ., data = pcadata_w_ipc, scale = TRUE, validation = 'CV')
+summary(pcr_pcadata)
+
+```
+
+```{r validation}
+validationplot(pcr_pcadata, val.type="MSEP",legend="topright")
+```
+
+
+```{r val w/ r2}
+validationplot(pcr_pcadata, val.type="R2")
+```
+
+
+
+##K- Means
+```{r analysis for ethnicities }
+loadPkg(tidyverse)  # data manipulation
+loadPkg(cluster)    # clustering algorithms
+loadPkg(factoextra)
+loadPkg(fpc)
+
+datJLClean = uzscale(dat1, 0, "IncomePerCap")
+
+# include work variables {look at luis'} 
+#ethnicities clustering 
+#White
+
+#down fpc https://cran.r-project.org/web/packages/fpc/index.html
+#need help downloading 
+# cool website https://stats.stackexchange.com/questions/31083/how-to-produce-a-pretty-plot-of-the-results-of-k-means-cluster-analysis
+#k-2
+set.seed(1000)
+k2 <- kmeans(datJLClean, centers = 2, nstart = 25)
+str(k2)
+k2
+clusplot(datJLClean, k2$cluster, color=TRUE, shade=TRUE,
+   labels=0, lines=0)
+#k-3
+set.seed(1000)
+k3 <- kmeans(datJLClean, centers = 3, nstart = 25)
+str(k3)
+k3
+clusplot(datJLClean, k3$cluster, color=TRUE, shade=TRUE,
+   labels=0, lines=0)
+#k-4
+set.seed(1000)
+k4 <- kmeans(datJLClean, centers = 4, nstart = 25)
+str(k4)
+k4
+clusplot(datJLClean, k4$cluster, color=TRUE, shade=TRUE,
+   labels=0, lines=0)
+#k-5
+set.seed(1000)
+k5 <- kmeans(datJLClean, centers = 5, nstart = 25)
+str(k5)
+k5
+clusplot(datJLClean, k5$cluster, color=TRUE, shade=TRUE,
+   labels=0, lines=0)
+#k-6
+set.seed(1000)
+k5 <- kmeans(datJLClean, centers = 5, nstart = 25)
+str(k5)
+k5
+clusplot(datJLClean, k5$cluster, color=TRUE, shade=TRUE,
+   labels=0, lines=0)
+#k-6
+k6 <- kmeans(datJLClean, centers = 6, nstart = 25)
+str(k6)
+k6
+clusplot(datJLClean, k6$cluster, color=TRUE, shade=TRUE,
+   labels=0, lines=0)
+#-7
+k7 <- kmeans(datJLClean, centers = 7, nstart = 25)
+str(k7)
+k7
+clusplot(datJLClean, k7$cluster, color=TRUE, shade=TRUE,
+   labels=0, lines=0)
+#k-8
+k8 <- kmeans(datJLClean, centers = 8, nstart = 25)
+str(k8)
+k8
+clusplot(datJLClean, k8$cluster, color=TRUE, shade=TRUE,
+   labels=0, lines=0)
+#k-9
+k9 <- kmeans(datJLClean, centers = 9, nstart = 25)
+str(k9)
+k9
+clusplot(datJLClean, k9$cluster, color=TRUE, shade=TRUE,
+   labels=0, lines=0)
+#k-10
+k10 <- kmeans(datJLClean, centers =10, nstart = 25)
+str(k10)
+k10
+clusplot(datJLClean, k10$cluster, color=TRUE, shade=TRUE,
+   labels=0, lines=0)
+kplot <-data.frame("K-clusters"= c(2,3,4,5,6,7,8,9,10), "Percent of between_SS / total_SS" = c(65.8, 83.3, 90.2, 93.5, 95.4, 96.6, 97.3, 97.8, 98.2))
+plot(kplot,"K-clusters","Percent of between _SS / total_SS", type ="b")
+
+
+
+```
+
 
 
 #Preprocessing KNN
@@ -613,10 +877,10 @@ loadPkg("dvmisc")
 loadPkg("plyr")
 
 #Income Per Capita divided in 4 categories: Low, Mid-Low, Mid-High, High
-ipc4 <- quant_groups(dat1$IncomePerCap, 4)
+ipc4 <- quant_groups(dat_1$IncomePerCap, 4)
 
 #Income Per Capita divided in 2 categories: Low and high income.
-ipc2 <- quant_groups(dat1$IncomePerCap, 2)
+ipc2 <- quant_groups(dat_1$IncomePerCap, 2)
 
 ```
 
@@ -625,23 +889,23 @@ ipc2 <- quant_groups(dat1$IncomePerCap, 2)
 
 
 #Adding new columns to dat1
-dat1 <- cbind(dat1, ipc2, ipc4)
+dat_1 <- cbind(dat_1, ipc2, ipc4)
 
-dat1$ipc2 <- as.factor(dat1$ipc2)
-dat1$ipc4 <- as.factor(dat1$ipc4)
+dat_1$ipc2 <- as.factor(dat_1$ipc2)
+dat_1$ipc4 <- as.factor(dat_1$ipc4)
 
-levels(dat1$ipc2)[levels(dat1$ipc2)=="[128,2.47e+04]"] <- "Low"
-levels(dat1$ipc2)[levels(dat1$ipc2)=="(2.47e+04,5.6e+04]"] <- "High"
+levels(dat_1$ipc2)[levels(dat_1$ipc2)=="[128,2.47e+04]"] <- "Low"
+levels(dat_1$ipc2)[levels(dat_1$ipc2)=="(2.47e+04,5.6e+04]"] <- "High"
 
-levels(dat1$ipc4)[levels(dat1$ipc4)=="[128,1.88e+04]"] <- "Low"
-levels(dat1$ipc4)[levels(dat1$ipc4)=="(1.88e+04,2.47e+04]"] <- "Mid-Low"
-levels(dat1$ipc4)[levels(dat1$ipc4)=="(2.47e+04,3.22e+04]"] <- "Mid-High"
-levels(dat1$ipc4)[levels(dat1$ipc4)=="(3.22e+04,5.6e+04]"] <- "High"
+levels(dat_1$ipc4)[levels(dat_1$ipc4)=="[128,1.88e+04]"] <- "Low"
+levels(dat_1$ipc4)[levels(dat_1$ipc4)=="(1.88e+04,2.47e+04]"] <- "Mid-Low"
+levels(dat_1$ipc4)[levels(dat_1$ipc4)=="(2.47e+04,3.22e+04]"] <- "Mid-High"
+levels(dat_1$ipc4)[levels(dat_1$ipc4)=="(3.22e+04,5.6e+04]"] <- "High"
 
 
 #Boxplots
-plot(IncomePerCap ~ ipc2, data=dat1, main="Income: Low & High", col=c("#ffd18b", "#ff875f") )
-plot(IncomePerCap ~ ipc4, data=dat1, main="Income: four levels", col=c("#ffd18b", "#ff875f") )
+plot(IncomePerCap ~ ipc2, data=dat_1, main="Income: Low & High", col=c("#ffd18b", "#ff875f") )
+plot(IncomePerCap ~ ipc4, data=dat_1, main="Income: four levels", col=c("#ffd18b", "#ff875f") )
 
 
 str(ipc2)
@@ -655,14 +919,13 @@ levels(ipc4)
 
 ```{r}
 #Subsetting
-dat_ipc <- subset(dat1, select = c(Hispanic, White, Black, Asian, Professional, Service, Office, Construction, Production, Unemployment, ipc2, ipc4))
+dat_ipc <- subset(dat_1, select = c(Hispanic, White, Black, Asian, Professional, Service, Office, Construction, Production, Unemployment, ipc2, ipc4))
                
 str(dat_ipc)
 ```
 
 
 ```{r}
-
 
 #Total NA Before
 sum(is.na(dat_ipc))
@@ -925,6 +1188,139 @@ ggplot(knn_different_k,
   geom_line(color = "orange", size = 1.5) +
   geom_point(size = 3)
 
+```
+
+
+
+```{r}
+x=model.matrix(IncomePerCap~.,datJLClean)[,-1]
+y=datJLClean$IncomePerCap
+
+loadPkg(glmnet)
+grid=10^seq(10,-2,length=100) # prepare log scale grid for λ values, from 10^10 to 10^-2, in 100 segments
+ridge.mod=glmnet(x,y,alpha=0,lambda=grid) # build the ridge model. (alpha is elastic-net mixing parameter, between 0 and 1. Ridge is 0, Lasso is 1)
+dim(coef(ridge.mod))  # same as dim(coefficients(ridge.mod)), is the dimensions of all the models (100 of them), and the dimension is here: 20x100
+plot(ridge.mod)
+
+
+#legend("topleft",x, y, legend = c("Hispanic", "White", "Black", "Asian", "Professional", "Service", "Office", "Construction", "Production", "Unemployment", "IncomePerCap"), col = c("orange", "blue", "green", "purple", "red", "violet", "aqua", "indigo", "brown", "peach", "black"))
+
+
+```
+
+
+```{r ridge predictions}
+cat("\nRidge lambda value at 50th percentile: \n")
+ridge.mod$lambda[50] # 11498
+cat("\nRidge coefficients for lambda at 50th percentile: \n")
+coef(ridge.mod)[,50]
+cat("\nRidge MSE for lambda at 50th percentile : \n")
+sqrt(sum(coef(ridge.mod)[-1,50]^2)) #3616
+cat("\nRidge lambda value at 60th percentile: \n")
+ridge.mod$lambda[60] # 705
+cat("\nRidge coefficients for lambda value at 60th percentile: \n")
+coef(ridge.mod)[,60] 
+cat("\nRidge MSE for lambda at 60th percentile: \n")
+sqrt(sum(coef(ridge.mod)[-1,60]^2)) #5092
+
+predict(ridge.mod,s=50,type="coefficients")[1:11,]
+```
+## Train and Test sets
+
+```{r, warning=F}
+loadPkg(dplyr)
+set.seed(1)
+train = datJLClean %>% sample_frac(0.5)
+test = datJLClean %>% setdiff(train)
+
+
+x_train = model.matrix(IncomePerCap~., train)[,-1]
+
+x_test = model.matrix(IncomePerCap~., test)[,-1]
+
+y_train = train %>% select(IncomePerCap) %>% unlist() # %>% as.numeric()
+y_test = test %>% select(IncomePerCap) %>% unlist() # %>% as.numeric()
+
+```
+
+
+
+```{r cross validation}
+set.seed(1)
+cv.out.ridge=cv.glmnet(x_train,y_train,alpha=0)  # Fit ridge regression model on training data
+plot(cv.out.ridge)
+bestlam.ridge = cv.out.ridge$lambda.min  # Select lamda that minimizes training MSE
+bestlam.ridge
+cat("lowest lamda from CV: ", bestlam.ridge, "\n\n")
+ridge.pred=predict(ridge.mod,s=bestlam.ridge,newx=x_test)
+ridgeMeanMse = mean((ridge.pred-y_test)^2)
+cat("MSE for best Ridge lamda: ", ridgeMeanMse, "\n\n")
+#
+out.ridge=glmnet(x,y,alpha=0)
+ridge_coef = predict(out.ridge,type="coefficients",s=bestlam.ridge)[1:11,]
+cat("\nAll the coefficients : \n")
+ridge_coef
+#k2
+
+rss2 <- sum((ridge.pred-y_test) ^ 2)
+tss2 <- sum((y_test - mean(y_test)) ^ 2)
+rsq2 <- 1 - rss2/tss2
+cat("\nR^2: \n")
+rsq2
+```
+
+##Lasso 
+```{r lasso}
+lasso.mod=glmnet(x_train,y_train,alpha=1,lambda=grid)
+plot(lasso.mod)
+#legend("topleft",x, y, legend = c("Hispanic", "White", "Black", "Asian", "Professional", "Service", "Office", "Construction", "Production", "Unemployment", "IncomePerCap"), col = c("orange", "blue", "green", "purple", "red", "violet", "aqua", "indigo", "brown", "peach", "black"))
+set.seed(1)
+cv.out.lasso=cv.glmnet(x_train,y_train,alpha=1)
+plot(cv.out.lasso)
+bestlam.lasso=cv.out.lasso$lambda.min
+cat("lowest lamda from CV: ", bestlam.lasso, "\n\n")
+lasso.pred=predict(lasso.mod,s=bestlam.lasso,newx=x_test)
+#
+out.lasso = glmnet(x, y, alpha = 1, lambda = grid) # Fit lasso model on full dataset
+lassoMeanMse = mean((lasso.pred-y_test)^2)
+cat(" MSE for best Lasso lamda: ", lassoMeanMse, "\n\n")
+#
+lasso_coef = predict(out.lasso, type = "coefficients", s = bestlam.lasso)[1:11,] # Display coefficients using λ chosen by CV
+cat("\nAll the coefficients : \n")
+lasso_coef
+cat("\nThe non-zero coefficients : \n")
+lasso_coef[lasso_coef!=0]
+
+rss <- sum((lasso.pred-y_test) ^ 2)
+tss <- sum((y_test - mean(y_test)) ^ 2)
+rsq <- 1 - rss/tss
+rsq
+```
+lambda values are small so they do not deviate form the OLS much 
+says 8 but has 9 most likely bc Hispanic has low coefficient. The effect of white and professional is much stronger than the other coefficients.
+e^5.5 =
+```{r lasso vs. regression vs full}
+####I want to test to see which one is better 
+OLS <- lm(IncomePerCap~.,data = datJLClean)
+summary(OLS)
+
+#w/o construction 
+OLS2 <- lm(IncomePerCap~ Hispanic + White +Black + Asian + Professional + Service + Office + Production+ Unemployment ,data = datJLClean)
+summary(OLS2)
+#mse1
+cat("\nMSE for full model : \n")
+mse <-mean(OLS$residuals^2)
+mse
+#mse2
+cat("\nMSE for full model (w/o construction) : \n")
+mse2 <- mean(OLS2$residuals^2)
+mse2
+#https://h1ros.github.io/posts/lasso-regression/
+library(tidyverse)
+library(caret)
+library(glmnet)
+models <- list(ridge = ridge.mod, lasso = lasso.mod, OLS = OLS)
+#resamples(models) %>% summary( metric = "RMSE")
 ```
 
 
