@@ -70,118 +70,95 @@ PCRxform <- function(df, y, zX=TRUE, zy=FALSE) {
 ```
 
 ```{r matrices}
-comp <- full_2015_varOfInterest[complete.cases(full_2015_varOfInterest), ]
+#use dataset from FinalPaper line 623, titled dat1
 
-comp_cov <- cov(comp)
-comp_cor <- cor(comp)
+pcadata1 <- full_2015_varOfInterest[complete.cases(full_2015_varOfInterest), ]
+pcadata <- subset(pcadata1, select = -c(IncomePerCap, FiscalPolicy, EconomicFreedom, RegulatoryPolicy, PersonalFreedom, OverallFreedom))
+pcadata_w_ipc <- subset(pcadata1, select = -c(FiscalPolicy, EconomicFreedom, RegulatoryPolicy, PersonalFreedom, OverallFreedom))
+
+loadPkg("corrplot")
+pcadata_ipc_cor <- cor(pcadata_w_ipc)
+corrplot::corrplot(pcadata_ipc_cor)
+
+pcadata_cov <- cov(pcadata)
+pcadata_cor <- cor(pcadata)
+round(pcadata_cor, 3)
+print(pcadata_cov)
 ```
 
 ```{r scaled}
-comp_scale <- scale(comp)
-scale_cov <- cov(comp_scale)
-scale_cor <- cor(comp_scale)
+pcadata_scale <- scale(pcadata)
+scale_cov <- cov(pcadata_scale)
+scale_cor <- cor(pcadata_scale)
 ```
 
 ```{r PCs}
-pc <- prcomp(comp, scale = TRUE)
+pc <- prcomp(pcadata, scale = TRUE)
 summary(pc)
 pc$rotation
 ```
 
-```{r plot - too big}
+```{r plot}
 biplot(pc, scale = 0)
+biplot(pc, 10:11, scale = 0)
 ```
-
-
-
-
-
-
-
-
-
-
-
-```{r sample matrices}
-set.seed(100)
-#what should we set the sample size to?
-mysample <- comp[sample(1:nrow(comp), 50,
-   replace=FALSE),]
-
-sample_cov <- cov(mysample)
-sample_cor <- cor(mysample)
-```
-
-```{r sample scaled}
-sample_scale <- scale(mysample)
-sample_scale_cov <- cov(sample_scale)
-sample_scale_cor <- cor(sample_scale)
-```
-
-```{r sample PCs}
-sample_pc <- prcomp(mysample, scale = TRUE)
-summary(sample_pc)
-sample_pc$rotation
-```
-
-```{r sample plot}
-biplot(sample_pc, scale = 0)
-```
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 ```{r rotation}
-sample_rot <- PCAxform(mysample,FALSE)
+pcadata_rot <- PCAxform(pcadata,TRUE)
+summary(pcadata_rot)
+cor(pcadata_rot)
+cov(pcadata_rot)
 ```
 
 ```{r rot matrices}
-sample_rot_cov <- cov(sample_rot)
-sample_rot_cor <- cor(sample_rot)
+pcadata_rot_cov <- cov(pcadata_rot)
+pcadata_rot_cor <- cor(pcadata_rot)
 ```
 
 ```{r rot scaled}
-sample_rot_scale <- scale(sample_rot)
-scale_sample_rot_cov <- cov(sample_rot_scale)
-scale_sample_rot_cor <- cor(sample_rot_scale)
+pcadata_rot_scale <- scale(pcadata_rot)
+scale_pcadata_rot_cov <- cov(pcadata_rot_scale)
+scale_pcadata_rot_cor <- cor(pcadata_rot_scale)
 
 ```
 
 ```{r rot PCs}
-pc_sample_rot <- prcomp(sample_rot, scale = TRUE)
-summary(pc_sample_rot)
+pc_pcadata_rot <- prcomp(pcadata_rot, scale = FALSE)
+summary(pc_pcadata_rot)
 ```
 
 ```{r rot plots}
-biplot(pc_sample_rot, scale = 0)
+biplot(pc_pcadata_rot, scale = 0)
 ```
 
 
 ```{r rot var}
-#Let us plot the cumulation of variance using the sd
-pr.var <- (pr.out$sdev^2)
+#plot the cumulation of variance using the sd
+pr.var <- (pc$sdev^2)
 pve <- pr.var/sum(pr.var)
 plot(cumsum(pve), xlab="Principal Component (standardized)", ylab ="Cumulative Proportion of Variance Explained",ylim=c(0,1),type="b")
-pr.var.nc <- (pr.out.nc$sdev^2)
-pve.nc <- pr.var.nc/sum(pr.var.nc)
-plot(cumsum(pve.nc), xlab="Principal Component (non-standardized)", ylab ="Cumulative Proportion of Variance Explained",ylim=c(0,1),type="b")
+```
+
+```{r PCA reg}
+pcadata_pcr_rot = PCRxform(pcadata_w_ipc,"IncomePerCap",TRUE) 
+pcadata_rot_reg <- lm(IncomePerCap ~ ., data = pcadata_pcr_rot)
+summary(pcadata_rot_reg)
+```
+
+```{r pcr}
+loadPkg("pls")
+pcr_pcadata <- pcr(IncomePerCap ~ ., data = pcadata_w_ipc, scale = TRUE, validation = 'CV')
+summary(pcr_pcadata)
+
+```
+
+```{r validation}
+validationplot(pcr_pcadata, val.type="MSEP",legend="topright")
 ```
 
 
-
-
-
-
-
+```{r val w/ r2}
+validationplot(pcr_pcadata, val.type="R2")
+```
 
 
