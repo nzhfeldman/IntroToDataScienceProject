@@ -288,11 +288,17 @@ plot(ridge.mod)
 
 
 ```{r ridge predictions}
+cat("\nRidge lambda value at 50th percentile: \n")
 ridge.mod$lambda[50] # 11498
+cat("\nRidge coefficients for lambda at 50th percentile: \n")
 coef(ridge.mod)[,50]
+cat("\nRidge MSE for lambda at 50th percentile : \n")
 sqrt(sum(coef(ridge.mod)[-1,50]^2)) #3616
+cat("\nRidge lambda value at 60th percentile: \n")
 ridge.mod$lambda[60] # 705
+cat("\nRidge coefficients for lambda value at 60th percentile: \n")
 coef(ridge.mod)[,60] 
+cat("\nRidge MSE for lambda at 60th percentile: \n")
 sqrt(sum(coef(ridge.mod)[-1,60]^2)) #5092
 
 predict(ridge.mod,s=50,type="coefficients")[1:11,]
@@ -305,7 +311,9 @@ set.seed(1)
 train = datJLClean %>% sample_frac(0.5)
 test = datJLClean %>% setdiff(train)
 
+
 x_train = model.matrix(IncomePerCap~., train)[,-1]
+
 x_test = model.matrix(IncomePerCap~., test)[,-1]
 
 y_train = train %>% select(IncomePerCap) %>% unlist() # %>% as.numeric()
@@ -324,12 +332,19 @@ bestlam.ridge
 cat("lowest lamda from CV: ", bestlam.ridge, "\n\n")
 ridge.pred=predict(ridge.mod,s=bestlam.ridge,newx=x_test)
 ridgeMeanMse = mean((ridge.pred-y_test)^2)
-cat("Mean MSE for best Ridge lamda: ", ridgeMeanMse, "\n\n")
+cat("MSE for best Ridge lamda: ", ridgeMeanMse, "\n\n")
 #
 out.ridge=glmnet(x,y,alpha=0)
 ridge_coef = predict(out.ridge,type="coefficients",s=bestlam.ridge)[1:11,]
 cat("\nAll the coefficients : \n")
 ridge_coef
+k2
+
+rss2 <- sum((ridge.pred-y_test) ^ 2)
+tss2 <- sum((y_test - mean(y_test)) ^ 2)
+rsq2 <- 1 - rss2/tss2
+cat("\nR^2: \n")
+rsq2
 ```
 ##Lasso 
 ```{r lasso}
@@ -345,22 +360,38 @@ lasso.pred=predict(lasso.mod,s=bestlam.lasso,newx=x_test)
 #
 out.lasso = glmnet(x, y, alpha = 1, lambda = grid) # Fit lasso model on full dataset
 lassoMeanMse = mean((lasso.pred-y_test)^2)
-cat("Mean MSE for best Lasso lamda: ", lassoMeanMse, "\n\n")
+cat(" MSE for best Lasso lamda: ", lassoMeanMse, "\n\n")
 #
 lasso_coef = predict(out.lasso, type = "coefficients", s = bestlam.lasso)[1:11,] # Display coefficients using λ chosen by CV
 cat("\nAll the coefficients : \n")
 lasso_coef
 cat("\nThe non-zero coefficients : \n")
 lasso_coef[lasso_coef!=0]
-lassoR2 <- 1 - cv.out.lasso$cvm/var(y)
-lassoR2
+
+rss <- sum((lasso.pred-y_test) ^ 2)
+tss <- sum((y_test - mean(y_test)) ^ 2)
+rsq <- 1 - rss/tss
+rsq
 ```
+lambda values are small so they do not deviate form the OLS much 
 says 8 but has 9 most likely bc Hispanic has low coefficient. The effect of white and professional is much stronger than the other coefficients.
 e^5.5 =
-```{r lasso vs. regression}
+```{r lasso vs. regression vs full}
 ####I want to test to see which one is better 
 OLS <- lm(IncomePerCap~.,data = datJLClean)
 summary(OLS)
+
+#w/o construction 
+OLS2 <- lm(IncomePerCap~ Hispanic + White +Black + Asian + Professional + Service + Office + Production+ Unemployment ,data = datJLClean)
+summary(OLS2)
+#mse1
+cat("\nMSE for full model : \n")
+mse <-mean(OLS$residuals^2)
+mse
+#mse2
+cat("\nMSE for full model (w/o construction) : \n")
+mse2 <- mean(OLS2$residuals^2)
+mse2
 #https://h1ros.github.io/posts/lasso-regression/
 library(tidyverse)
 library(caret)
@@ -377,7 +408,6 @@ resamples(models) %>% summary( metric = "RMSE")
 loadPkg(tidyverse)  # data manipulation
 loadPkg(cluster)    # clustering algorithms
 loadPkg(factoextra)
-loadkPkg(ggplot2)
 loadPkg(fpc)
 # include work variables {look at luis'} 
 #ethnicities clustering 
@@ -451,8 +481,9 @@ str(k10)
 k10
 clusplot(datJLClean, k10$cluster, color=TRUE, shade=TRUE,
    labels=0, lines=0)
-kplot <-data.frame("K-clusters"= c(1,2,3,4,5,6,7,8,9,10), "Within cluster sum of squares by cluster:" = c(65.8,83.3,90.2,93.5,93.5,95.4,96.6,97.3,99.7,98.2))
-plot(kplot,"K-clusters","Within cluster sum of squares by cluster", type ="b")
+kplot <-data.frame("K-clusters"= c(2,3,4,5,6,7,8,9,10), "Percent of between_SS / total_SS" = c(65.8, 83.3, 90.2, 93.5, 95.4, 96.6, 97.3, 97.8, 98.2))
+plot(kplot,"K-clusters","Percent of between _SS / total_SS", type ="b")
+
 
 
 ```
