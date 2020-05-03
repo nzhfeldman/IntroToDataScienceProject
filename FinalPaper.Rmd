@@ -251,7 +251,7 @@ dat0<-full_2015[!is.na(full_2015$IncomePerCap),]
 
 #removed outliers 
 dat1 <- outlierKD2(dat0, IncomePerCap, TRUE)
-<<<<<<< HEAD
+
 #Histogram of dependent variable
 hist(dat1$TotalPop, 
         col = "#a8c2fb",
@@ -261,16 +261,13 @@ hist(dat1$TotalPop,
 #ggplot
 qqnorm(dat1$TotalPop, main="Q-Q plot of TotalPop")
 qqline(dat1$TotalPop)
-=======
-
->>>>>>> f44076427a3c8a511707117636a3414d615f2ffb
 
 #Mean after removing NA's
 #format(mean(dat1$TotalPop, na.rm = TRUE))
 
 #Summary after removing NA's
 summary(dat1$TotalPop)
-<<<<<<< HEAD
+
 #standard deviation
 sd(dat1$TotalPop, na.rm = TRUE)
 
@@ -282,9 +279,6 @@ hist(dat0$IncomePerCap,
         col = "#a8c2fb",
         main = "Income per Capita",
         xlab = "US Dollars")
-=======
->>>>>>> f44076427a3c8a511707117636a3414d615f2ffb
-
 
 ```
   A baseline analysis of population and income was conducted. The histogram for population appeared skewed to the right. The different census tracts had similar population counts with a mean of about 4000. Counties were not evenly spread out as some had a population of 1 million and others 10 million. With similar populations, census tracts were easier to investigate instead of counties. The Q-Q plot confirmed the non-normality as the values between quartiles 3 and 4 were far away from the line. 
@@ -486,10 +480,8 @@ Therefore, based on the assessment of the boxplots, histograms, and Q-Q plots, n
 
 #Preprocessing KNN
 
-<<<<<<< HEAD
+
 ```{r Dividing Income in 2 groups} 
-=======
-```{r}
 loadPkg(ISLR)
 #Subsetting
 dat_1 <- subset(dat1, select = c(Hispanic, White, Black, Asian, Professional, Service, Office, Construction, Production, Unemployment, IncomePerCap))
@@ -628,28 +620,25 @@ pcadata_rot_cor <- cor(pcadata_rot)
 pcadata_rot_scale <- scale(pcadata_rot)
 scale_pcadata_rot_cov <- cov(pcadata_rot_scale)
 scale_pcadata_rot_cor <- cor(pcadata_rot_scale)
->>>>>>> f44076427a3c8a511707117636a3414d615f2ffb
+
 
 
 loadPkg("dvmisc")
 
-<<<<<<< HEAD
 #ipc
 ipc <- quant_groups(dat1$IncomePerCap, 2)
 str(ipc)
 
 #Boxplot of ipc
 plot(IncomePerCap ~ ipc, data=dat1, main="IncomePerCap", col=c("#ffd18b", "#ff875f") )
-=======
+```
 The breakdown of the variation explained by each component showed that just over 60% of the variation was accounted for within the first three components.  However, except for the first component, the change in the amount of variation explained in each consecutive component was similar. This was further illustrated by the following graph. 
->>>>>>> f44076427a3c8a511707117636a3414d615f2ffb
 
+```
 #Adding new column to dat1
 dat1 <- cbind(dat1, ipc)
 
 dat1$ipc <- as.factor(dat1$ipc)
-
-<<<<<<< HEAD
 
 ```
 ```{r subsetting for linear}
@@ -664,7 +653,8 @@ str(datDisc)
 dat1 <- subset(dat1, select = c(TotalPop, Hispanic, White, Black, Asian, Professional, Service, Office, Construction, Production, Unemployment, ipc))
                
 str(dat1)
-=======
+```
+
 A full principle component regression was performed, and all except the last component were deemed significant.  It was also notable that this regression explained 71.01% of the variance in the dataset according the the adjusted R-Squared. The strongest variable was of course PC1 with a t-value with a magnitude by far larger than the rest of the variables.
 
 ```{r pcr}
@@ -679,7 +669,7 @@ pcr_pcadata <- pcr(IncomePerCap ~ ., data = pcadata_w_ipc, scale = TRUE, validat
 
 ```{r val w/ r2}
 #validationplot(pcr_pcadata, val.type="R2")
->>>>>>> f44076427a3c8a511707117636a3414d615f2ffb
+
 ```
 
 A plot of the R-Square values over the number of components explained the amount of variation explained in the independent variable, IncomePerCap, based off of the components.  The steeper increase and then petering off that occured in the R-Square graph seemed to indicate that a significant amount of the variation of the data in regards to IncomePerCap was explained using just the first component.  Based on the initial analysis of the R-Square graph, and the results of the regression it seemed appropriate to run a regression on just PC1 which resulted in a lower Adjusted R Square.  
@@ -693,10 +683,6 @@ summary(pcadata_rot_reg2)
 The results of this regression on just PC1 corroborated that the R-Square is smaller, at a value of 63.93%. The tradeoff between parsimony and description of these two potential models made the choice of model unclear.  Assuming the more explanatory model, which accounted for the number of components included by adjusted R Square, was chosen, only one component would be removed.  This was not an effective parsing down of variables.  However, there would be low bias since only one component was dropped.
 
 
-<<<<<<< HEAD
-```{r}
-
-=======
 # K- Means
 
 ```{r analysis for ethnicities, code_folding=show }
@@ -755,7 +741,6 @@ k10
 
 kplot <-data.frame("K-clusters"= c(2,3,4,5,6,7,8,9,10), "Percent of between_SS / total_SS" = c(65.8, 83.3, 90.2, 93.5, 95.4, 96.6, 97.3, 97.8, 98.2))
 plot(kplot,"K-clusters","Percent of between _SS / total_SS", type ="b")
->>>>>>> f44076427a3c8a511707117636a3414d615f2ffb
 
 #Total NA After
 sum(is.na(dat1))
@@ -765,7 +750,13 @@ str(dat1)
 
 ```
 
-<<<<<<< HEAD
+
+   K-means is an unsupervised learning algorithm. The goal of this program is to find groups or clusters of data in order to identify certain patterns. All of the values in the data set were normalized to make comparisons of the overall dataset on a similar scale. K-means was used for 2,3,4, and 10 clusters. On inspection of the clusters created from k=2, The cluster that had the highest IncomePerCap at 37598 had the highest cluster mean of professional at 0.928, White at 0.420 and Asian at 0.237. the cluster plot chart has all the 70,000 datapoints in green and the two different clusters in blue and red respectively.It appears that there is overlap of the clusters however this occurs as the plot takes all the different data points and plots them on a two dimensional graph.  With only two clusters it captures about 65.8% of the cluster sum of squares.
+  Further inspection was constructed for a model with k =3. The cluster with the highest IncomePerCap was found to be cluster three at 42760. this cluster also had the highest cluster mean for Professional at 1.330 and Asian at 0.3837. The first cluster which had a IncomePerCap cluster mean of 16577 had the highest uneployment cluster average at 0.619. the cluster plot has three distinct clusters portrayed and the overlap makes it a little difficult to see which cluster is which. With only three clusters, 83.3% of the data is captured which is a drastric improvement from only two clusters. 
+  A final analysis was constructed for a model with k=4. The cluster with the highest IncomePerCap was found to be cluster three with 45781. this cluster had the hgihest Professional cluster average at 1.533 and the highest Asian cluster averge at 0.456. The cluster with the lowest IncomePerCap was cluster two at 14434. It had the highest unemployment cluster average at 0.8988. The cluster plot is difficult to interpret as the all of the datapoints were brought to a two dimensional scale and now there are four different clusters. With only four clusters, 90.2% of the data is captured which is a drastric improvement from only two clusters. 
+  As the clusters increased from 4 to 10, the percentage captured did not increase drastically. For example when k= 10, 98.2% of the data is captured. Therefore, a cluster of four would be sufficient
+
+
 #Basic Linear Regression
 We begin our predictive modeling with a simple linear regression model. This will allow us to make basic statements about how the variables of interest correlate with income, but won't be an appropriate final model, since it does not allow for interactions between components which we have already shown to be inter-related. We begin by doing an exhaustive search of our variables of interest.
 
@@ -787,11 +778,30 @@ lr
 vif(lr)
 coef <- coef(lr)
 coef
-=======
-   K-means is an unsupervised learning algorithm. The goal of this program is to find groups or clusters of data in order to identify certain patterns. All of the values in the data set were normalized to make comparisons of the overall dataset on a similar scale. K-means was used for 2,3,4, and 10 clusters. On inspection of the clusters created from k=2, The cluster that had the highest IncomePerCap at 37598 had the highest cluster mean of professional at 0.928, White at 0.420 and Asian at 0.237. the cluster plot chart has all the 70,000 datapoints in green and the two different clusters in blue and red respectively.It appears that there is overlap of the clusters however this occurs as the plot takes all the different data points and plots them on a two dimensional graph.  With only two clusters it captures about 65.8% of the cluster sum of squares.
-  Further inspection was constructed for a model with k =3. The cluster with the highest IncomePerCap was found to be cluster three at 42760. this cluster also had the highest cluster mean for Professional at 1.330 and Asian at 0.3837. The first cluster which had a IncomePerCap cluster mean of 16577 had the highest uneployment cluster average at 0.619. the cluster plot has three distinct clusters portrayed and the overlap makes it a little difficult to see which cluster is which. With only three clusters, 83.3% of the data is captured which is a drastric improvement from only two clusters. 
-  A final analysis was constructed for a model with k=4. The cluster with the highest IncomePerCap was found to be cluster three with 45781. this cluster had the hgihest Professional cluster average at 1.533 and the highest Asian cluster averge at 0.456. The cluster with the lowest IncomePerCap was cluster two at 14434. It had the highest unemployment cluster average at 0.8988. The cluster plot is difficult to interpret as the all of the datapoints were brought to a two dimensional scale and now there are four different clusters. With only four clusters, 90.2% of the data is captured which is a drastric improvement from only two clusters. 
-  As the clusters increased from 4 to 10, the percentage captured did not increase drastically. For example when k= 10, 98.2% of the data is captured. Therefore, a cluster of four would be sufficient
+```
+
+Taking a simple linear regression, we find that we can predict the level income  with reasonably high effectiveness (R^2 = `r )
+
+```{r Logistic Regression} 
+glr <- glm(ipc   ~ . - Professional, data = dat1 %>% select(-TotalPop), family = "binomial") 
+summary(glr)
+vif(glr)
+coef <- coef(glr)
+```
+
+
+```{r roc_auc}
+loadPkg('pROC') # receiver operating characteristic curve, gives the diagnostic ability of a binary classifier system as its discrimination threshold is varied. The curve is on sensitivity/recall/true-positive-rate vs false_alarm/false-positive-rate/fall-out.
+prob=predict(glr, type = c("response"))
+datprob <- dat1
+datprob$prob=prob
+h <- roc(ipc~prob, data=datprob)
+auc(h) # area-under-curve prefer 0.8 or higher.
+plot(h)
+# unloadPkg(pROC) # good habit to remove unload packages no longer needed 
+```
+
+
 
 
 # KNN
