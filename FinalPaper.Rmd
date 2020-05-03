@@ -1,9 +1,12 @@
 ---
-title: ""
+title: "Income in the U.S."
 date: "`r Sys.Date()`"
 output:
   rmdformats::material:
     highlight: kate
+    cards: false
+    gallery: true
+
 ---
 
 
@@ -162,7 +165,7 @@ These questions also correspond to a set of highly measurable (And luckily, prem
 
 Finally, these questions are relevant to policy makers who want to improve the incomes of their constituents as well as to researchers interested in establishing a baseline for the average income they should expect a community would earn based on its demographics. These are critical questions, because the ability of communities to support themselves economically has massive impacts on the wellbeing of their members.
 
-# Content
+## Content
 First, an examination is conducted on how the US Census Bureau database is structured, and which variables were included. Secondly, the groups of independent variables and how each of them could affect the income per capita of a community is presented. Then, an exploratory data analysis and some statistical tests are made to evaluate the significance of our variables. Finally, a conclusion looks into further challenges and questions necessary to enhance future analyses.
 
 # Dataset
@@ -181,7 +184,7 @@ As a response to these inconsistencies found in counties in America, the U.S. Ce
 The complete dataset includes 17 independent variables and 1 dependent variable.
 Thanks to their nature, the independent variables were classified in three groups: Work Variation and Ethnic Variation.
 
-### Work Variation:
+## Work Variation:
 
 **Professional:**
 Percentage (%) employed in management, business, science, and arts in a census tract.
@@ -204,7 +207,7 @@ Unemployment rate (%) in a census tract.
 **Self-employed:**
 Percentage (%) self-employed in a census tract.
 
-### Ethnic Variation
+## Ethnic Variation
 
 **Native:**
 Percentage (%) of population that is Native American or Native Alaskan in a census tract.
@@ -222,7 +225,7 @@ Percentage (%) of population that is Hispanic/Latino in a census tract.
 Percentage (%) of population that is Asian in a census tract.
 
 
-
+# EDA
 ## Population Histogram and QQ
 
 ```{r population} 
@@ -532,7 +535,7 @@ str(dat_1)
 
 ```
 
-##PCA
+# PCA
 
 ```{r PCA_PCR_xform_fcns}
 PCAxform <- function(df, z=TRUE) { 
@@ -688,7 +691,7 @@ validationplot(pcr_pcadata, val.type="R2")
 
 
 
-##K- Means
+# K- Means
 ```{r analysis for ethnicities }
 library(tidyverse)
 library(caret)
@@ -783,8 +786,9 @@ plot(kplot,"K-clusters","Percent of between _SS / total_SS", type ="b")
 
 
 
-#Preprocessing KNN
+# KNN
 
+## Preprocessing KNN
 ```{r Dividing Income in 4 groups} 
 
 
@@ -857,25 +861,11 @@ str(dat_ipc)
 ```
 
 
-# KNN
+## KNN Model
 
 
-**Pairs**  
 
-```{r}
-#loadPkg(psych)
-
-#pairs.panels(dat1[,-3], 
-#             method = "pearson", # correlation method
-#             hist.col = "#00AFBB", # set histogram color, can use "#22AFBB", "red",
-#             density = TRUE,  # show density plots
-#            ellipses = TRUE # show correlation ellipses
-#             )
-#unloadPkg(psych)
-```
-
-
-**Train-Test split 3:1**  
+### Train-Test split 3:1
 
 ```{r}
 loadPkg(FNN)
@@ -904,55 +894,7 @@ dat_ipc4.testLabels <- dat_ipc[dat_sample==2, 12]
 
 
 
-**KNN results**  
-```{r}
-#So now we will deploy our model 
-dat_pred_ipc2 <- knn(train = dat_training, test = dat_test, cl=dat_ipc2.trainLabels, k=9)
-#dat_pred
-#install.packages("gmodels")
-#loadPkg(gmodels)
-#datPREDCross <- CrossTable(dat.testLabels, dat_pred, prop.chisq = FALSE)
-#Looks like we got all but three correct, not bad
-
-# View the output.
-str(dat_pred_ipc2)
-length(dat_pred_ipc2)
-table(dat_pred_ipc2)
-```
-
-
-```{r}
-# How does the kNN classification compare to the true class?
-# Let's take a look at the confusion matrix by combining the 
-# predictions from bank_3NN to the original data set.
-loadPkg(class)
-
-
-kNN_res_ipc2 = table(dat_pred_ipc2,
-                dat_ipc2.testLabels)
-kNN_res_ipc2
-sum(kNN_res_ipc2)  #<- the total is all the test examples
-
-# Select the true positives and true negatives by selecting
-# only the cells where the row and column names are the same.
-kNN_res_ipc2[row(kNN_res_ipc2) == col(kNN_res_ipc2)]
-
-# Calculate the accuracy rate by dividing the correct classifications
-# by the total number of classifications.
-kNN_acc_ipc2 = sum(kNN_res_ipc2[row(kNN_res_ipc2) == col(kNN_res_ipc2)]) / sum(kNN_res_ipc2)
-kNN_acc_ipc2
-```
-
-
-
-```{r}
-loadPkg(caret) 
-cm_ipc2 = confusionMatrix(dat_pred_ipc2, reference = dat_ipc2.testLabels)
-cm_ipc2$overall
-cm_ipc2$byClass
-```
-
-
+## KNN 2 categories
 
 ### Selecting the correct "k"
 How does "k" affect classification accuracy? Let's create a function to calculate classification accuracy based on the number of "k."
@@ -1003,13 +945,11 @@ ggplot(knn_different_k,
 
 ```
 
+### Results
 
-
-
-**KNN results**  
 ```{r}
 #So now we will deploy our model 
-dat_pred_ipc4 <- knn(train = dat_training, test = dat_test, cl=dat_ipc4.trainLabels, k=9)
+dat_pred_ipc2 <- knn(train = dat_training, test = dat_test, cl=dat_ipc2.trainLabels, k=9)
 #dat_pred
 #install.packages("gmodels")
 #loadPkg(gmodels)
@@ -1017,9 +957,9 @@ dat_pred_ipc4 <- knn(train = dat_training, test = dat_test, cl=dat_ipc4.trainLab
 #Looks like we got all but three correct, not bad
 
 # View the output.
-str(dat_pred_ipc4)
-length(dat_pred_ipc4)
-table(dat_pred_ipc4)
+str(dat_pred_ipc2)
+length(dat_pred_ipc2)
+table(dat_pred_ipc2)
 ```
 
 
@@ -1030,30 +970,33 @@ table(dat_pred_ipc4)
 loadPkg(class)
 
 
-kNN_res_ipc4 = table(dat_pred_ipc4,
-                dat_ipc4.testLabels)
-kNN_res_ipc4
-sum(kNN_res_ipc4)  #<- the total is all the test examples
+kNN_res_ipc2 = table(dat_pred_ipc2,
+                dat_ipc2.testLabels)
+kNN_res_ipc2
+sum(kNN_res_ipc2)  #<- the total is all the test examples
 
 # Select the true positives and true negatives by selecting
 # only the cells where the row and column names are the same.
-kNN_res_ipc4[row(kNN_res_ipc4) == col(kNN_res_ipc4)]
+kNN_res_ipc2[row(kNN_res_ipc2) == col(kNN_res_ipc2)]
 
 # Calculate the accuracy rate by dividing the correct classifications
 # by the total number of classifications.
-kNN_acc_ipc4 = sum(kNN_res_ipc4[row(kNN_res_ipc4) == col(kNN_res_ipc4)]) / sum(kNN_res_ipc4)
-kNN_acc_ipc4
+kNN_acc_ipc2 = sum(kNN_res_ipc2[row(kNN_res_ipc2) == col(kNN_res_ipc2)]) / sum(kNN_res_ipc2)
+kNN_acc_ipc2
 ```
 
 
 
 ```{r}
 loadPkg(caret) 
-cm_ipc4 = confusionMatrix(dat_pred_ipc4, reference = dat_ipc4.testLabels)
-cm_ipc4$overall
-cm_ipc4$byClass
+cm_ipc2 = confusionMatrix(dat_pred_ipc2, reference = dat_ipc2.testLabels)
+cm_ipc2$overall
+cm_ipc2$byClass
 ```
 
+
+
+## KNN 4 categories
 
 
 ### Selecting the correct "k"
@@ -1105,7 +1048,57 @@ ggplot(knn_different_k,
 
 ```
 
+## Results
 
+```{r}
+#So now we will deploy our model 
+dat_pred_ipc4 <- knn(train = dat_training, test = dat_test, cl=dat_ipc4.trainLabels, k=9)
+#dat_pred
+#install.packages("gmodels")
+#loadPkg(gmodels)
+#datPREDCross <- CrossTable(dat.testLabels, dat_pred, prop.chisq = FALSE)
+#Looks like we got all but three correct, not bad
+
+# View the output.
+str(dat_pred_ipc4)
+length(dat_pred_ipc4)
+table(dat_pred_ipc4)
+```
+
+
+```{r}
+# How does the kNN classification compare to the true class?
+# Let's take a look at the confusion matrix by combining the 
+# predictions from bank_3NN to the original data set.
+loadPkg(class)
+
+
+kNN_res_ipc4 = table(dat_pred_ipc4,
+                dat_ipc4.testLabels)
+kNN_res_ipc4
+sum(kNN_res_ipc4)  #<- the total is all the test examples
+
+# Select the true positives and true negatives by selecting
+# only the cells where the row and column names are the same.
+kNN_res_ipc4[row(kNN_res_ipc4) == col(kNN_res_ipc4)]
+
+# Calculate the accuracy rate by dividing the correct classifications
+# by the total number of classifications.
+kNN_acc_ipc4 = sum(kNN_res_ipc4[row(kNN_res_ipc4) == col(kNN_res_ipc4)]) / sum(kNN_res_ipc4)
+kNN_acc_ipc4
+```
+
+
+
+```{r}
+loadPkg(caret) 
+cm_ipc4 = confusionMatrix(dat_pred_ipc4, reference = dat_ipc4.testLabels)
+cm_ipc4$overall
+cm_ipc4$byClass
+```
+
+
+# Lasso Regression
 
 ```{r}
 x=model.matrix(IncomePerCap~.,datJLClean)[,-1]
@@ -1184,7 +1177,7 @@ cat("\nR^2: \n")
 rsq2
 ```
 
-##Lasso 
+## Lasso 
 ```{r lasso}
 lasso.mod=glmnet(x_train,y_train,alpha=1,lambda=grid)
 plot(lasso.mod)
@@ -1244,7 +1237,8 @@ models <- list(ridge = ridge.mod, lasso = lasso.mod, OLS = OLS)
 ```
 
 # Conclusion
-	Overall, this analysis found that there are several ways in which our independent variables reliably predict income in communities across the United States. The Freedom variables we drew from the Cato Institute performed poorest, with a high internal correlation and little predictive power. Ethnicity and work type proportions had stronger predictive power, with the latter having the most powerful effects.  However, these variables suffer from being largely non-normal, with a rightward skew, and from having high internal correlations, both between and within the two categories. Altogether, these variables allow us to predict income per capita at the census tract level with high reliability (R-squared = .67); this is actually quite impressive given the simplicity of this data. For instance, it does not directly include any information about the age or education of the population.
+
+Overall, this analysis found that there are several ways in which our independent variables reliably predict income in communities across the United States. The Freedom variables we drew from the Cato Institute performed poorest, with a high internal correlation and little predictive power. Ethnicity and work type proportions had stronger predictive power, with the latter having the most powerful effects.  However, these variables suffer from being largely non-normal, with a rightward skew, and from having high internal correlations, both between and within the two categories. Altogether, these variables allow us to predict income per capita at the census tract level with high reliability (R-squared = .67); this is actually quite impressive given the simplicity of this data. For instance, it does not directly include any information about the age or education of the population.
 	Moving forward, this analysis allows for several expansions. The first is to integrate new data, such as age and education status of census tract residents. Additionally, it may be valuable to consider each of the individual freedom measures on its own, to negate the influence of high internal correlation. Finally, it is interesting if there are differences driven by geographic density, which can be estimated with just the currently accessible data.
 	
 # Bibliography
