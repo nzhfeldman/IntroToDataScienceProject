@@ -1,0 +1,1105 @@
+---
+title: "Income in the U.S."
+date: "`r Sys.Date()`"
+output:
+  rmdformats::material:
+    highlight: kate
+    cards: false
+    gallery: true
+    mathjax: "rmdformats"
+    pandoc_args: NULL
+    md_extensions: NULL
+    use_bookdown: FALSE
+    lightbox: TRUE
+    code_folding: show
+
+---
+
+
+```{r setup, echo=FALSE, cache=FALSE}
+library(knitr)
+library(rmdformats)
+## Global options
+options(max.print="75")
+opts_chunk$set(echo=FALSE,
+	             cache=FALSE,
+               prompt=FALSE,
+               tidy=TRUE,
+               comment=NA,
+               message=FALSE,
+               warning=FALSE)
+opts_knit$set(width=75)
+loadPkg = function(x) { if (!require(x,character.only=T, quietly =T)) { install.packages(x,dep=T,repos="http://cran.us.r-project.org"); if(!require(x,character.only=T)) stop("Package not found") } }
+```
+
+
+
+```{r Functions, include=FALSE} 
+loadPkg = function(pkg, character.only = FALSE) { 
+  if (!character.only) { pkg <- as.character(substitute(pkg)) }
+  if (!require(pkg,character.only=T, quietly =T)) {  install.packages(pkg,dep=T,repos="http://cran.us.r-project.org"); if(!require(pkg,character.only=T)) stop("Package not found") } 
+}
+loadPkg(knitr)
+```
+
+```{r Remove Outliers, include=FALSE} 
+# Fix outliers
+outlierKD2 <- function(df, var, rm=FALSE) { 
+    #' Original outlierKD functino by By Klodian Dhana,
+    #' https://www.r-bloggers.com/identify-describe-plot-and-remove-the-outliers-from-the-dataset/
+    #' Modified to have third argument for removing outliers inwtead of interactive prompt, 
+    #' and after removing outlier, original df will not be changed. The function returns the new df, 
+    #' which can be saved as original df name if desired.
+    #' Check outliers, and option to remove them, save as a new dataframe. 
+    #' @param df The dataframe.
+    #' @param var The variable in the dataframe to be checked for outliers
+    #' @param rm Boolean. Whether to remove outliers or not.
+    #' @return The dataframe with outliers replaced by NA if rm==TRUE, or df if nothing changed
+    #' @examples
+    #' outlierKD2(mydf, height, FALSE)
+    #' mydf = outlierKD2(mydf, height, TRUE)
+    #' mydfnew = outlierKD2(mydf, height, TRUE)
+    dt = df # duplicate the dataframe for potential alteration
+    var_name <- eval(substitute(var),eval(dt))
+    na1 <- sum(is.na(var_name))
+    m1 <- mean(var_name, na.rm = T)
+    #par(mfrow=c(2, 2), oma=c(0,0,3,0))
+    boxplot(var_name, main="With outliers")
+    hist(var_name, main="With outliers", xlab=NA, ylab=NA)
+    outlier <- boxplot.stats(var_name)$out
+    mo <- mean(outlier)
+    var_name <- ifelse(var_name %in% outlier, NA, var_name)
+    boxplot(var_name, main="Without outliers")
+    hist(var_name, main="Without outliers", xlab=NA, ylab=NA)
+    title("Outlier Check", outer=TRUE)
+    na2 <- sum(is.na(var_name))
+    cat("Outliers identified:", na2 - na1, "\n")
+    cat("Propotion (%) of outliers:", round((na2 - na1) / sum(!is.na(var_name))*100, 1), "\n")
+    cat("Mean of the outliers:", round(mo, 2), "\n")
+    m2 <- mean(var_name, na.rm = T)
+    cat("Mean without removing outliers:", round(m1, 2), "\n")
+    cat("Mean if we remove outliers:", round(m2, 2), "\n")
+    
+    # response <- readline(prompt="Do you want to remove outliers and to replace with NA? [yes/no]: ")
+    # if(response == "y" | response == "yes"){
+    if(rm){
+        dt[as.character(substitute(var))] <- invisible(var_name)
+        #assign(as.character(as.list(match.call())$dt), dt, envir = .GlobalEnv)
+        cat("Outliers successfully removed", "\n")
+        return(invisible(dt))
+    } else {
+        cat("Nothing changed", "\n")
+        return(invisible(df))
+    }
+}
+loadPkg("car")
+```
+
+```{r uzscale_fcn }
+uzscale <- function(df, append=0, excl=NULL) { 
+  #' Standardize dataframe to z scores, safe for non-numeric variables. 
+  #' ELo 201904 GWU DATS
+  #' @param df The dataframe.
+  #' @param append T/F or 0/1. Option to append scaled columns or replace original columns in the dataframe.
+  #' @param excl A list c(a,b,"d","ef") of excluded columns, either by their indexes and/or names.
+  #' @return The transformed dataframe, appended or replaced with standardized scores. Non-numeric columns will not be appended, or if "replace option" is chosen, the columns will be untouched.
+  #' @examples
+  #' library("ISLR")
+  #' tmp = uzscale( Hitters )
+  #' tmp = uzscale( Hitters, 1 )
+  #' tmp = uzscale( Hitters, TRUE, c(19,"NewLeague") )
+  append = ifelse(append==TRUE || append=="true" || append=="True" || append=="T" || append=="t" || append==1 || append=="1", TRUE, FALSE) # standardize append 
+  nmax = length(df)
+  if (nmax < 1 || !is.numeric(nmax) ) { return(df) }
+  df1 = df
+  onames = colnames(df)  # the original column names
+  cnames = onames  # the new column names, if needed start with the original ones
+  znames = paste("z",cnames, sep="")     # new column names added prefix 'z'. Those are non-numeric will not be used.
+  nadd = ifelse(append, nmax, 0) # add to the column index or replace the orig columns
+  j=1  # counting index
+  for( i in 1:nmax ) {
+    if ( is.numeric(df[,i]) && !( i %in% excl || onames[i] %in% excl ) ) { 
+      df1[,j+nadd] = scale(df[,i])
+      cnames = c(cnames, znames[i])
+      j=j+1
+    } else if ( !append ) { j=j+1
+    } # if append == 1 and (colunm non-numeric or excluded), do not advance j.
+  }
+  if (append) { colnames(df1) <- cnames }
+  return(df1)
+}
+# sample
+# loadPkg(ISLR)
+# HittersClean = subset(Hitters, Salary != "NA")
+# tmp = uzscale(HittersClean,0,c(2,"Salary") )
+# detach("package:ISLR", unload = T)
+```
+
+
+```{r Load 2015 data, include=FALSE}
+loadPkg('dplyr')
+loadPkg('readxl')
+loadPkg('readr')
+#Read in general census data
+census_2015 <- read.csv(file = 'acs2015updated.csv')
+#Read in Freedom Data
+freedom <- read_excel("Freedom_In_The_50_States_2018.xlsx", sheet = "Overall")
+#Combine
+full_2015 <- full_join(census_2015, freedom %>% filter(Year == 2015), by = "State") 
+```
+
+# Introduction 
+
+America is a highly diverse country. It is not only diverse in terms of ethnicity, but also in terms of income, industry, and law. This opens the doors for a variety of possible interactions between these variables. What factors drive the way that income is distributed in the United States? What factors reliably predict whether the average income per capita in a specific area is high or low? How does state level variations in law and freedom impact income?
+
+## How are these questions SMART?
+
+These questions are important because they tell many facets of the story of consumption in the United States. Income serves both as a measure of productivity and lifetime consumption (although this analysis does not disentangle the two). Although their scope is broad, they remain specific to the concepts of income, demographics, and freedom, and maintain a consistent structure: how do demographics and freedom drive income in the United States, at the census tract level. 
+
+These questions also correspond to a set of highly measurable (And luckily, premeasured) variables. Income can be imputed from tax records, while ethnicity and work status are available from census forms. Achieving the answers to the questions is made simple by the cleanliness and availability of this data; since few data points are missing across all census tracts throughout the 50 states of interest, it is simple to form statistical tests.
+
+Finally, these questions are relevant to policy makers who want to improve the incomes of their constituents as well as to researchers interested in establishing a baseline for the average income they should expect a community would earn based on its demographics. These are critical questions, because the ability of communities to support themselves economically has massive impacts on the wellbeing of their members.
+
+## Content
+First, an examination is conducted on how the US Census Bureau database is structured, and which variables were included. Secondly, the groups of independent variables and how each of them could affect the income per capita of a community is presented. Then, an exploratory data analysis and some statistical tests are made to evaluate the significance of the variables. Later on, the models are executed, including clustering, classification, and regression. Finally, a conclusion looks into further challenges and questions necessary to enhance future analyses.
+
+
+# Dataset
+## U.S. Census Bureau Dataset
+The U.S. Census Bureau Data holds the yearly American Community Survey: a project which asks Americans around the country about several dimensions of their lives, including work, income, demographics, and other activities (U.S. Census Bureau, 2019). The dataset from 2015 was available via Kaggle (MuonNeutrino, 2015), and included more than 74,000 observations, with 37 columns (variables).
+The dataset includes two variables related to income: the median household income and income per capita. The variable income per capita was prefered because it adjusts per person, and not per household given that it's unknown how many people can live in an average household. 
+The variable income per capita (IncomePerCap) is calculated as the average income per capita of the population of a specific census tract. But, what is a census tract and why use them?
+
+### Census tracts
+Household's income in America varies significantly by geographical location. The richest counties in the country are concentrated in urban areas near big metropolises where most businesses are located. The bay area in northern California, Northeast Virginia and New York are some examples. However, counties have been an insufficient unit to compare different variables among them. There are 3,142 counties in a country of 300 million inhabitants (U.S. Census Bureau, 2019), but among them are several inconsistencies.
+Texas, for example, has 254 counties (U.S. Census Bureau, 2017). California, a state with approximately 10 million people more than Texas, has only 58 counties (U.S. Census Bureau, 2017). Population-wise California has the largest county in the country with more than 10 million inhabitants (Los Angeles), whereas Texas has more than 80 counties with less than 10,000 people (U.S. Census Bureau, 2017). Density-wise, New York has 4 of 5  of the most dense counties in the country, some of them 60,000 times more dense than counties in Hawaii, Alaska or Nevada (U.S. Census Bureau, 2013).
+As a response to these inconsistencies found in counties in America, the U.S. Census Bureau delineated "Census Tracts" at the beginning of the twentieth century.  A census tract is "geographic region defined for the purpose of taking a census." Over the years, the U.S. Census Bureau has established census tracts in every county in America. There are over 74,000 census tracts in the country and a typical one has around 4,000 or so residents. There is a strength that comes from this consistency: census tracts are by and large similar in population size, and the population size of census tracts does not vary much from state to state.
+
+# Description of Variables
+The complete dataset includes 17 independent variables and 1 dependent variable.
+Thanks to their nature, the independent variables were classified in three groups: Work Variation and Ethnic Variation.
+
+## Work Variation:
+
+**Professional:**
+Percentage (%) employed in management, business, science, and arts in a census tract.
+
+**Service:**
+Percentage (%) employed in service jobs in a census tract.
+
+**Office:**
+Percentage (%) employed in sales and office jobs in a census tract.
+
+**Construction:**
+Percentage (%) employed in natural resources, construction, and maintenance in a census tract.
+
+**Production:**
+Percentage (%) employed in production, transportation, and material movement in a census tract.
+
+**Unemployed:**
+Unemployment rate (%) in a census tract.
+
+**Self-employed:**
+Percentage (%) self-employed in a census tract.
+
+## Ethnic Variation
+
+**Native:**
+Percentage (%) of population that is Native American or Native Alaskan in a census tract.
+
+**White:**
+Percentage (%) of population that is white in a census tract.
+
+**Black:**
+Percentage (%) of population that is black in a census tract.
+
+**Hispanic:**
+Percentage (%) of population that is Hispanic/Latino in a census tract.
+
+**Asian:**
+Percentage (%) of population that is Asian in a census tract.
+
+
+# EDA
+
+The exploratory data analysis of this dataset was divided into 4 sections:
+
+* Population of census tracts
+* Income per capita
+* Independent variables
+* Correlation matrix
+
+## Population of census tracts
+
+```{r population} 
+loadPkg("ggplot2")
+# NA's
+dat0<-full_2015[!is.na(full_2015$IncomePerCap),]
+#sum(is.na(dat0$IncomePerCap))
+#removed outliers 
+dat1 <- outlierKD2(dat0, IncomePerCap, TRUE)
+#Mean after removing NA's
+#format(mean(dat1$TotalPop, na.rm = TRUE))
+#Summary after removing NA's
+summary(dat1$TotalPop)
+```
+  A baseline analysis of population and income was conducted. The histogram for population appeared skewed to the right. The different census tracts had similar population counts with a mean of about 4000. Counties were not evenly spread out as some had a population of 1 million and others 10 million. With similar populations, census tracts were easier to investigate instead of counties. The Q-Q plot confirmed the non-normality as the values between quartiles 3 and 4 were far away from the line. 
+
+
+## Income per capita
+```{r income no outliers} 
+#Remove NA
+dat1 <- dat1[!is.na(dat1$IncomePerCap), ]
+#Summary after removing NA's
+summary(dat1$IncomePerCap)
+#Histogram of dependent variable
+hist(dat1$IncomePerCap, 
+        col = "#a8c2fb",
+        main = "Income per Capita",
+        xlab = "US Dollars")
+#ggplot
+qqnorm(dat1$IncomePerCap, main="Q-Q plot of IncomePerCap")
+qqline(dat1$IncomePerCap)
+```
+Outliers and NA's were removed from our dependent variable income per capita. Note that the histogram appears normal, tails of q-q are closer to the line, and mean and median are much closer together.
+Outliers were taken out of this variable because super wealthy individuals could have been exercising a significant pull on the distribution .
+
+## Independent variables
+
+### Work variation
+
+Next the seven variables for work variations (professional, production, unemployment, office, service, construction, self-employed) were assessed for normality.
+
+```{r Work variations}
+loadPkg("dvmisc")
+#Group by Unemployment
+GroupUnemployment <- quant_groups(dat1$Unemployment, 4)
+str(GroupUnemployment)
+#Boxplot of IncomePerCap by Unemployment
+plot(IncomePerCap ~ GroupUnemployment, data=dat1, main="IncomePerCap and GroupUnemployment", col=c("#FFF57B","#FFE469", "#FECC51", "#FCB033") )
+summary(dat1$Unemployment)
+```
+
+The boxplots that exhibited a decrease in income, as more of the specific work variation was included in the census tract, were unemployment, service, construction, and production. That is to say, as more unemployed individuals were accounted for in a given census tract, the income per capita decreased.
+
+
+```{r}
+#Group by Professional
+GroupProfessional <- quant_groups(dat1$Professional, 4)
+str(GroupProfessional)
+#Boxplot of IncomePerCap by Professional
+plot(IncomePerCap ~ GroupProfessional, data=dat1, main="IncomePerCap and GroupProfessional", col=c("#F3D8F2","#E6B2E4", "#D88DD5", "#CA68C7") )
+summary(dat1$Professional)
+#Histogram of Professional
+hist(dat1$Professional, 
+        col = "#D88DD5",
+        main = "Professional")
+#qqplot of Professional
+qqnorm(dat1$Professional, main="Q-Q plot of Professional")
+qqline(dat1$Professional)
+```
+
+The only work variation that exhibited an increase in average income was professional work.
+ Looking at the histograms of each of the variables it appeared that only the proportion of professionals was distributed normally.  For professionals, the Q-Q plots affirmed the normality as the plot did not have the error terms straying far from the line with very small right and left tails. The same cannot be said for the other variables as each had an oversized right tail and a relatively small left tail. Overall the proportion of professionals appeared normally distributed while the other work variations did not.  
+
+
+
+```{r}
+#Histogram of Office
+hist(dat1$Office, 
+        col = "#FECC51",
+        main = "Office")
+#Histogram of Service
+hist(dat1$Service, 
+        col = "#79F58A",
+        main = "Service")
+#Histogram of Construciton
+hist(dat1$Construction, 
+        col = "#C0838C",
+        main = "Construction")
+#Histogram of Producrtion
+hist(dat1$Production, 
+        col = "#E6B2E4",
+        main = "Production")
+#Histogram of Self Employed
+hist(dat1$SelfEmployed, 
+        col = "#E6B2E4",
+        main = "Production")
+```
+
+The remaining variables of office and self-employed remained relatively stable across quartiles. The remaining six work variations were all skewed to the right. 
+
+### Ethnic variation
+
+Finally the five ethnic variables (Native, White, Black, Hispanic, and Asian) were investigated.
+
+```{r Ethnic Variatons}
+loadPkg("dvmisc")
+#Group by White
+GroupWhite <- quant_groups(dat1$White, 4)
+str(GroupWhite)
+#Boxplot of IncomePerCap by White Population
+plot(IncomePerCap ~ GroupWhite, data=dat1, main="IncomePerCap and GroupWhite", col=c("#F5F8FA", "#EFF2F4", "#EAEDEF", "#E0E3E5") )
+summary(dat1$White)
+#Histogram of White
+hist(dat1$White, 
+        col = "#F5F8FA",
+        main = "White")
+```
+
+The boxplots for White showed an increase in average income between the first second and third quartiles but no change in the fourth.
+
+
+```{r}
+#Group by Asians
+GroupAsian <- quant_groups(dat1$Asian, 4)
+str(GroupAsian)
+#Boxplot of IncomePerCap by Asian Population
+plot(IncomePerCap ~ GroupAsian, data=dat1, main="IncomePerCap and GroupAsian", col=c("#FFE6C8","#FFCCBE", "#EFABA0", "#D6806F") )
+summary(dat1$Asian)
+#Histogram of Asian
+hist(dat1$Asian, 
+        col = "#FFE6C8",
+        main = "Asian")
+```
+The boxplot for Asian showed an increase from the first through the fourth quartile.
+
+
+```{r}
+#Group by Hispanic
+GroupHispanic <- quant_groups(dat1$Hispanic, 4)
+str(GroupHispanic)
+#Boxplot of IncomePerCap by Hispanic Population
+plot(IncomePerCap ~ GroupHispanic, data=dat1, main="IncomePerCap and GroupHispanic", col=c("#F6BDC0","#F1959B", "#F07470", "#EA4C46") )
+summary(dat1$Hispanic)
+#Histogram of Hispanic
+hist(dat1$Hispanic, 
+        col = "#EA4C46",
+        main = "Hispanic")
+```
+
+The boxplots for Hispanic slightly increased between the first and second quartile but did not change for the third quartile. The fourth quantile for Hispanic decreased significantly.
+
+```{r}
+#Group by Black
+GroupBlack <- quant_groups(dat1$Black, 4)
+str(GroupBlack)
+#Boxplot of IncomePerCap by Black Population
+plot(IncomePerCap ~ GroupBlack, data=dat1, main="IncomePerCap and GroupBlack", col=c("#d0dfff","#a8c2fb", "#86abf9", "#6893ee") )
+summary(dat1$Black)
+#Histogram of Black
+hist(dat1$Black, 
+        col = "#d0dfff",
+        main = "Black")
+```
+
+The boxplot for Black increased in average income between the first and second quartile. Then there was a decrease in average income from the second to the fourth quartiles. Overall, it appeared that average income did change based on concentration of ethnicities in a census tract. 
+
+The histogram for White was bimodal with the highest frequency at over 8,000. The histograms for the other four ethnicities were skewed to the right. Based on the histogram, it appeared that white had the highest responses followed by Hispanic, Black, Asian, and Native. 
+
+
+```{r}
+#Group by native
+#GroupNative <- quant_groups(dat1$Native, 4)
+#str(GroupNative)
+#Boxplot of IncomePerCap by Native Population
+#plot(IncomePerCap ~ GroupNative, data=dat1, main="IncomePerCap and GroupNative", col=c("#F3D8F2","#E6B2E4", "#D88DD5", "#CA68C7") )
+summary(dat1$Native)
+#Histogram of Native
+hist(dat1$Native, 
+        col = "#F5F8FA",
+        main = "Native")
+```
+
+Also, there were not enough responses from the Native ethnicity to construct a meaningful boxplot.
+Therefore, based on the assessment of the boxplots, histograms, and Q-Q plots, none of the ethnicities appear normally distributed.
+
+
+```{r}
+loadPkg(ISLR)
+#Subsetting
+dat_1 <- subset(dat1, select = c(Hispanic, White, Black, Asian, Professional, Service, Office, Construction, Production, Unemployment, IncomePerCap))
+#Remove NA
+dat_1 <- na.omit(dat_1)
+               
+```
+
+## Correlation Matrix
+
+``` {r PCA_PCR_xform_fcns}
+PCAxform <- function(df, z=TRUE) { 
+  #' Obtain the dataframe with the Principal Components after the rotation. 
+  #' ELo 201911 GWU DATS
+  #' @param df The dataframe.
+  #' @param z T/F or 0/1 for z-score to be used
+  #' @return The transformed dataframe.
+  #' @examples
+  #' tmp = PCAxform(USArrests,TRUE)
+  z = ifelse(z==TRUE || z=="true" || z=="True" || z=="T" || z=="t" || z==1 || z=="1", TRUE, FALSE) # standardize z 
+  if(z) { df = data.frame(scale(df))}  # scale not safe for non-numeric colunms, but PCA requires all variables numerics to begin with.
+  pr.out = prcomp(df,scale=z)
+  df1 = data.frame( as.matrix(df) %*% pr.out$rotation ) # use matrix multiplication in R:  %*% 
+  return(df1)
+}
+# Sample 
+# USArrests.z.pc = PCAxform(USArrests,TRUE)
+# summary(USArrests.z.pc)
+PCRxform <- function(df, y, zX=TRUE, zy=FALSE) { 
+  #' Obtain the dataframe with the Principal Components after the rotation for PCRegression. Requires related function PCAxform()
+  #' ELo 201903 GWU DATS
+  #' @param df The dataframe.
+  #' @param y The y-variable column index number(int), or the name of y-variable
+  #' @param zX T/F or 0/1 for z-score used on X-variables
+  #' @param zy T/F or 0/1 for z-score used on the target y-variable
+  #' @return The transformed dataframe.
+  #' @examples
+  #' tmp = PCAxform(USArrests,TRUE)
+  # take care of y target
+  zy = ifelse(zy==TRUE || zy=="true" || zy=="True" || zy=="T" || zy=="t" || zy==1 || zy=="1", TRUE, FALSE) # standardize target y
+  if( is.integer(y) ) { # y is integer
+    if( y>length(df) || y<1 ) {
+      print("Invalid column number")
+      return(NULL)
+    }
+    if(zy) { df1 = data.frame( scale(df[y]) ) } else { df1 = df[y] } # save y-var in df1
+    df = df[-y] # remove y-variable in df
+  } else { # y is not integer, so interpret as name
+    if(zy) { df1 = data.frame( scale( df[names(df) == y] ) ) } else { df1 = df[names(df) == y] }
+    df = df[names(df) != y] # remove y-variable in df
+  }
+  if( length(df1)<1 ) {
+    print("Variable name not found in data.frame")
+    return(NULL)
+  }
+  # now transform X-vars
+  zX = ifelse(zX==TRUE || zX=="true" || zX=="True" || zX=="T" || zX=="t" || zX==1 || zX=="1", TRUE, FALSE) # standardize X-vars 
+  df2 = PCAxform(df,zX)
+  df1 = data.frame(df1,df2) # piece them back together
+  return(df1)
+}
+# Sample 
+# USArrests.z.pcr = PCRxform(USArrests,3,TRUE) # OR
+# USArrests.z.pcr = PCRxform(USArrests,"UrbanPop",TRUE) 
+# summary(USArrests.z.pcr)
+```
+
+```{r matrices}
+#use dataset from FinalPaper line 623, titled dat1
+pcadata1 <- dat_1[complete.cases(dat_1), ]
+pcadata <- subset(pcadata1, select = -c(IncomePerCap))
+pcadata_w_ipc <- pcadata1
+loadPkg("corrplot")
+pcadata_ipc_cor <- cor(pcadata)
+corrplot::corrplot(pcadata_ipc_cor)
+pcadata_cov <- cov(pcadata)
+pcadata_cor <- cor(pcadata)
+#round(pcadata_cor, 3)
+#print(pcadata_cov)
+```
+
+## Models: Why perform both clustering and prediction?
+
+Throughout this report, both clustering models and prediction models were performed. 
+Clustering models, such as PCA and K-means, are unsupervised learning methods. The objective is to find patterns in the data that help understand the relationship and closeness of different variables, and consequently subgrouping the dataset based on those patterns. Overall, It is important to use supervised and unserpervised models as it helps create a better holistic understanding of the data. 
+In this study, the initial purpose was to understand income per capita. However, there are multiple independent variables that, according to this EDA, could be heavily correlated. Therefore, a clustering analysis could help us understand these relationship and make better conclusions about the reality of income in the U.S.
+
+On the other hand, prediction models, such as KNN classification and regressions, are supervised learning whose main purpose is to understand the behaviour of a dependent variable. As shown in the EDA, the analysis was includes 10 independent variables and a single dependent variable: income per capita. Then, running classification and regression models was indispensable in this analysis. 
+
+
+# PCA
+
+A Principle Component Analysis (PCA) and Principle Component Regression (PCR) seemed suited to this dataset.  The purpose of this technique is to decrease the number of variables while accounting for collinearity.  Within this dataset there were 10 variables to explain IncomePerCap.  However, the correlation matrix showed notable correlation between some of the predictor variables.  For example, Professional had notable correlations with Service, Construction, Production and Unemployment, White had notable correlations with Hispanic and Black, etc.  From this inital overview of the correlation matrix, the prospect of PCA seemed suitable and was continued.
+
+
+```{r scaled}
+pcadata_scale <- scale(pcadata)
+scale_cov <- cov(pcadata_scale)
+scale_cor <- cor(pcadata_scale)
+```
+
+```{r PCs}
+pc <- prcomp(pcadata, scale = TRUE)
+#summary(pc)
+#pc$rotation
+```
+
+```{r plot}
+biplot(pc, scale = 0)
+#biplot(pc, 9:10, scale = 0)
+```
+
+The biplot above analyzed over 70k+ data points, resulting in the dense scattering of data.  The axes of this plot were PC1 on the horizontal and PC2 on the vertical. PC1 had the most variation, between approximately -5 to 10, while PC2 went between -8 to 10.  The variables White, Production, Unemployment, Black and Professional were pretty evenly split up between Pc1 and PC2.  Other variables, such as Office, Service, Unemployed, Construction, etc. were majorly represented in either PC1 or PC2.
+
+
+```{r rotation}
+pcadata_rot <- PCAxform(pcadata,TRUE)
+#summary(pcadata_rot)
+#cor(pcadata_rot)
+#cov(pcadata_rot)
+```
+
+```{r rot matrices}
+pcadata_rot_cov <- cov(pcadata_rot)
+pcadata_rot_cor <- cor(pcadata_rot)
+```
+
+```{r rot scaled}
+pcadata_rot_scale <- scale(pcadata_rot)
+scale_pcadata_rot_cov <- cov(pcadata_rot_scale)
+scale_pcadata_rot_cor <- cor(pcadata_rot_scale)
+```
+
+```{r rot PCs}
+pc_pcadata_rot <- prcomp(pcadata_rot, scale = FALSE)
+summary(pc_pcadata_rot)
+```
+
+The breakdown of the variation explained by each component showed that just over 60% of the variation was accounted for within the first three components.  However, except for the first component, the change in the amount of variation explained in each consecutive component was similar. This was further illustrated by the following graph. 
+
+```{r rot var}
+#plot the cumulation of variance using the sd
+pr.var <- (pc$sdev^2)
+pve <- pr.var/sum(pr.var)
+plot(cumsum(pve), xlab="Principal Component (standardized)", ylab ="Cumulative Proportion of Variance Explained",ylim=c(0,1),type="b")
+```
+
+```{r PCA reg}
+pcadata_pcr_rot = PCRxform(pcadata_w_ipc,"IncomePerCap",TRUE) 
+pcadata_rot_reg <- lm(IncomePerCap ~ ., data = pcadata_pcr_rot)
+summary(pcadata_rot_reg)
+```
+
+A full principle component regression was performed, and all except the last component were deemed significant.  It was also notable that this regression explained 71.01% of the variance in the dataset according the the adjusted R-Squared. The strongest variable was of course PC1 with a t-value with a magnitude by far larger than the rest of the variables.
+
+```{r pcr}
+loadPkg("pls")
+pcr_pcadata <- pcr(IncomePerCap ~ ., data = pcadata_w_ipc, scale = TRUE, validation = 'CV')
+#summary(pcr_pcadata)
+```
+
+```{r validation}
+#validationplot(pcr_pcadata, val.type="MSEP",legend="topright")
+```
+
+```{r val w/ r2}
+#validationplot(pcr_pcadata, val.type="R2")
+```
+
+A plot of the R-Square values over the number of components explained the amount of variation explained in the independent variable, IncomePerCap, based off of the components.  The steeper increase and then petering off that occured in the R-Square graph seemed to indicate that a significant amount of the variation of the data in regards to IncomePerCap was explained using just the first component.  Based on the initial analysis of the R-Square graph, and the results of the regression it seemed appropriate to run a regression on just PC1 which resulted in a lower Adjusted R Square.  
+
+```{r PCA reg2}
+pcadata_pcr_rot = PCRxform(pcadata_w_ipc,"IncomePerCap",TRUE) 
+pcadata_rot_reg2 <- lm(IncomePerCap ~ PC1, data = pcadata_pcr_rot)
+summary(pcadata_rot_reg2)
+```
+
+The results of this regression on just PC1 corroborated that the R-Square is smaller, at a value of 63.93%. The tradeoff between parsimony and description of these two potential models made the choice of model unclear.  Assuming the more explanatory model, which accounted for the number of components included by adjusted R Square, was chosen, only one component would be removed.  This was not an effective parsing down of variables.  However, there would be low bias since only one component was dropped.
+
+
+# K- Means
+
+```{r analysis for ethnicities, code_folding=show }
+library(tidyverse)
+library(caret)
+library(glmnet)
+loadPkg(tidyverse)  # data manipulation
+loadPkg(cluster)    # clustering algorithms
+loadPkg(factoextra)
+loadPkg(fpc)
+loadPkg(ISLR)
+datJLClean = uzscale(dat_1, 0, "IncomePerCap")
+# include work variables {look at luis'} 
+#ethnicities clustering 
+#White
+#down fpc https://cran.r-project.org/web/packages/fpc/index.html
+#need help downloading 
+# cool website https://stats.stackexchange.com/questions/31083/how-to-produce-a-pretty-plot-of-the-results-of-k-means-cluster-analysis
+#k-2
+set.seed(1000)
+k2 <- kmeans(datJLClean, centers = 2, nstart = 25)
+str(k2)
+k2
+clusplot(datJLClean, k2$cluster, color=TRUE, shade=TRUE,
+   labels=0, lines=0)
+#k-3
+set.seed(1000)
+k3 <- kmeans(datJLClean, centers = 3, nstart = 25)
+str(k3)
+k3
+clusplot(datJLClean, k3$cluster, color=TRUE, shade=TRUE,
+   labels=0, lines=0)
+#k-4
+set.seed(1000)
+k4 <- kmeans(datJLClean, centers = 4, nstart = 25)
+str(k4)
+k4
+clusplot(datJLClean, k4$cluster, color=TRUE, shade=TRUE,
+   labels=0, lines=0)
+#k-10
+k10 <- kmeans(datJLClean, centers =10, nstart = 25)
+str(k10)
+k10
+kplot <-data.frame("K-clusters"= c(2,3,4,5,6,7,8,9,10), "Percent of between_SS / total_SS" = c(65.8, 83.3, 90.2, 93.5, 95.4, 96.6, 97.3, 97.8, 98.2))
+plot(kplot,"K-clusters","Percent of between _SS / total_SS", type ="b")
+```
+
+   K-means is an unsupervised learning algorithm. The goal of this program is to find groups or clusters of data in order to identify certain patterns. All of the values in the data set were normalized to make comparisons of the overall dataset on a similar scale. K-means was used for 2,3,4, and 10 clusters. On inspection of the clusters created from k=2, The cluster that had the highest IncomePerCap at 37598 had the highest cluster mean of professional at 0.928, White at 0.420 and Asian at 0.237. the cluster plot chart has all the 70,000 datapoints in green and the two different clusters in blue and red respectively.It appears that there is overlap of the clusters however this occurs as the plot takes all the different data points and plots them on a two dimensional graph.  With only two clusters it captures about 65.8% of the cluster sum of squares.
+  Further inspection was constructed for a model with k =3. The cluster with the highest IncomePerCap was found to be cluster three at 42760. this cluster also had the highest cluster mean for Professional at 1.330 and Asian at 0.3837. The first cluster which had a IncomePerCap cluster mean of 16577 had the highest uneployment cluster average at 0.619. the cluster plot has three distinct clusters portrayed and the overlap makes it a little difficult to see which cluster is which. With only three clusters, 83.3% of the data is captured which is a drastric improvement from only two clusters. 
+  A final analysis was constructed for a model with k=4. The cluster with the highest IncomePerCap was found to be cluster three with 45781. this cluster had the hgihest Professional cluster average at 1.533 and the highest Asian cluster averge at 0.456. The cluster with the lowest IncomePerCap was cluster two at 14434. It had the highest unemployment cluster average at 0.8988. The cluster plot is difficult to interpret as the all of the datapoints were brought to a two dimensional scale and now there are four different clusters. With only four clusters, 90.2% of the data is captured which is a drastric improvement from only two clusters. 
+  As the clusters increased from 4 to 10, the percentage captured did not increase drastically. For example when k= 10, 98.2% of the data is captured. Therefore, a cluster of four would be sufficient
+
+
+# KNN
+
+## Preprocessing KNN
+```{r Dividing Income in 4 groups} 
+loadPkg("dvmisc")
+loadPkg("plyr")
+#Income Per Capita divided in 4 categories: Low, Mid-Low, Mid-High, High
+ipc4 <- quant_groups(dat_1$IncomePerCap, 4)
+#Income Per Capita divided in 2 categories: Low and high income.
+ipc2 <- quant_groups(dat_1$IncomePerCap, 2)
+```
+
+Besides prediction, classification was another method that was performed in order to understand income per capita of census tracts. Is it possible to classify future census tract's income per capita based on the information given related to work and ethnic variations? To answer this question the dependent variable was transformed into a classifiable variable. In other words, income per capita, a numerical variable, was splitted into four groups: low, medium low, medium high, and high income per capita.
+
+
+
+```{r Adding new columns to dat1} 
+#Adding new columns to dat1
+dat_1 <- cbind(dat_1, ipc2, ipc4)
+dat_1$ipc2 <- as.factor(dat_1$ipc2)
+dat_1$ipc4 <- as.factor(dat_1$ipc4)
+levels(dat_1$ipc2)[levels(dat_1$ipc2)=="[855,2.47e+04]"] <- "Low"
+levels(dat_1$ipc2)[levels(dat_1$ipc2)=="(2.47e+04,5.6e+04]"] <- "High"
+levels(dat_1$ipc4)[levels(dat_1$ipc4)=="[855,1.88e+04]"] <- "Low"
+levels(dat_1$ipc4)[levels(dat_1$ipc4)=="(1.88e+04,2.47e+04]"] <- "Mid-Low"
+levels(dat_1$ipc4)[levels(dat_1$ipc4)=="(2.47e+04,3.23e+04]"] <- "Mid-High"
+levels(dat_1$ipc4)[levels(dat_1$ipc4)=="(3.23e+04,5.6e+04]"] <- "High"
+#Boxplots
+plot(IncomePerCap ~ ipc2, data=dat_1, main="Income: Low & High", col=c("#ffd18b", "#ff875f") )
+```
+The function quant_groups was used. This separated the variable "income per capita" in quartiles and created a categorical variable with 4 categories. Each category has the same amount of observations (17418), and contains all census tracts ranging from the income per capita levels of each quartile. The new categorical variable was named "ipc4" and included:
+
+* Low: 0 - 18,000
+* Mid-Low: 18,800 - 24,700
+* Mid-High: 24,700 - 32,200
+* High: 32,000 - 56,000
+
+
+``` {r} 
+plot(IncomePerCap ~ ipc4, data=dat_1, main="Income: four levels", col=c("#ffd18b", "#ff875f") )
+```
+Separately, another variable was created from “income per capita” with only 2 categories. The purpose is to compare how classifying income per capita using 4 categories differs from classifying it using 2 categories. Therefore, a second categorical variable was created and named “ipc2” containing:
+
+* Low: 0 - 24,700
+* High: 24,700 - 56,000
+
+Both new categorical variables were added to the dataset “dat_1”.
+
+
+```{r}
+#Subsetting
+dat_ipc <- subset(dat_1, select = c(Hispanic, White, Black, Asian, Professional, Service, Office, Construction, Production, Unemployment, ipc2, ipc4))
+#Remove NA
+dat_ipc <- na.omit(dat_ipc)
+               
+str(dat_ipc)
+```
+
+The dataset that was used to perform the KNN contained "ipc2" and "ipc4" along with the independent variables used to classify income per capita. 
+
+
+### Train-Test split 3:1
+
+```{r}
+loadPkg(FNN)
+set.seed(1000)
+scaleddat <- as.data.frame(scale(dat_ipc[0:10], center = TRUE, scale = TRUE))
+dat_sample <- sample(2, nrow(scaleddat), replace=TRUE, prob=c(0.67, 0.33))
+dat_training <- scaleddat[dat_sample==1, 0:10]
+dat_test <- scaleddat[dat_sample==2, 0:10]
+```
+
+```{r}
+dat_ipc2.trainLabels <- dat_ipc[dat_sample==1, 11]
+dat_ipc2.testLabels <- dat_ipc[dat_sample==2, 11]
+```
+
+```{r}
+dat_ipc4.trainLabels <- dat_ipc[dat_sample==1, 12]
+dat_ipc4.testLabels <- dat_ipc[dat_sample==2, 12]
+```
+First, the data was splitted into 80% training, and 20% test subsets.
+Two test sets were created: one for the categorical variable with 2 categories (ipc2) and another one for the categorical variable with 4 categories (ipc4).
+
+
+## KNN 2 categories
+
+### Selecting the correct "k"
+
+
+The first KNN model performed tried to classify census tract's income in two categories: Low or High.
+First, the chooseK() function was applied to determine the best KNN K value for the model. 
+
+```{r}
+chooseK = function(k, train_set, val_set, train_class, val_class){
+  
+  # Build knn with k neighbors considered.
+  set.seed(1)
+  class_knn = knn(train = train_set,    #<- training set cases
+                  test = val_set,       #<- test set cases
+                  cl = train_class,     #<- category for classification
+                  k = k) #,                #<- number of neighbors considered
+                  # use.all = TRUE)       #<- control ties between class assignments
+                                        #   If true, all distances equal to the kth 
+                                        #   largest are included
+  
+  tab = table(class_knn, val_class)
+  
+  # Calculate the accuracy.
+  accu = sum(tab[row(tab) == col(tab)]) / sum(tab)                         
+  cbind(k = k, accuracy = accu)
+}
+# The sapply() function plugs in several values into our chooseK function.
+# function(x)[function] allows you to apply a series of numbers
+# to a function without running a for() loop.
+knn_different_k = sapply(seq(1, 30, by = 2),  #<- set k to be odd number from 1 to 21
+                         function(x) chooseK(x, 
+                                             train_set = scaleddat[dat_sample==1, 0:10],
+                                             val_set = scaleddat[dat_sample==2, 0:10],
+                                             train_class = dat_ipc[dat_sample==1, 11],
+                                             val_class = dat_ipc[dat_sample==2, 11]))
+# Reformat the results to graph the results.
+str(knn_different_k)
+knn_different_k = data.frame(k = knn_different_k[1,],
+                             accuracy = knn_different_k[2,])
+# Plot accuracy vs. k.
+# install.packages("ggplot2")
+loadPkg(ggplot2)
+ggplot(knn_different_k,
+       aes(x = k, y = accuracy)) +
+  geom_line(color = "orange", size = 1.5) +
+  geom_point(size = 3)
+```
+
+The graph shows that 9 is approximately the best value for k because it provides the highest accuracy. In other words, the optimal amount of neighbors used to classify each observation is 9, because the accuracy does not improve substantially after adding more neighbors.
+
+
+### Results
+
+```{r}
+#Model 
+dat_pred_ipc2 <- knn(train = dat_training, test = dat_test, cl=dat_ipc2.trainLabels, k=9)
+```
+
+
+```{r}
+# ConfusionMatrix
+loadPkg(class)
+kNN_res_ipc2 = table(dat_pred_ipc2,
+                dat_ipc2.testLabels)
+kNN_res_ipc2
+# Select the true positives and true negatives by selecting
+# only the cells where the row and column names are the same.
+#kNN_res_ipc2[row(kNN_res_ipc2) == col(kNN_res_ipc2)]
+# Calculate the accuracy rate by dividing the correct classifications
+# by the total number of classifications.
+kNN_acc_ipc2 = sum(kNN_res_ipc2[row(kNN_res_ipc2) == col(kNN_res_ipc2)]) / sum(kNN_res_ipc2)
+kNN_acc_ipc2
+```
+
+
+As shown in the confusion matrix, the model can classify the income level of a census tract based on their work and ethnic demographics with an accuracy of 84%. 
+For the test set, that corresponded to 19,210 observations predicted successfully out of 22,836. However, this high accuracy score corresponded only to the classification of two categories: low and high.
+
+The reality of income in the U.S. is much more complex than that. Therefore, it makes sense to perform another model trying to classify 4 categories instead.
+
+
+## KNN 4 categories
+
+
+### Selecting the correct "k"
+
+The next KNN model tried to classify census tract's income in four categories: Low, Mid-low, Mid-High and High.
+
+```{r}
+chooseK = function(k, train_set, val_set, train_class, val_class){
+  
+  # Build knn with k neighbors considered.
+  set.seed(1)
+  class_knn = knn(train = train_set,    #<- training set cases
+                  test = val_set,       #<- test set cases
+                  cl = train_class,     #<- category for classification
+                  k = k) #,                #<- number of neighbors considered
+                  # use.all = TRUE)       #<- control ties between class assignments
+                                        #   If true, all distances equal to the kth 
+                                        #   largest are included
+  
+  tab = table(class_knn, val_class)
+  
+  # Calculate the accuracy.
+  accu = sum(tab[row(tab) == col(tab)]) / sum(tab)                         
+  cbind(k = k, accuracy = accu)
+}
+# The sapply() function plugs in several values into our chooseK function.
+# function(x)[function] allows you to apply a series of numbers
+# to a function without running a for() loop.
+knn_different_k = sapply(seq(1, 30, by = 2),  #<- set k to be odd number from 1 to 21
+                         function(x) chooseK(x, 
+                                             train_set = scaleddat[dat_sample==1, 0:10],
+                                             val_set = scaleddat[dat_sample==2, 0:10],
+                                             train_class = dat_ipc[dat_sample==1, 12],
+                                             val_class = dat_ipc[dat_sample==2, 12]))
+# Reformat the results to graph the results.
+str(knn_different_k)
+knn_different_k = data.frame(k = knn_different_k[1,],
+                             accuracy = knn_different_k[2,])
+# Plot accuracy vs. k.
+# install.packages("ggplot2")
+loadPkg(ggplot2)
+ggplot(knn_different_k,
+       aes(x = k, y = accuracy)) +
+  geom_line(color = "orange", size = 1.5) +
+  geom_point(size = 3)
+```
+
+The chooseK() function applied to determine the best KNN K value for the model shows that 9 is approximately the best value for k as well, because it provides the highest accuracy.
+
+## Results
+
+```{r}
+#Model 
+dat_pred_ipc4 <- knn(train = dat_training, test = dat_test, cl=dat_ipc4.trainLabels, k=9)
+# View the output.
+#str(dat_pred_ipc4)
+#length(dat_pred_ipc4)
+#table(dat_pred_ipc4)
+```
+
+```{r}
+#Confusion Matrix
+loadPkg(class)
+kNN_res_ipc4 = table(dat_pred_ipc4,
+                dat_ipc4.testLabels)
+kNN_res_ipc4
+# Select the true positives and true negatives by selecting
+# only the cells where the row and column names are the same.
+#kNN_res_ipc4[row(kNN_res_ipc4) == col(kNN_res_ipc4)]
+# Calculate the accuracy rate by dividing the correct classifications
+# by the total number of classifications.
+kNN_acc_ipc4 = sum(kNN_res_ipc4[row(kNN_res_ipc4) == col(kNN_res_ipc4)]) / sum(kNN_res_ipc4)
+kNN_acc_ipc4
+```
+
+
+As shown in the confusion matrix, the accuracy scored decreased from 84% to 63%. That means that is harder to classify income per capita when having 4 categories than having 2 categories. 
+For the test set, that corresponded to 14,466 observations predicted successfully out of 22,836.
+
+In reality, income per capita is a numerical variable. So the classification exercise served only as a proxy to understand how census tracts can be classified based on their demographics, but is not by any means a completely reliable tool to predict income in the U.S.
+
+# Linear Regression
+
+```{r subsetting for linear}
+#Subsetting
+datDisc <- subset(dat1, select = c(Hispanic, White, Black, Asian, Professional, Service, Office, Construction, Production, Unemployment, IncomePerCap))
+               
+str(datDisc)
+```
+
+
+#Basic Linear Regression
+We begin our predictive modeling with a simple linear regression model. This will allow us to make basic statements about how the variables of interest correlate with income, but won't be an appropriate final model, since it does not allow for interactions between components which we have already shown to be inter-related. We begin by doing an exhaustive search of our variables of interest.
+
+```{r Feature Selection} 
+loadPkg('leaps')
+reg.best10 <- regsubsets(IncomePerCap~. , data = datDisc, nvmax = 10)  
+plot(reg.best10, scale = "adjr2", main = "Adjusted R^2")
+#plot(reg.best10, scale = "bic", main = "BIC")
+#plot(reg.best10, scale = "Cp", main = "Cp")
+```
+
+The exhaustive search indicates, by adjusted R^2, that we should include all of our variables except Professional.  Since we perceive few costs to expanding the model, we simply take the model with the highest adjusted value. Note that Professional is excluded not because it is individually unhelpful, but because the set of work types sums to one, so one of them will always be dropped. We also did feature selection with BIC and Cp, with similar results. For brevity, we do not include them. 
+
+```{r Regression} 
+loadPkg('car')
+lr <- lm(IncomePerCap  ~ . - Professional, data = datDisc) 
+summary(lr)
+lr
+vif(lr)
+coef <- coef(lr)
+coef
+```
+
+Taking a simple linear regression, we find that we can predict the level income  with reasonably high effectiveness (R^2 = `r )
+```{r Logistic Regression} 
+glr <- glm(ipc4   ~ . - Professional, data = dat_ipc %>% select(-ipc2), family = "binomial") 
+summary(glr)
+vif(glr)
+coef <- coef(glr)
+```
+
+
+```{r roc_auc}
+loadPkg('pROC') # receiver operating characteristic curve, gives the diagnostic ability of a binary classifier system as its discrimination threshold is varied. The curve is on sensitivity/recall/true-positive-rate vs false_alarm/false-positive-rate/fall-out.
+prob=predict(glr, type = c("response"))
+datprob <- dat_ipc
+datprob$prob=prob
+h <- roc(ipc4~prob, data=datprob)
+auc(h) # area-under-curve prefer 0.8 or higher.
+plot(h)
+# unloadPkg(pROC) # good habit to remove unload packages no longer needed 
+```
+
+# Ridge Regression
+
+```{r}
+loadPkg(ISLR)
+datJLClean = uzscale(dat_1, 0, "IncomePerCap")
+```
+
+
+```{r}
+x=model.matrix(IncomePerCap~.,datJLClean)[,-1]
+y=datJLClean$IncomePerCap
+loadPkg(glmnet)
+grid=10^seq(10,-2,length=100) # prepare log scale grid for λ values, from 10^10 to 10^-2, in 100 segments
+ridge.mod=glmnet(x,y,alpha=0,lambda=grid) # build the ridge model. (alpha is elastic-net mixing parameter, between 0 and 1. Ridge is 0, Lasso is 1)
+dim(coef(ridge.mod))  # same as dim(coefficients(ridge.mod)), is the dimensions of all the models (100 of them), and the dimension is here: 20x100
+plot(ridge.mod)
+#legend("topleft",x, y, legend = c("Hispanic", "White", "Black", "Asian", "Professional", "Service", "Office", "Construction", "Production", "Unemployment", "IncomePerCap"), col = c("orange", "blue", "green", "purple", "red", "violet", "aqua", "indigo", "brown", "peach", "black"))
+```
+
+   The dataset had 10 dependent variables predicting the independent variable. Ridge regression was introduced as it minimized the residual sum of squares and has a shrinkage penalty of lambda times by the sum of squares of the coefficients. Overall as lambda increases, the coefficients apprach zero. This plot indicates the entire path of variables as they shring towards zero. To build the ridge regression, a log sacle grid for the lambda values was constucted from  10^10 to 10^-2 in 100 segments.
+
+## Train and Test sets
+
+```{r, warning=F}
+loadPkg(dplyr)
+set.seed(1)
+train = datJLClean %>% sample_frac(0.5)
+test = datJLClean %>% setdiff(train)
+x_train = model.matrix(IncomePerCap~., train)[,-1]
+x_test = model.matrix(IncomePerCap~., test)[,-1]
+y_train = train %>% select(IncomePerCap) %>% unlist() # %>% as.numeric()
+y_test = test %>% select(IncomePerCap) %>% unlist() # %>% as.numeric()
+```
+
+To avoid introducing a bias in developing the Ridge and Lasso regression a train and test data set were introduced. To simulate a train and test set there was a random split into 50% for the train set. 
+
+ 
+```{r cross validation}
+set.seed(1)
+cv.out.ridge=cv.glmnet(x_train,y_train,alpha=0)  # Fit ridge regression model on training data
+plot(cv.out.ridge)
+bestlam.ridge = cv.out.ridge$lambda.min  # Select lamda that minimizes training MSE
+bestlam.ridge
+cat("lowest lamda from CV: ", bestlam.ridge, "\n\n")
+ridge.pred=predict(ridge.mod,s=bestlam.ridge,newx=x_test)
+ridgeMeanMse = mean((ridge.pred-y_test)^2)
+cat("MSE for best Ridge lamda: ", ridgeMeanMse, "\n\n")
+#
+out.ridge=glmnet(x,y,alpha=0)
+ridge_coef = predict(out.ridge,type="coefficients",s=bestlam.ridge)[1:11,]
+cat("\nAll the coefficients : \n")
+ridge_coef
+#r^2 calculations
+rss2 <- sum((ridge.pred-y_test) ^ 2)
+tss2 <- sum((y_test - mean(y_test)) ^ 2)
+rsq2 <- 1 - rss2/tss2
+cat("\nR^2: \n")
+rsq2
+```
+
+
+  In order to obtain the best model for Ridge regression, cross validation was implimented to find the best fit. The cross validation line graph indicates that a model with ten dependent variables would yield the best lambda with the lowest mean square error. As the lambda value decreases, the mean square error also decreases. Overall, Ridge Regression includes all the of the dependent variables and the best value for lambda is indicated by the first vertical dotted line.
+  The lowest lamda from the cross validation was found to be 825. The MSE for the best Ridge Lambda equation was 30834392. from the equation, the model that had the most positive coefficient valus were professional at 3248, White at 1104 and Asian at 546. The values that had the strongest negative coeffiecents were service at -2195, production at -2021 and unemployment at -1602. It was interesting to note that only professional had a positive lambda while the other work variables were all negative. The R^2 value for the best Ridge model was found to be 0.707. this means that 70.7% of the variation in the income can be explained by the model. 
+  
+## Lasso Regression
+```{r lasso}
+lasso.mod=glmnet(x_train,y_train,alpha=1,lambda=grid)
+plot(lasso.mod)
+#legend("topleft",x, y, legend = c("Hispanic", "White", "Black", "Asian", "Professional", "Service", "Office", "Construction", "Production", "Unemployment", "IncomePerCap"), col = c("orange", "blue", "green", "purple", "red", "violet", "aqua", "indigo", "brown", "peach", "black"))
+set.seed(1)
+cv.out.lasso=cv.glmnet(x_train,y_train,alpha=1)
+plot(cv.out.lasso)
+bestlam.lasso=cv.out.lasso$lambda.min
+cat("lowest lamda from CV: ", bestlam.lasso, "\n\n")
+lasso.pred=predict(lasso.mod,s=bestlam.lasso,newx=x_test)
+#
+out.lasso = glmnet(x, y, alpha = 1, lambda = grid) # Fit lasso model on full dataset
+lassoMeanMse = mean((lasso.pred-y_test)^2)
+cat(" MSE for best Lasso lamda: ", lassoMeanMse, "\n\n")
+#
+lasso_coef = predict(out.lasso, type = "coefficients", s = bestlam.lasso)[1:11,] # Display coefficients using λ chosen by CV
+cat("\nAll the coefficients : \n")
+lasso_coef
+cat("\nThe non-zero coefficients : \n")
+lasso_coef[lasso_coef!=0]
+#r^2 calculation
+rss <- sum((lasso.pred-y_test) ^ 2)
+tss <- sum((y_test - mean(y_test)) ^ 2)
+rsq <- 1 - rss/tss
+rsq
+```
+  
+  Lasso regression was also implimented to see if this model would perform differently from the OLS or Ridge model. Lasso regression can be useful in reducing over-fittness and assist in model selection. from the line plot it can be seen that the three most positive coefficient values are professional at 6030.2, white at 1690, and asian at 712.2. This means that Professional, White, and Asian have much stronger positive pull on the data that the other variables. The three most negtive coefficient values are unemployment at -1613, service at -716.5, and producton at -622.3. Construction was found to have a coefficient value of 0.0 so it was removed for the final Lasso model. It is interesting to note that the lambda values for hispanic are small at 13.6 so they do not deviate much from the ordinary least squares model (OLS).
+   Cross validation was introduced to select the lambda value with the lowest MSE. The CV recommended eight dependent variables be used to predict income. The Lasso regresison recommended that construction be removed from the equation. the Cross validaiton value was found to be 16.2 and the MSE for the best Lasso model was 30709528. Also the r^2 value was found to be 0.708. this means that 70.8% of the variation in Income can be explained by the model. 
+
+```{r lasso vs. regression vs full}
+####I want to test to see which one is better 
+OLS <- lm(IncomePerCap~.,data = datJLClean)
+summary(OLS)
+#w/o construction 
+OLS2 <- lm(IncomePerCap~ Hispanic + White +Black + Asian + Professional + Service + Office + Production+ Unemployment ,data = datJLClean)
+summary(OLS2)
+#mse1
+cat("\nMSE for full model : \n")
+mse <-mean(OLS$residuals^2)
+mse
+#mse2
+cat("\nMSE for full model (w/o construction) : \n")
+mse2 <- mean(OLS2$residuals^2)
+mse2
+#https://h1ros.github.io/posts/lasso-regression/
+library(tidyverse)
+library(caret)
+library(glmnet)
+models <- list(ridge = ridge.mod, lasso = lasso.mod, OLS = OLS)
+```
+
+  An OLS model was consturcted for both the full model and the full model without the construction variable to compare them to the Ridge and Lasso models. the R^2 value for both the OLS models was found to be 0.71. this means that both the ordinary least squares models explain 71% of the variation in income can be explainedby the model. Furthermore the MSE for the full model was found to be 30459848. The full model withouth the construction variable was found to have a larger MSE at 30460435. 
+  Overall the Lasso, Ridge, and both OLS models explain aobut roughly the same amount of variability in the data. Also all of the R^2 values are about the same around 0.70. Since the full OLS has the lowest MSE and the highest R^2 it would be a more suitable option than the Ridge, Lasso, or OLS without construction. 
+
+
+
+
+```{r, include=FALSE}
+# unloadPkg(???)
+```
+
+# Conclusion
+
+Overall, this analysis found that there are several ways in which our independent variables reliably predict income in communities across the United States.
+Ethnicity and work type proportions had stronger predictive power, with the latter having the most powerful effects.  However, these variables suffer from being largely non-normal, with a rightward skew, and from having high internal correlations, both between and within the two categories.
+Altogether, these variables allow us to predict income per capita at the census tract level with high reliability (R-squared = .67); this is actually quite impressive given the simplicity of this data. For instance, it does not directly include any information about the age or education of the population.
+
+  Lasso and Ridge regression were introduced to see if other forms of regression would be more effective than ordinary least squares models. Cross validations was used for both the lasso and ridge regression to find the best combinations of coefficients that would have the lowest MSE. Although the models cannot be directly compared as each use different penalizing factors, the R^2 value was used for comparing how much variation in income can be explained by the respective models. The R^2 values for the Ridge Lasso regression were 0.707 and 0.708. The full OLS model has a slightly higher R^2 value at 0.711. So all the models explain about roughly the data since the OLS is slightly higher, that would be the recommend choice. 
+  
+Clustering:
+
+  K-means was utilizes to see how the data would group together so clusters with different IncomePerCaps may have specific ethnicity or work variation cluster means. Clusters were constructed for k=2,3,4, and 10. Overall for larger income groups, it appears to have higher averages for Professional. Also, as more clusters were added, a greater percentage of data variation was explained. Four clusters became the optimal choice as it explained 90.2 % while 3 clusters explained 83.3% and 10 clusters explained 98.2%. There wasn’t much of an increase from 4 to 10 and just enough increase from 3 to 4. 
+
+Classification:
+	
+Moving forward, this analysis allows for several expansions. The first is to integrate new data, such as age and education status of census tract residents. Additionally, it may be valuable to consider each of the individual freedom measures on its own, to negate the influence of high internal correlation. Finally, it is interesting if there are differences driven by geographic density, which can be estimated with just the currently accessible data.
+	
+# Bibliography
+
+MuonNeutrino. (2015). US Census Demographic Data: Demographic and Economic Data for Tracts and Counties. UpToDate. Retrieved March 23, 2020, from https://www.kaggle.com/muonneutrino/us-census-demographic-dataD
+
+U.S. Census Bureau (2019). "Annual Estimates of the Resident Population for the United States, Regions, States, and Puerto Rico: April 1, 2010 to July 1, 2019". 2010-2019 Population Estimates. United States Census Bureau, Population Division. December 30, 2019. Retrieved January 27, 2020.
+
+U.S. Census Bureau (2017).   "American FactFinder - Results". U.S. Census Bureau. Retrieved 2017-12-13.
+
+U.S. Census Bureau (2013). "2010 Census Summary File 1: GEOGRAPHIC IDENTIFIERS". American Factfinder. US Census. Retrieved 18 October 2013.
