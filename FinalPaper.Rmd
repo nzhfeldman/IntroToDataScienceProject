@@ -663,10 +663,13 @@ The exhaustive search indicates, by adjusted R^2, that we should include all of 
 loadPkg('car')
 lr <- lm(IncomePerCap  ~ . - Professional, data = datDisc) 
 summary(lr)
+lr
 vif(lr)
 coef <- coef(lr)
 coef
 ```
+
+Taking a simple linear regression, we find that we can predict the level income  with reasonably high effectiveness (R^2 = `r )
 
 ```{r Logistic Regression} 
 glr <- glm(ipc   ~ . - Professional, data = dat1 %>% select(-TotalPop), family = "binomial") 
