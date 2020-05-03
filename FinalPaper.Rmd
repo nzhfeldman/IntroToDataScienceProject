@@ -782,7 +782,7 @@ plot(kplot,"K-clusters","Percent of between _SS / total_SS", type ="b")
    K-means is an unsupervised learning algorithm. The goal of this program is to find groups or clusters of data in order to identify certain patterns. All of the values in the data set were normalized along the normal distribution to make comparisons of the overall dataset on a similar scale. K-means was used for 2,3,4, and 10 clusters. On inspection of the clusters created from k=2, The cluster that had the highest IncomePerCap at 37598 had the highest cluster mean of professional at 0.928, White at 0.420 and Asian at 0.237. the cluster plot chart has all the 70,000 datapoints in green and the two different clusters in blue and red respectively.It appears that there is overlap of the clusters however this occurs as the plot takes all the different data points and plots them on a two dimensional graph.  With only two clusters it captures about 65.8% of the cluster sum of squares.
   Further inspection was constructed for a model with k =3. The cluster with the highest IncomePerCap was found to be cluster three at 42760. this cluster also had the highest cluster mean for Professional at 1.330 and Asian at 0.3837. The first cluster which had a IncomePerCap cluster mean of 16577 had the highest uneployment cluster average at 0.619. the cluster plot has three distinct clusters portrayed and the overlap makes it a little difficult to see which cluster is which. With only three clusters, 83.3% of the data is captured which is a drastric improvement from only two clusters. 
   A final analysis was constructed for a model with k=4. The cluster with the highest IncomePerCap was found to be cluster three with 45781. this cluster had the hgihest Professional cluster average at 1.533 and the highest Asian cluster averge at 0.456. The cluster with the lowest IncomePerCap was cluster two at 14434. It had the highest unemployment cluster average at 0.8988. The cluster plot is difficult to interpret as the all of the datapoints were brought to a two dimensional scale and now there are four different clusters. With only four clusters, 90.2% of the data is captured which is a drastric improvement from only two clusters. 
-  As the clusters increased from 4 to 10, the percentage captured did not increase drastically. For example when k= 10, 98.2% of the data is captured. Therefore, a cluster of four would be sufficient a
+  As the clusters increased from 4 to 10, the percentage captured did not increase drastically. For example when k= 10, 98.2% of the data is captured. Therefore, a cluster of four would be sufficient
 
 
 #Preprocessing KNN
@@ -1187,7 +1187,7 @@ ridge_coef = predict(out.ridge,type="coefficients",s=bestlam.ridge)[1:11,]
 cat("\nAll the coefficients : \n")
 ridge_coef
 
-
+#r^2 calculations
 rss2 <- sum((ridge.pred-y_test) ^ 2)
 tss2 <- sum((y_test - mean(y_test)) ^ 2)
 rsq2 <- 1 - rss2/tss2
@@ -1220,7 +1220,7 @@ cat("\nAll the coefficients : \n")
 lasso_coef
 cat("\nThe non-zero coefficients : \n")
 lasso_coef[lasso_coef!=0]
-
+#r^2 calculation
 rss <- sum((lasso.pred-y_test) ^ 2)
 tss <- sum((y_test - mean(y_test)) ^ 2)
 rsq <- 1 - rss/tss
