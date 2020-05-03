@@ -631,11 +631,8 @@ pc <- prcomp(pcadata, scale = TRUE)
 
 ```{r plot}
 biplot(pc, scale = 0)
-<<<<<<< HEAD
 #biplot(pc, 10:11, scale = 0)
-=======
 biplot(pc, 9:10, scale = 0)
->>>>>>> 013c098630dc534810f5bd2e563ba0ff915e11e1
 ```
 
 There were 70k+ data points being analyzed for this
@@ -726,7 +723,7 @@ However, we have low bias since we only dropped one component
 =======
 ##K- Means
 
->>>>>>> b3e5e034d5e1d2c5d9db975baf8e9668a514c7b5
+
 ```{r analysis for ethnicities }
 library(tidyverse)
 library(caret)
@@ -735,14 +732,12 @@ loadPkg(tidyverse)  # data manipulation
 loadPkg(cluster)    # clustering algorithms
 loadPkg(factoextra)
 loadPkg(fpc)
-<<<<<<< HEAD
-=======
+
 loadPkg(ISLR)
 
 
 datJLClean = uzscale(dat_1, 0, "IncomePerCap")
 
->>>>>>> 27d34a50e164e046f0a96c865caa3ff57d9a7165
 # include work variables {look at luis'} 
 #ethnicities clustering 
 #White
