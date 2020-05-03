@@ -767,38 +767,6 @@ k4
 clusplot(datJLClean, k4$cluster, color=TRUE, shade=TRUE,
    labels=0, lines=0)
 
-#k-5
-set.seed(1000)
-k5 <- kmeans(datJLClean, centers = 5, nstart = 25)
-str(k5)
-k5
-
-#k-6
-set.seed(1000)
-k5 <- kmeans(datJLClean, centers = 5, nstart = 25)
-str(k5)
-k5
-
-#k-6
-k6 <- kmeans(datJLClean, centers = 6, nstart = 25)
-str(k6)
-k6
-
-#-7
-k7 <- kmeans(datJLClean, centers = 7, nstart = 25)
-str(k7)
-k7
-
-#k-8
-k8 <- kmeans(datJLClean, centers = 8, nstart = 25)
-str(k8)
-k8
-
-#k-9
-k9 <- kmeans(datJLClean, centers = 9, nstart = 25)
-str(k9)
-k9
-
 #k-10
 k10 <- kmeans(datJLClean, centers =10, nstart = 25)
 str(k10)
@@ -811,10 +779,10 @@ plot(kplot,"K-clusters","Percent of between _SS / total_SS", type ="b")
 
 ```
 
-   K-means is an unsupervised learning algorithm. The goal of this program is to find groups or clusters of data in order to identify certain patterns. All of the values in the data set were normalized along the normal distribution to make comparisons of the overall dataset on a similar scale. K-means was used for 2,3,4,5,6,7,8,9, and 10 clusters. On inspection of the clusters created from k=2, The cluster that had the highest IncomePerCap at 37598 had the highest cluster mean of professional at 0.928, White at 0.420 and Asian at 0.237. the cluster plot chart has all the 70,000 datapoints in green and the two different clusters in blue and red respectively.It appears that there is overlap of the clusters however this occurs as the plot takes all the different data points and plots them on a two dimensional graph.  With only two clusters it captures about 65.8% of the cluster sum of squares.
+   K-means is an unsupervised learning algorithm. The goal of this program is to find groups or clusters of data in order to identify certain patterns. All of the values in the data set were normalized along the normal distribution to make comparisons of the overall dataset on a similar scale. K-means was used for 2,3,4, and 10 clusters. On inspection of the clusters created from k=2, The cluster that had the highest IncomePerCap at 37598 had the highest cluster mean of professional at 0.928, White at 0.420 and Asian at 0.237. the cluster plot chart has all the 70,000 datapoints in green and the two different clusters in blue and red respectively.It appears that there is overlap of the clusters however this occurs as the plot takes all the different data points and plots them on a two dimensional graph.  With only two clusters it captures about 65.8% of the cluster sum of squares.
   Further inspection was constructed for a model with k =3. The cluster with the highest IncomePerCap was found to be cluster three at 42760. this cluster also had the highest cluster mean for Professional at 1.330 and Asian at 0.3837. The first cluster which had a IncomePerCap cluster mean of 16577 had the highest uneployment cluster average at 0.619. the cluster plot has three distinct clusters portrayed and the overlap makes it a little difficult to see which cluster is which. With only three clusters, 83.3% of the data is captured which is a drastric improvement from only two clusters. 
   A final analysis was constructed for a model with k=4. The cluster with the highest IncomePerCap was found to be cluster three with 45781. this cluster had the hgihest Professional cluster average at 1.533 and the highest Asian cluster averge at 0.456. The cluster with the lowest IncomePerCap was cluster two at 14434. It had the highest unemployment cluster average at 0.8988. The cluster plot is difficult to interpret as the all of the datapoints were brought to a two dimensional scale and now there are four different clusters. With only four clusters, 90.2% of the data is captured which is a drastric improvement from only two clusters. 
-  As the clusters increased from 5 to 10, the percentage captured did not increase drastically. For example when k= 10, 98.2% of the data is captured. So a cluster of fourr would be sufficient as it would capture a sufficient amount of the data. 
+  As the clusters increased from 4 to 10, the percentage captured did not increase drastically. For example when k= 10, 98.2% of the data is captured. Therefore, a cluster of four would be sufficient a
 
 
 #Preprocessing KNN
