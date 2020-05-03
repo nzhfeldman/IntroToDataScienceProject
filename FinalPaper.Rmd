@@ -698,15 +698,13 @@ loadPkg(ISLR)
 
 
 datJLClean = uzscale(dat_1, 0, "IncomePerCap")
->>>>>>> f44076427a3c8a511707117636a3414d615f2ffb
 
 #Total NA Before
 sum(is.na(dat1))
 
-<<<<<<< HEAD
 #Remove NA
 dat1 <- na.omit(dat1)
-=======
+
 #down fpc https://cran.r-project.org/web/packages/fpc/index.html
 #need help downloading 
 # cool website https://stats.stackexchange.com/questions/31083/how-to-produce-a-pretty-plot-of-the-results-of-k-means-cluster-analysis
@@ -782,7 +780,7 @@ coef
 
 Taking a simple linear regression, we find that we can predict the level income  with reasonably high effectiveness (R^2 = `r )
 
-```{r Logistic Regression} 
+```{r} 
 glr <- glm(ipc   ~ . - Professional, data = dat1 %>% select(-TotalPop), family = "binomial") 
 summary(glr)
 vif(glr)
@@ -790,7 +788,7 @@ coef <- coef(glr)
 ```
 
 
-```{r roc_auc}
+```{r}
 loadPkg('pROC') # receiver operating characteristic curve, gives the diagnostic ability of a binary classifier system as its discrimination threshold is varied. The curve is on sensitivity/recall/true-positive-rate vs false_alarm/false-positive-rate/fall-out.
 prob=predict(glr, type = c("response"))
 datprob <- dat1
@@ -846,31 +844,10 @@ levels(dat_1$ipc4)[levels(dat_1$ipc4)=="(3.23e+04,5.6e+04]"] <- "High"
 #Boxplots
 plot(IncomePerCap ~ ipc2, data=dat_1, main="Income: Low & High", col=c("#ffd18b", "#ff875f") )
 
->>>>>>> f44076427a3c8a511707117636a3414d615f2ffb
 ```
 The function quant_groups was used. This separated the variable "income per capita" in quartiles and created a categorical variable with 4 categories. Each category has the same amount of observations (17418), and contains all census tracts ranging from the income per capita levels of each quartile. The new categorical variable was named "ipc4" and included:
 
-<<<<<<< HEAD
-Taking a simple linear regression, we find that we can predict the level income  with reasonably high effectiveness (R^2 = `r )
 
-```{r Logistic Regression} 
-glr <- glm(ipc   ~ . - Professional, data = dat1 %>% select(-TotalPop), family = "binomial") 
-summary(glr)
-vif(glr)
-coef <- coef(glr)
-```
-
-
-```{r roc_auc}
-loadPkg('pROC') # receiver operating characteristic curve, gives the diagnostic ability of a binary classifier system as its discrimination threshold is varied. The curve is on sensitivity/recall/true-positive-rate vs false_alarm/false-positive-rate/fall-out.
-prob=predict(glr, type = c("response"))
-datprob <- dat1
-datprob$prob=prob
-h <- roc(ipc~prob, data=datprob)
-auc(h) # area-under-curve prefer 0.8 or higher.
-plot(h)
-# unloadPkg(pROC) # good habit to remove unload packages no longer needed 
-=======
 * Low: 0 - 18,000
 * Mid-Low: 18,800 - 24,700
 * Mid-High: 24,700 - 32,200
@@ -882,7 +859,6 @@ plot(h)
 plot(IncomePerCap ~ ipc4, data=dat_1, main="Income: four levels", col=c("#ffd18b", "#ff875f") )
 
 
->>>>>>> f44076427a3c8a511707117636a3414d615f2ffb
 ```
 Separately, another variable was created from “income per capita” with only 2 categories. The purpose is to compare how classifying income per capita using 4 categories differs from classifying it using 2 categories. Therefore, a second categorical variable was created and named “ipc2” containing:
 
@@ -913,24 +889,21 @@ set.seed(1000)
 scaleddat <- as.data.frame(scale(dat1[0:11], center = TRUE, scale = TRUE))
 dat_sample <- sample(2, nrow(scaleddat), replace=TRUE, prob=c(0.67, 0.33))
 
-<<<<<<< HEAD
 
 dat_training <- scaleddat[dat_sample==1, 0:11]
 dat_test <- scaleddat[dat_sample==2, 0:11]
-=======
+
 dat_training <- scaleddat[dat_sample==1, 0:10]
 dat_test <- scaleddat[dat_sample==2, 0:10]
 ```
 
 ```{r}
->>>>>>> f44076427a3c8a511707117636a3414d615f2ffb
 
 dat.trainLabels <- dat1[dat_sample==1, 12]
 dat.testLabels <- dat1[dat_sample==2, 12]
 
 ```
 
-<<<<<<< HEAD
 
 **KNN results**  
 ```{r}
@@ -979,7 +952,7 @@ cm = confusionMatrix(dat_pred, reference = dat.testLabels)
 cm$overall
 cm$byClass
 ```
-=======
+
 ```{r}
 
 dat_ipc4.trainLabels <- dat_ipc[dat_sample==1, 12]
@@ -993,7 +966,7 @@ Two test sets were created: one for the categorical variable with 2 categories (
 ## KNN 2 categories
 
 ### Selecting the correct "k"
->>>>>>> f44076427a3c8a511707117636a3414d615f2ffb
+
 
 
 The first KNN model performed tried to classify census tract's income in two categories: Low or High.
@@ -1048,8 +1021,6 @@ ggplot(knn_different_k,
 
 The graph shows that 9 is approximately the best value for k because it provides the highest accuracy. In other words, the optimal amount of neighbors used to classify each observation is 9, because the accuracy does not improve substantially after adding more neighbors.
 
-<<<<<<< HEAD
-=======
 
 ### Results
 
