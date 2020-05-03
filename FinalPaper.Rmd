@@ -611,7 +611,7 @@ pcadata_cor <- cor(pcadata)
 #print(pcadata_cov)
 ```
 
-A Principle Component Analysis (PCA) and Principle Component Regression (PCR) seemed suited to this dataset.  The purpose of this technique is to decrease the number of variables while accounting for collinearity.  Within this dataset there are 12 variables to explain IncomePerCap.  However, the correlation matrix shows notable correlation between some of the predictor variables.  For example, Professional has notable correlations with Service, Construction, Production and Unemployment, White has notable correlations with Hispanic and Black, etc.  From this inital overview of the correlation matrix, the prospect of PCA seemed suitable and was continued.
+A Principle Component Analysis (PCA) and Principle Component Regression (PCR) seemed suited to this dataset.  The purpose of this technique is to decrease the number of variables while accounting for collinearity.  Within this dataset there were 10 variables to explain IncomePerCap.  However, the correlation matrix showed notable correlation between some of the predictor variables.  For example, Professional had notable correlations with Service, Construction, Production and Unemployment, White had notable correlations with Hispanic and Black, etc.  From this inital overview of the correlation matrix, the prospect of PCA seemed suitable and was continued.
 
 
 ```{r scaled}
@@ -631,12 +631,7 @@ biplot(pc, scale = 0)
 #biplot(pc, 10:11, scale = 0)
 ```
 
-There were 70k+ data points being analyzed for this
-The biplot on the left shows the variation on the axes of PC1 and PC2
-shows that PC1 has the most variation, between approx.  -6 to 8, as confirmed by the summary data below
-Meanwhile PC2 goes between -10 to 7 
-Variables: Professional, Black, Production and White are pretty evenly split up between Pc1 and PC2
-Other variables such as Office, Service, Unemployed, Construction, etc. are majorly represented in PC2 as compared to PC1
+The biplot above analyzed over 70k+ data points, resulting in the dense scattering of data.  The axes of this plot were PC1 on the horizontal and PC2 on the vertical. PC1 had the most variation, between approximately -5 to 10, while PC2 went between -8 to 10.  The variables White, Production, Unemployment, Black and Professional were pretty evenly split up between Pc1 and PC2.  Other variables, such as Office, Service, Unemployed, Construction, etc. were majorly represented in either PC1 or PC2.
 
 
 ```{r rotation}
@@ -663,7 +658,7 @@ pc_pcadata_rot <- prcomp(pcadata_rot, scale = FALSE)
 summary(pc_pcadata_rot)
 ```
 
-The breakdown of the variation explained by each component shows that just over 50% of the variation is accounted for within the first three components.  However, except for the first component, the change in the amount of variation explained in each consecutive component is similar. This is further illustrated by the following graph. 
+The breakdown of the variation explained by each component showed that just over 60% of the variation was accounted for within the first three components.  However, except for the first component, the change in the amount of variation explained in each consecutive component was similar. This was further illustrated by the following graph. 
 
 ```{r rot var}
 #plot the cumulation of variance using the sd
@@ -678,7 +673,7 @@ pcadata_rot_reg <- lm(IncomePerCap ~ ., data = pcadata_pcr_rot)
 summary(pcadata_rot_reg)
 ```
 
-Went ahead and ran a full PC regression of these components and all except the last component is significant.  We also see that this regression only explains 66.5% of the variability in the dataset.  The strongest variable is of course PC1 with a t-value with a magnitude by far larger than the rest of the variables.
+A full principle component regression was performed, and all except the last component were deemed significant.  It was also notable that this regression explained 71.01% of the variance in the dataset according the the adjusted R-Squared. The strongest variable was of course PC1 with a t-value with a magnitude by far larger than the rest of the variables.
 
 ```{r pcr}
 loadPkg("pls")
@@ -694,22 +689,15 @@ pcr_pcadata <- pcr(IncomePerCap ~ ., data = pcadata_w_ipc, scale = TRUE, validat
 validationplot(pcr_pcadata, val.type="R2")
 ```
 
-R Square shows variation explained in the independent variable, IncomePerCap, based off of the components
-The steeper increase and then petering off that occurs in the R-Square graph seems to indicate that a significant amount of the variation of the data in regards to IncomePerCap is explained using just the first component
+A plot of the R-Square values over the number of components explained the amount of variation explained in the independent variable, IncomePerCap, based off of the components.  The steeper increase and then petering off that occured in the R-Square graph seemed to indicate that a significant amount of the variation of the data in regards to IncomePerCap was explained using just the first component.  Based on the initial analysis of the R-Square graph, and the results of the regression it seemed appropriate to run a regression on just PC1 which resulted in a lower Adjusted R Square.  
 
-Based on the initial analysis of the R Square graph, and the results of the regression it seemed appropriate to run a regression on just PC1 which resulted in a lower Adjusted R Square.  
 ```{r PCA reg2}
 pcadata_pcr_rot = PCRxform(pcadata_w_ipc,"IncomePerCap",TRUE) 
 pcadata_rot_reg2 <- lm(IncomePerCap ~ PC1, data = pcadata_pcr_rot)
 summary(pcadata_rot_reg2)
 ```
 
-The tradeoff between parsimony and description of these two potential models makes the choice of model unclear.  
-
-
-Assuming we choose the more explanatory model, accounting for the number of components included by adjusted R Square,
-We only eliminate one component or variable from the regression so we aren’t effectively parsing down 
-However, we have low bias since we only dropped one component
+The results of this regression on just PC1 corroborated that the R-Square is smaller, at a value of 63.93%. The tradeoff between parsimony and description of these two potential models made the choice of model unclear.  Assuming the more explanatory model, which accounted for the number of components included by adjusted R Square, was chosen, only one component would be removed.  This was not an effective parsing down of variables.  However, there would be low bias since only one component was dropped.
 
 
 
