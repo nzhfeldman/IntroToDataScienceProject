@@ -6,6 +6,12 @@ output:
     highlight: kate
     cards: false
     gallery: true
+    mathjax: "rmdformats"
+    pandoc_args: NULL
+    md_extensions: NULL
+    use_bookdown: FALSE
+    lightbox: TRUE
+    code_folding: show
 
 ---
 
@@ -17,7 +23,7 @@ library(rmdformats)
 ## Global options
 options(max.print="75")
 opts_chunk$set(echo=FALSE,
-	             cache=TRUE,
+	             cache=FALSE,
                prompt=FALSE,
                tidy=TRUE,
                comment=NA,
@@ -424,7 +430,7 @@ qqline(dat1$SelfEmployed)
 Next the seven variables for work variations (professional, production, unemployment, office, service, construction, self-employed) were assessed for normality. The boxplots that exhibited a decrease in income, as more of the specific work variation was included in the census tract, were unemployment, service, construction, and production. That is to say, as more unemployed individuals were accounted for in a given census tract, the income per capita decreased. The only work variation that exhibited an increase in average income was professional work. The remaining variables of office and self-employed remained relatively stable across quartiles. Looking at the histograms of each of the variables it appeared that only the proportion of professionals was distributed normally. The remaining six work variations were all skewed to the right. For professionals, the Q-Q plots affirmed the normality as the plot did not have the error terms straying far from the line with very small right and left tails. The same cannot be said for the other variables as each had an oversized right tail and a relatively small left tail. Overall the proportion of professionals appeared normally distributed while the other work variations did not.  
 
 ## Individual EDA of ethnicities
-```{r  Ethnic Variatons}
+```{r  Ethnic Variatons, code_folding=show}
 loadPkg("dvmisc")
 #Group by Black
 GroupBlack <- quant_groups(dat1$Black, 4)
@@ -689,7 +695,7 @@ pcr_pcadata <- pcr(IncomePerCap ~ ., data = pcadata_w_ipc, scale = TRUE, validat
 ```
 
 ```{r val w/ r2}
-validationplot(pcr_pcadata, val.type="R2")
+#validationplot(pcr_pcadata, val.type="R2")
 ```
 
 A plot of the R-Square values over the number of components explained the amount of variation explained in the independent variable, IncomePerCap, based off of the components.  The steeper increase and then petering off that occured in the R-Square graph seemed to indicate that a significant amount of the variation of the data in regards to IncomePerCap was explained using just the first component.  Based on the initial analysis of the R-Square graph, and the results of the regression it seemed appropriate to run a regression on just PC1 which resulted in a lower Adjusted R Square.  
@@ -705,13 +711,9 @@ The results of this regression on just PC1 corroborated that the R-Square is sma
 
 
 
-<<<<<<< HEAD
 # K- Means
-=======
-##K- Means
 
-
-```{r analysis for ethnicities }
+```{r analysis for ethnicities, code_folding=show }
 library(tidyverse)
 library(caret)
 library(glmnet)
@@ -1318,8 +1320,6 @@ Overall, this analysis found that there are several ways in which our independen
 	Moving forward, this analysis allows for several expansions. The first is to integrate new data, such as age and education status of census tract residents. Additionally, it may be valuable to consider each of the individual freedom measures on its own, to negate the influence of high internal correlation. Finally, it is interesting if there are differences driven by geographic density, which can be estimated with just the currently accessible data.
 	
 # Bibliography
-
-Cato Institute. (2018) Freedom In the Fifty States. UpToDate. Retrieved March 23, 2020, from https://www.freedominthe50states.org/how-its-calculated
 
 MuonNeutrino. (2015). US Census Demographic Data: Demographic and Economic Data for Tracts and Counties. UpToDate. Retrieved March 23, 2020, from https://www.kaggle.com/muonneutrino/us-census-demographic-dataD
 
