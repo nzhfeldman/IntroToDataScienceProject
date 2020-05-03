@@ -628,11 +628,7 @@ pc <- prcomp(pcadata, scale = TRUE)
 
 ```{r plot}
 biplot(pc, scale = 0)
-<<<<<<< HEAD
 #biplot(pc, 10:11, scale = 0)
-=======
-biplot(pc, 9:10, scale = 0)
->>>>>>> 013c098630dc534810f5bd2e563ba0ff915e11e1
 ```
 
 There were 70k+ data points being analyzed for this
