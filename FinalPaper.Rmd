@@ -593,8 +593,6 @@ qqline(dat1$Native)
 
 Finally the five ethnic variables (Native, White, Black, Hispanic, and Asian) were investigated. The boxplots for White showed an increase in average income between the first second and third quartiles but no change in the fourth. The boxplot for Asian showed an increase from the first through the fourth quartile. The boxplots for Hispanic slightly increased between the first and second quartile but did not change for the third quartile. The fourth quantile for Hispanic decreased significantly. The boxplot for Black increased in average income between the first and second quartile. Then there was a decrease in average income from the second to the fourth quartiles. Overall, it appeared that average income did change based on concentration of ethnicities in a census tract. The histogram for White was bimodal with the highest frequency at over 8,000. The histograms for the other four ethnicities were skewed to the right. Based on the histogram, it appeared that white had the highest responses followed by Hispanic, Black, Asian, and Native. All of the error terms along the Q-Q plot line for each of the ethnicity variables followed a curve with large left and right tails. Also, there were not enough responses from the Native ethnicity to construct a meaningful boxplot.  For the native Q-Q plot, there was a clear pattern of the error terms along the line implying non-normality. Therefore, based on the assessment of the boxplots, histograms, and Q-Q plots, none of the ethnicities appear normally distributed.
 
-
-
 #Preprocessing KNN
 
 ```{r Dividing Income in 2 groups} 
@@ -616,7 +614,12 @@ dat1$ipc <- as.factor(dat1$ipc)
 
 
 ```
-
+```{r subsetting for linear}
+#Subsetting
+datDisc <- subset(dat1, select = c(Hispanic, White, Black, Asian, Professional, Service, Office, Construction, Production, Unemployment, IncomePerCap))
+               
+str(datDisc)
+```
 
 ```{r}
 #Subsetting
@@ -641,6 +644,47 @@ length(dat1)
 
 str(dat1)
 
+```
+
+#Basic Linear Regression
+We begin our predictive modeling with a simple linear regression model. This will allow us to make basic statements about how the variables of interest correlate with income, but won't be an appropriate final model, since it does not allow for interactions between components which we have already shown to be inter-related. We begin by doing an exhaustive search of our variables of interest.
+
+```{r Feature Selection} 
+loadPkg('leaps')
+reg.best10 <- regsubsets(IncomePerCap~. , data = datDisc, nvmax = 10)  
+plot(reg.best10, scale = "adjr2", main = "Adjusted R^2")
+#plot(reg.best10, scale = "bic", main = "BIC")
+#plot(reg.best10, scale = "Cp", main = "Cp")
+```
+
+The exhaustive search indicates, by adjusted R^2, that we should include all of our variables except Professional.  Since we perceive few costs to expanding the model, we simply take the model with the highest adjusted value. Note that Professional is excluded not because it is individually unhelpful, but because the set of work types sums to one, so one of them will always be dropped. We also did feature selection with BIC and Cp, with similar results. For brevity, we do not include them. 
+
+```{r Regression} 
+loadPkg('car')
+lr <- lm(IncomePerCap  ~ . - Professional, data = datDisc) 
+summary(lr)
+vif(lr)
+coef <- coef(lr)
+coef
+```
+
+```{r Logistic Regression} 
+glr <- glm(ipc   ~ . - Professional, data = dat1 %>% select(-TotalPop), family = "binomial") 
+summary(glr)
+vif(glr)
+coef <- coef(glr)
+```
+
+
+```{r roc_auc}
+loadPkg('pROC') # receiver operating characteristic curve, gives the diagnostic ability of a binary classifier system as its discrimination threshold is varied. The curve is on sensitivity/recall/true-positive-rate vs false_alarm/false-positive-rate/fall-out.
+prob=predict(glr, type = c("response"))
+datprob <- dat1
+datprob$prob=prob
+h <- roc(ipc~prob, data=datprob)
+auc(h) # area-under-curve prefer 0.8 or higher.
+plot(h)
+# unloadPkg(pROC) # good habit to remove unload packages no longer needed 
 ```
 
 
