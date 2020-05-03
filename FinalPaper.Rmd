@@ -716,50 +716,6 @@ plot(kplot,"K-clusters","Percent of between _SS / total_SS", type ="b")
   As the clusters increased from 4 to 10, the percentage captured did not increase drastically. For example when k= 10, 98.2% of the data is captured. Therefore, a cluster of four would be sufficient
 
 
-#Basic Linear Regression
-We begin our predictive modeling with a simple linear regression model. This will allow us to make basic statements about how the variables of interest correlate with income, but won't be an appropriate final model, since it does not allow for interactions between components which we have already shown to be inter-related. We begin by doing an exhaustive search of our variables of interest.
-
-```{r Feature Selection} 
-loadPkg('leaps')
-reg.best10 <- regsubsets(IncomePerCap~. , data = datDisc, nvmax = 10)  
-plot(reg.best10, scale = "adjr2", main = "Adjusted R^2")
-#plot(reg.best10, scale = "bic", main = "BIC")
-#plot(reg.best10, scale = "Cp", main = "Cp")
-```
-
-The exhaustive search indicates, by adjusted R^2, that we should include all of our variables except Professional.  Since we perceive few costs to expanding the model, we simply take the model with the highest adjusted value. Note that Professional is excluded not because it is individually unhelpful, but because the set of work types sums to one, so one of them will always be dropped. We also did feature selection with BIC and Cp, with similar results. For brevity, we do not include them. 
-
-```{r Regression} 
-loadPkg('car')
-lr <- lm(IncomePerCap  ~ . - Professional, data = datDisc) 
-summary(lr)
-lr
-vif(lr)
-coef <- coef(lr)
-coef
-```
-
-Taking a simple linear regression, we find that we can predict the level income  with reasonably high effectiveness (R^2 = `r )
-
-```{r} 
-glr <- glm(ipc   ~ . - Professional, data = dat1 %>% select(-TotalPop), family = "binomial") 
-summary(glr)
-vif(glr)
-coef <- coef(glr)
-```
-
-
-```{r}
-loadPkg('pROC') # receiver operating characteristic curve, gives the diagnostic ability of a binary classifier system as its discrimination threshold is varied. The curve is on sensitivity/recall/true-positive-rate vs false_alarm/false-positive-rate/fall-out.
-prob=predict(glr, type = c("response"))
-datprob <- dat1
-datprob$prob=prob
-h <- roc(ipc~prob, data=datprob)
-auc(h) # area-under-curve prefer 0.8 or higher.
-plot(h)
-# unloadPkg(pROC) # good habit to remove unload packages no longer needed 
-```
-
 
 
 
@@ -1111,6 +1067,53 @@ For the test set, that corresponded to 14,466 observations predicted successfull
 In reality, income per capita is a numerical variable. So the classification exercise served only as a proxy to understand how census tracts can be classified based on their demographics, but is not by any means a completely reliable tool to predict income in the U.S.
 
 # Linear Regression
+
+#Basic Linear Regression
+We begin our predictive modeling with a simple linear regression model. This will allow us to make basic statements about how the variables of interest correlate with income, but won't be an appropriate final model, since it does not allow for interactions between components which we have already shown to be inter-related. We begin by doing an exhaustive search of our variables of interest.
+
+```{r Feature Selection} 
+loadPkg('leaps')
+reg.best10 <- regsubsets(IncomePerCap~. , data = dat_1, nvmax = 10)  
+plot(reg.best10, scale = "adjr2", main = "Adjusted R^2")
+#plot(reg.best10, scale = "bic", main = "BIC")
+#plot(reg.best10, scale = "Cp", main = "Cp")
+```
+
+The exhaustive search indicates, by adjusted R^2, that we should include all of our variables except Professional.  Since we perceive few costs to expanding the model, we simply take the model with the highest adjusted value. Note that Professional is excluded not because it is individually unhelpful, but because the set of work types sums to one, so one of them will always be dropped. We also did feature selection with BIC and Cp, with similar results. For brevity, we do not include them. 
+
+```{r Regression} 
+loadPkg('car')
+lr <- lm(IncomePerCap  ~ . - Professional, data = dat_1) 
+summary(lr)
+lr
+vif(lr)
+coef <- coef(lr)
+coef
+```
+
+Taking a simple linear regression, we find that we can predict the level income  with reasonably high effectiveness (R^2 = `r )
+
+```{r} 
+glr <- glm(ipc   ~ . - Professional, data = dat_1 %>% select(-TotalPop), family = "binomial") 
+summary(glr)
+vif(glr)
+coef <- coef(glr)
+```
+
+
+```{r}
+loadPkg('pROC') # receiver operating characteristic curve, gives the diagnostic ability of a binary classifier system as its discrimination threshold is varied. The curve is on sensitivity/recall/true-positive-rate vs false_alarm/false-positive-rate/fall-out.
+prob=predict(glr, type = c("response"))
+datprob <- dat_1
+datprob$prob=prob
+h <- roc(ipc~prob, data=datprob)
+auc(h) # area-under-curve prefer 0.8 or higher.
+plot(h)
+# unloadPkg(pROC) # good habit to remove unload packages no longer needed 
+```
+
+
+
 
 # Ridge Regression
 
