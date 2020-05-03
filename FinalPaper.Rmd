@@ -1,16 +1,31 @@
 ---
-title: "Group Project"
-author: "Dinesh Padmanabhan, Jake Lieberfarb,
-Luis Ahumada, Noah Feldman, Becca Blacker
-"
-date: "3/09/2020"
-output: html_document
+title: ""
+date: "`r Sys.Date()`"
+output:
+  rmdformats::material:
+    highlight: kate
 ---
 
-```{r setup, include=FALSE, echo=FALSE}
-knitr::opts_chunk$set(warning = F, results = T, message = T, echo = F)
+
+```{r setup, echo=FALSE, cache=FALSE}
+library(knitr)
+library(rmdformats)
+
+## Global options
+options(max.print="75")
+opts_chunk$set(echo=FALSE,
+	             cache=TRUE,
+               prompt=FALSE,
+               tidy=TRUE,
+               comment=NA,
+               message=FALSE,
+               warning=FALSE)
+opts_knit$set(width=75)
+
+
 loadPkg = function(x) { if (!require(x,character.only=T, quietly =T)) { install.packages(x,dep=T,repos="http://cran.us.r-project.org"); if(!require(x,character.only=T)) stop("Package not found") } }
 ```
+
 
 
 ```{r Functions, include=FALSE} 
@@ -76,6 +91,48 @@ outlierKD2 <- function(df, var, rm=FALSE) {
 loadPkg("car")
 ```
 
+```{r uzscale_fcn }
+uzscale <- function(df, append=0, excl=NULL) { 
+  #' Standardize dataframe to z scores, safe for non-numeric variables. 
+  #' ELo 201904 GWU DATS
+  #' @param df The dataframe.
+  #' @param append T/F or 0/1. Option to append scaled columns or replace original columns in the dataframe.
+  #' @param excl A list c(a,b,"d","ef") of excluded columns, either by their indexes and/or names.
+  #' @return The transformed dataframe, appended or replaced with standardized scores. Non-numeric columns will not be appended, or if "replace option" is chosen, the columns will be untouched.
+  #' @examples
+  #' library("ISLR")
+  #' tmp = uzscale( Hitters )
+  #' tmp = uzscale( Hitters, 1 )
+  #' tmp = uzscale( Hitters, TRUE, c(19,"NewLeague") )
+
+  append = ifelse(append==TRUE || append=="true" || append=="True" || append=="T" || append=="t" || append==1 || append=="1", TRUE, FALSE) # standardize append 
+  nmax = length(df)
+  if (nmax < 1 || !is.numeric(nmax) ) { return(df) }
+  df1 = df
+  onames = colnames(df)  # the original column names
+  cnames = onames  # the new column names, if needed start with the original ones
+  znames = paste("z",cnames, sep="")     # new column names added prefix 'z'. Those are non-numeric will not be used.
+  nadd = ifelse(append, nmax, 0) # add to the column index or replace the orig columns
+  j=1  # counting index
+  for( i in 1:nmax ) {
+    if ( is.numeric(df[,i]) && !( i %in% excl || onames[i] %in% excl ) ) { 
+      df1[,j+nadd] = scale(df[,i])
+      cnames = c(cnames, znames[i])
+      j=j+1
+    } else if ( !append ) { j=j+1
+    } # if append == 1 and (colunm non-numeric or excluded), do not advance j.
+  }
+  if (append) { colnames(df1) <- cnames }
+  return(df1)
+}
+# sample
+# loadPkg(ISLR)
+# HittersClean = subset(Hitters, Salary != "NA")
+# tmp = uzscale(HittersClean,0,c(2,"Salary") )
+# detach("package:ISLR", unload = T)
+```
+
+
 ```{r Load 2015 data, include=FALSE}
 loadPkg('dplyr')
 loadPkg('readxl')
@@ -101,12 +158,12 @@ America is a highly diverse country. It is not only diverse in terms of ethnicit
 
 These questions are important because they tell many facets of the story of consumption in the United States. Income serves both as a measure of productivity and lifetime consumption (although this analysis does not disentangle the two). Although their scope is broad, they remain specific to the concepts of income, demographics, and freedom, and maintain a consistent structure: how do demographics and freedom drive income in the United States, at the census tract level. 
 
-These questions also correspond to a set of highly measurable (And luckily, premeasured) variables. Income can be imputed from tax records, while ethnicity and work status are available from census forms. The Freedom variables are somewhat more abstract, but come from an analysis from the Cato Institute (2015) which rigorously measures and weights different legal stances that each state might take. Achieving the answers to the questions is made simple by the cleanliness and availability of this data; since few data points are missing across all census tracts throughout the 50 states of interest, it is simple to form statistical tests.
+These questions also correspond to a set of highly measurable (And luckily, premeasured) variables. Income can be imputed from tax records, while ethnicity and work status are available from census forms. Achieving the answers to the questions is made simple by the cleanliness and availability of this data; since few data points are missing across all census tracts throughout the 50 states of interest, it is simple to form statistical tests.
 
 Finally, these questions are relevant to policy makers who want to improve the incomes of their constituents as well as to researchers interested in establishing a baseline for the average income they should expect a community would earn based on its demographics. These are critical questions, because the ability of communities to support themselves economically has massive impacts on the wellbeing of their members.
 
 # Content
-First, an examination is conducted on how the US Census Bureau database is structured, and which variables were included. Secondly, an analysis of Cato Institute's Freedom in the 50 States shows whether or not it worked as a potential meaningful independent variable. Later on, the groups of independent variables and how each of them could affect the income per capita of a community is presented. Then, an exploratory data analysis and some statistical tests are made to evaluate the significance of our variables and a first preview of a regression analysis. Finally, a conclusion looks into further challenges and questions necessary to enhance future analyses.
+First, an examination is conducted on how the US Census Bureau database is structured, and which variables were included. Secondly, the groups of independent variables and how each of them could affect the income per capita of a community is presented. Then, an exploratory data analysis and some statistical tests are made to evaluate the significance of our variables. Finally, a conclusion looks into further challenges and questions necessary to enhance future analyses.
 
 # Dataset
 ## U.S. Census Bureau Dataset
@@ -119,85 +176,49 @@ Household's income in America varies significantly by geographical location. The
 Texas, for example, has 254 counties (U.S. Census Bureau, 2017). California, a state with approximately 10 million people more than Texas, has only 58 counties (U.S. Census Bureau, 2017). Population-wise California has the largest county in the country with more than 10 million inhabitants (Los Angeles), whereas Texas has more than 80 counties with less than 10,000 people (U.S. Census Bureau, 2017). Density-wise, New York has 4 of 5  of the most dense counties in the country, some of them 60,000 times more dense than counties in Hawaii, Alaska or Nevada (U.S. Census Bureau, 2013).
 As a response to these inconsistencies found in counties in America, the U.S. Census Bureau delineated "Census Tracts" at the beginning of the twentieth century.  A census tract is "geographic region defined for the purpose of taking a census." Over the years, the U.S. Census Bureau has established census tracts in every county in America. There are over 74,000 census tracts in the country and a typical one has around 4,000 or so residents. There is a strength that comes from this consistency: census tracts are by and large similar in population size, and the population size of census tracts does not vary much from state to state.
 
-## Freedom in the 50 States
-The Freedom in the 50 States project presents a ranking of the American states based on how their policies promote freedom in the fiscal, regulatory, and personal realms. It was published by the libertarian-leaning think tank Cato Institute in 2015 and receives biannual updates. The index gathers data on more than 230 variables to measure "local government intervention across a wide range of policy categories—from taxation to debt, from eminent domain laws to occupational licensing, and from drug policy to educational choice."
-Before relying on this index, it is important to delve into the author's preferred definition of "freedom". Fortunately, the methodology of the index is very transparent about their criteria. The chapter dedicated to "defining freedom" in the report states: 
-
-"We ground our conception of freedom on an individual rights framework. In our view, individuals should not be prevented from ordering their lives, liberties, and property as they see fit, so long as they do not infringe on the rights of others. [...]  This index attempts to measure the extent to which state and local public policies conform to this ideal regime of maximum, equal freedom. For us, the fundamental problem with state intervention in consensual acts is that it violates people’s rights." 
-
-In other words, the report by the Cato Institute gives a higher score to those states whose laws protect individual rights, free markets, limited and small government and will punish those states with more regulations on trade and businesses, and restrictions on individual liberties.
-According to this report, some examples that are included in the study on how restrictions on freedom, in an economic, personal, regulatory or fiscal level, would be:
-- Aspiring professionals wanting to ply a trade without paying onerous examination and education costs.
-- Less-skilled workers priced out of the market by minimum wage laws.
-- Arrests for non drug victimless crimes, % of population
-- Prohibition of same-sex partnership
-
-### Why use this dataset as potential variables that affect income per capita?
-It is valuable to determine how different combinations of public policies in these areas can affect income per capita. This allows to roughly establish if higher or lower levels of fiscal, regulatory or personal freedom (as defined by the Cato’s formulas) have any relationship with the income per capita level in a community.
-
-## Merging datasets
-The Freedom in the 50 States dataset, though, was calculated at the state, rather than census tract, level. Therefore, when merging, each census tract has freedom scores identical to the score at the overarching state level. So, for example, since the fiscal policy score for Alabama was 0.122, then all census tracts located in Alabama have  a “fiscal policy score” of 0.122. Unfortunately, this project does not allow the inspection of differences in policies below the state level (so policies enacted by municipalities are ignored). 
-
 
 # Description of Variables
 The complete dataset includes 17 independent variables and 1 dependent variable.
-Thanks to their nature, the independent variables were classified in three groups: Freedom Scores, Work Variation and Ethnic Variation.
-
-### Freedom Scores
-
-#### Overall Freedom:
-The weighted sum of all the variables is used to produce the overall freedom ranking of the states. The overall freedom scores rate states on how free they are relative to other states. A score of 1 would correspond to a state’s being one standard deviation above average in every single variable, although in reality, every state scores better on some variables and worse on others. A score of 0 would be equivalent to a state’s being absolutely average on every variable, and a score of ¬1 to a state’s being one standard deviation below average on every variable (Cato Institute, 2018).
-
-#### Economic Freedom:
-Economic freedom is calculated as the sum of the fiscal and regulatory freedom indices (Cato Institute, 2018).
-
-#### Personal Freedom:
-The personal freedom consists of the following categories: (a) incarceration and arrests for victimless crimes, (b) gun rights, (c) gambling freedom, (d) marriage freedom, (e) educational freedom, (f) alcohol freedom, (g) asset forfeiture, (h) marijuana freedom, (i) tobacco freedom, (j) travel freedom, (k) campaign finance freedom, and (l) other mala prohibita and miscellaneous civil liberties (Cato Institute, 2018). 
-
-#### Regulatory Policy:
-The regulatory policy dimension includes categories for land-use freedom and environmental policy, health insurance freedom, labor-market freedom, lawsuit freedom, occupational freedom, miscellaneous regulations that do not fit under another category (such as certificate of need requirements), and cable and telecommunications freedom (Cato Institute, 2018).
-
-#### Fiscal Policy:
-The fiscal policy dimension consists of six variables: (a) state tax revenues, (b) government consumption, (c) local tax revenues, (d) government employment, (e) government debt, and (f) cash and security assets (Cato Institute, 2018).
+Thanks to their nature, the independent variables were classified in three groups: Work Variation and Ethnic Variation.
 
 ### Work Variation:
 
-#### Professional:
+**Professional:**
 Percentage (%) employed in management, business, science, and arts in a census tract.
 
-#### Service:
+**Service:**
 Percentage (%) employed in service jobs in a census tract.
 
-#### Office:
+**Office:**
 Percentage (%) employed in sales and office jobs in a census tract.
 
-#### Construction:
+**Construction:**
 Percentage (%) employed in natural resources, construction, and maintenance in a census tract.
 
-#### Production:
+**Production:**
 Percentage (%) employed in production, transportation, and material movement in a census tract.
 
-#### Unemployed:
+**Unemployed:**
 Unemployment rate (%) in a census tract.
 
-#### Self-employed:
+**Self-employed:**
 Percentage (%) self-employed in a census tract.
 
 ### Ethnic Variation
 
-#### Native:
+**Native:**
 Percentage (%) of population that is Native American or Native Alaskan in a census tract.
 
-#### White:
+**White:**
 Percentage (%) of population that is white in a census tract.
 
-#### Black:
+**Black:**
 Percentage (%) of population that is black in a census tract.
 
-#### Hispanic:
+**Hispanic:**
 Percentage (%) of population that is Hispanic/Latino in a census tract.
 
-#### Asian:
+**Asian:**
 Percentage (%) of population that is Asian in a census tract.
 
 
@@ -234,27 +255,6 @@ sd(dat1$TotalPop, na.rm = TRUE)
 
 ```
   A baseline analysis of population and income was conducted. The histogram for population appeared skewed to the right. The different census tracts had similar population counts with a mean of about 4000. Counties were not evenly spread out as some had a population of 1 million and others 10 million. With similar populations, census tracts were easier to investigate instead of counties. The Q-Q plot confirmed the non-normality as the values between quartiles 3 and 4 were far away from the line. 
-  
-```{r income including outliers, include=FALSE} 
-#Histogram of dependent variable
-hist(dat0$IncomePerCap, 
-        col = "#a8c2fb",
-        main = "Income per Capita",
-        xlab = "US Dollars")
-
-#ggplot
-qqnorm(dat0$IncomePerCap, main="Q-Q plot of IncomePerCap")
-qqline(dat0$IncomePerCap)
-
-#Mean after removing NA's
-format(mean(dat0$IncomePerCap, na.rm = TRUE))
-
-#Summary after removing NA's
-summary(dat0$IncomePerCap)
-#standard deviation
-sd(dat0$IncomePerCap, na.rm = TRUE)
-```
-
 
 
 ## Income Histogram and QQ
@@ -302,102 +302,11 @@ qqline(dat1$IncomePerCap)
 
 
 ```
- The raw data for income appeared very skewed to the right as well. The data appeared to follow a power-law curve as some individuals have amassed a large amount of income and these outliers can skew the data. Thus, the outliers and NA values were removed; checking again, the “cleaned data” appeared normal. The histogram appears monomodal and the error terms along the Q-Q plot did not stray away from the line.
 
-
-
-## Individual EDA of Freedom scores 
-```{r Freedom scores} 
-loadPkg("dvmisc")
-#Group by Economic Freedom
-GroupEF <- quant_groups(dat1$EconomicFreedom, 4)
-str(GroupEF)
-
-#Boxplot of IncomePerCap by Economic Freedom
-plot(IncomePerCap ~ GroupEF, data=dat1, main="IncomePerCap and GroupEF", col=c("#ffd18b","#ffb76d","#ffa264", "#ff875f") )
-summary(dat1$EconomicFreedom)
-
-#Histogram of Economic Freedom
-hist(dat1$EconomicFreedom, 
-        col = "#ffd18b",
-        main = "Economic Freedom")
-
-#qqplot of Econoimc Freedom
-qqnorm(dat1$EconomicFreedom, main="Q-Q plot of Economic Freedom")
-qqline(dat1$EconomicFreedom)
-
-
-#Group by PersonalFreedom
-GroupPF <- quant_groups(dat1$PersonalFreedom, 4)
-str(GroupPF)
-
-#Boxplot of IncomePerCap by Personal Freedom
-plot(IncomePerCap ~ GroupPF, data=dat1, main="IncomePerCap and GroupPF", col=c("#BFBFFF","#A3A3FF", "#7879FF", "#4949FF") )
-summary(dat1$PersonalFreedom)
-
-#Histogram of Personal Freedom
-hist(dat1$PersonalFreedom, 
-        col = "#A3A3FF",
-        main = "Personal Freedom")
-
-#qqplot of Personal Freedom
-qqnorm(dat1$PersonalFreedom, main="Q-Q plot of Personal Freedom")
-qqline(dat1$PersonalFreedom)
-
-#Group by Regulatory Policy
-GroupRP <- quant_groups(dat1$RegulatoryPolicy, 4)
-str(GroupRP)
-
-#Boxplot of IncomePerCap by Regulatory Policy
-plot(IncomePerCap ~ GroupRP, data=dat1, main="IncomePerCap and GroupRP", col=c("#FFDF01","#FED901", "#FFCF00", "#FEC300") )
-summary(dat1$RegulatoryPolicy)
-
-#Histogram of Regulatory Policy
-hist(dat1$RegulatoryPolicy, 
-        col = "#FFDF01",
-        main = "Regulatory Policy ")
-
-#qqplot of Regulatory Policy
-qqnorm(dat1$RegulatoryPolicy, main="Q-Q plot of Regulatory Policy")
-qqline(dat1$RegulatoryPolicy)
-
-
-#Group by Fiscal Policy
-GroupFP <- quant_groups(dat1$FiscalPolicy, 4)
-str(GroupFP)
-#Boxplot of IncomePerCap by Fiscal Policy
-plot(IncomePerCap ~ GroupFP, data=dat1, main="IncomePerCap and GroupFP", col=c("#7EFFD4","#70EBBA", "#64D8A7", "#58BD95") )
-summary(dat1$FiscalPolicy)
-
-#Histogram of Fiscal Policy
-hist(dat1$FiscalPolicy, 
-        col = "#7EFFD4",
-        main = "Fiscal Policy")
-
-#qqplot of Fiscal Policy
-qqnorm(dat1$FiscalPolicy, main="Q-Q plot of Fiscal Policy")
-qqline(dat1$FiscalPolicy)
-
-#Group by Overall Freedom
-GroupOF <- quant_groups(dat1$OverallFreedom, 4)
-str(GroupOF)
-#Boxplot of IncomePerCap by Overall Freedom
-plot(IncomePerCap ~ GroupOF, data=dat1, main="IncomePerCap and GroupOF", col=c("#C0C6CB","#98A5C0", "#7688BB", "#536CB5") )
-summary(dat1$OverallFreedom)
-
-#Histogram of Overall Freedom
-hist(dat1$OverallFreedom, 
-        col = "#A3A3FF",
-        main = "Overall Freedom")
-
-#qqplot of Overall Freedom
-qqnorm(dat1$OverallFreedom, main="Q-Q plot of Overall Freedom")
-qqline(dat1$OverallFreedom)
-```
-
-Next, the seventeen independent variables were analyzed. The freedom scores were  economic freedom, personal freedom, regulatory policy, fiscal policy, and overall freedom. The box plots were split up into four evenly distributed quartiles by the income per capita in each quartile. For all the five sets of boxplots, there did not appear to be any differences between the quartiles as they all overlapped roughly the same range of their respective independent variables. The histograms did not appear normal as overall the data was randomly spread out with huge gaps between bins. The Q-Q plots told a similar story as the error terms tended to follow a sin-like trend over the line and there were big tails on either end. None of the freedom scores appeared to be distributed normally.
 ## Individual EDA of Work Variations
 ```{r Work variations}
+loadPkg("dvmisc")
+
 #Group by Unemployment
 GroupUnemployment <- quant_groups(dat1$Unemployment, 4)
 str(GroupUnemployment)
@@ -510,6 +419,7 @@ qqline(dat1$SelfEmployed)
 ```
 
 Next the seven variables for work variations (professional, production, unemployment, office, service, construction, self-employed) were assessed for normality. The boxplots that exhibited a decrease in income, as more of the specific work variation was included in the census tract, were unemployment, service, construction, and production. That is to say, as more unemployed individuals were accounted for in a given census tract, the income per capita decreased. The only work variation that exhibited an increase in average income was professional work. The remaining variables of office and self-employed remained relatively stable across quartiles. Looking at the histograms of each of the variables it appeared that only the proportion of professionals was distributed normally. The remaining six work variations were all skewed to the right. For professionals, the Q-Q plots affirmed the normality as the plot did not have the error terms straying far from the line with very small right and left tails. The same cannot be said for the other variables as each had an oversized right tail and a relatively small left tail. Overall the proportion of professionals appeared normally distributed while the other work variations did not.  
+
 ## Individual EDA of ethnicities
 ```{r  Ethnic Variatons}
 loadPkg("dvmisc")
@@ -612,7 +522,7 @@ loadPkg(ISLR)
 sum(is.na(dat_1))
 
 #Remove NA
-dat1 <- na.omit(dat_1)
+dat_1 <- na.omit(dat_1)
 
 #Total NA After
 sum(is.na(dat_1))
@@ -687,12 +597,12 @@ PCRxform <- function(df, y, zX=TRUE, zy=FALSE) {
 ```{r matrices}
 #use dataset from FinalPaper line 623, titled dat1
 
-pcadata1 <- full_2015_varOfInterest[complete.cases(full_2015_varOfInterest), ]
-pcadata <- subset(pcadata1, select = -c(IncomePerCap, FiscalPolicy, EconomicFreedom, RegulatoryPolicy, PersonalFreedom, OverallFreedom))
-pcadata_w_ipc <- subset(pcadata1, select = -c(FiscalPolicy, EconomicFreedom, RegulatoryPolicy, PersonalFreedom, OverallFreedom))
+pcadata1 <- dat_1[complete.cases(dat_1), ]
+pcadata <- subset(pcadata1, select = -c(IncomePerCap))
+pcadata_w_ipc <- pcadata1
 
 loadPkg("corrplot")
-pcadata_ipc_cor <- cor(pcadata_w_ipc)
+pcadata_ipc_cor <- cor(pcadata)
 corrplot::corrplot(pcadata_ipc_cor)
 
 pcadata_cov <- cov(pcadata)
@@ -715,7 +625,7 @@ pc$rotation
 
 ```{r plot}
 biplot(pc, scale = 0)
-biplot(pc, 10:11, scale = 0)
+biplot(pc, 9:10, scale = 0)
 ```
 
 ```{r rotation}
@@ -780,12 +690,17 @@ validationplot(pcr_pcadata, val.type="R2")
 
 ##K- Means
 ```{r analysis for ethnicities }
+library(tidyverse)
+library(caret)
+library(glmnet)
 loadPkg(tidyverse)  # data manipulation
 loadPkg(cluster)    # clustering algorithms
 loadPkg(factoextra)
 loadPkg(fpc)
+loadPkg(ISLR)
 
-datJLClean = uzscale(dat1, 0, "IncomePerCap")
+
+datJLClean = uzscale(dat_1, 0, "IncomePerCap")
 
 # include work variables {look at luis'} 
 #ethnicities clustering 
