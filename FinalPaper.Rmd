@@ -621,39 +621,9 @@ pcadata_rot_scale <- scale(pcadata_rot)
 scale_pcadata_rot_cov <- cov(pcadata_rot_scale)
 scale_pcadata_rot_cor <- cor(pcadata_rot_scale)
 
-
-
-loadPkg("dvmisc")
-
-#ipc
-ipc <- quant_groups(dat1$IncomePerCap, 2)
-str(ipc)
-
-#Boxplot of ipc
-plot(IncomePerCap ~ ipc, data=dat1, main="IncomePerCap", col=c("#ffd18b", "#ff875f") )
 ```
 The breakdown of the variation explained by each component showed that just over 60% of the variation was accounted for within the first three components.  However, except for the first component, the change in the amount of variation explained in each consecutive component was similar. This was further illustrated by the following graph. 
 
-```
-#Adding new column to dat1
-dat1 <- cbind(dat1, ipc)
-
-dat1$ipc <- as.factor(dat1$ipc)
-
-```
-```{r subsetting for linear}
-#Subsetting
-datDisc <- subset(dat1, select = c(Hispanic, White, Black, Asian, Professional, Service, Office, Construction, Production, Unemployment, IncomePerCap))
-               
-str(datDisc)
-```
-
-```{r}
-#Subsetting
-dat1 <- subset(dat1, select = c(TotalPop, Hispanic, White, Black, Asian, Professional, Service, Office, Construction, Production, Unemployment, ipc))
-               
-str(dat1)
-```
 
 A full principle component regression was performed, and all except the last component were deemed significant.  It was also notable that this regression explained 71.01% of the variance in the dataset according the the adjusted R-Squared. The strongest variable was of course PC1 with a t-value with a magnitude by far larger than the rest of the variables.
 
@@ -699,11 +669,6 @@ loadPkg(ISLR)
 
 datJLClean = uzscale(dat_1, 0, "IncomePerCap")
 
-#Total NA Before
-sum(is.na(dat1))
-
-#Remove NA
-dat1 <- na.omit(dat1)
 
 #down fpc https://cran.r-project.org/web/packages/fpc/index.html
 #need help downloading 
@@ -740,11 +705,7 @@ k10
 kplot <-data.frame("K-clusters"= c(2,3,4,5,6,7,8,9,10), "Percent of between_SS / total_SS" = c(65.8, 83.3, 90.2, 93.5, 95.4, 96.6, 97.3, 97.8, 98.2))
 plot(kplot,"K-clusters","Percent of between _SS / total_SS", type ="b")
 
-#Total NA After
-sum(is.na(dat1))
-length(dat1)
 
-str(dat1)
 
 ```
 
