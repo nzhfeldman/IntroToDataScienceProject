@@ -150,7 +150,7 @@ full_2015 <- full_join(census_2015, freedom %>% filter(Year == 2015), by = "Stat
 
 # Introduction 
 
-America is a highly diverse country. It is not only diverse in terms of ethnicity, but also in terms of income, industry, and law. This opens the doors for a variety of possible interactions between these variables. What factors drive the way that income is distributed in the United States? What factors reliably predict whether the average income per capita in a given area is high or low? In this analysis, we use several models to persue these questions, and also investigate how these models differ in the ways that they answer these questions.
+America is a highly diverse country. It is not only diverse in terms of ethnicity, but also in terms of income, industry, and law. This opens the doors for a variety of possible interactions between these variables. What factors drive the way that income is distributed in the United States? What factors reliably predict whether the average income per capita in a given area is high or low? In this analysis, several models were used to persue these questions, and also investigate how these models differ in the ways that they answer these questions.
 
 ## How are these questions SMART?
 
@@ -274,7 +274,7 @@ Next the seven variables for work variations (professional, production, unemploy
 loadPkg("dvmisc")
 #Group by Unemployment
 GroupUnemployment <- quant_groups(dat1$Unemployment, 4)
-str(GroupUnemployment)
+#str(GroupUnemployment)
 #Boxplot of IncomePerCap by Unemployment
 plot(IncomePerCap ~ GroupUnemployment, data=dat1, main="IncomePerCap and GroupUnemployment", col=c("#FFF57B","#FFE469", "#FECC51", "#FCB033") )
 summary(dat1$Unemployment)
@@ -286,7 +286,7 @@ The boxplots that exhibited a decrease in income, as more of the specific work v
 ```{r}
 #Group by Professional
 GroupProfessional <- quant_groups(dat1$Professional, 4)
-str(GroupProfessional)
+#str(GroupProfessional)
 #Boxplot of IncomePerCap by Professional
 plot(IncomePerCap ~ GroupProfessional, data=dat1, main="IncomePerCap and GroupProfessional", col=c("#F3D8F2","#E6B2E4", "#D88DD5", "#CA68C7") )
 summary(dat1$Professional)
@@ -337,7 +337,7 @@ Finally the five ethnic variables (Native, White, Black, Hispanic, and Asian) we
 loadPkg("dvmisc")
 #Group by White
 GroupWhite <- quant_groups(dat1$White, 4)
-str(GroupWhite)
+#str(GroupWhite)
 #Boxplot of IncomePerCap by White Population
 plot(IncomePerCap ~ GroupWhite, data=dat1, main="IncomePerCap and GroupWhite", col=c("#F5F8FA", "#EFF2F4", "#EAEDEF", "#E0E3E5") )
 summary(dat1$White)
@@ -353,7 +353,7 @@ The boxplots for White showed an increase in average income between the first se
 ```{r}
 #Group by Asians
 GroupAsian <- quant_groups(dat1$Asian, 4)
-str(GroupAsian)
+#str(GroupAsian)
 #Boxplot of IncomePerCap by Asian Population
 plot(IncomePerCap ~ GroupAsian, data=dat1, main="IncomePerCap and GroupAsian", col=c("#FFE6C8","#FFCCBE", "#EFABA0", "#D6806F") )
 summary(dat1$Asian)
@@ -368,7 +368,7 @@ The boxplot for Asian showed an increase from the first through the fourth quart
 ```{r}
 #Group by Hispanic
 GroupHispanic <- quant_groups(dat1$Hispanic, 4)
-str(GroupHispanic)
+#str(GroupHispanic)
 #Boxplot of IncomePerCap by Hispanic Population
 plot(IncomePerCap ~ GroupHispanic, data=dat1, main="IncomePerCap and GroupHispanic", col=c("#F6BDC0","#F1959B", "#F07470", "#EA4C46") )
 summary(dat1$Hispanic)
@@ -383,7 +383,7 @@ The boxplots for Hispanic slightly increased between the first and second quarti
 ```{r}
 #Group by Black
 GroupBlack <- quant_groups(dat1$Black, 4)
-str(GroupBlack)
+#str(GroupBlack)
 #Boxplot of IncomePerCap by Black Population
 plot(IncomePerCap ~ GroupBlack, data=dat1, main="IncomePerCap and GroupBlack", col=c("#d0dfff","#a8c2fb", "#86abf9", "#6893ee") )
 summary(dat1$Black)
@@ -622,6 +622,13 @@ str(k2)
 k2
 clusplot(datJLClean, k2$cluster, color=TRUE, shade=TRUE,
    labels=0, lines=0)
+
+```
+
+All of the values in the data set were normalized to make comparisons of the overall dataset on a similar scale. K-means was used for 2,3,4, and 10 clusters. On inspection of the clusters created from k=2, the cluster that had the highest IncomePerCap at 37598 had the highest cluster mean of professional at 0.928, White at 0.420 and Asian at 0.237. the cluster plot chart has all the 70,000 datapoints in green and the two different clusters in blue and red respectively.It appears that there is overlap of the clusters however this occurs as the plot takes all the different data points and plots them on a two dimensional graph.  With only two clusters it captures about 65.8% of the cluster sum of squares.
+
+``` {r}
+
 #k-3
 set.seed(1000)
 k3 <- kmeans(datJLClean, centers = 3, nstart = 25)
@@ -629,6 +636,12 @@ str(k3)
 k3
 clusplot(datJLClean, k3$cluster, color=TRUE, shade=TRUE,
    labels=0, lines=0)
+``` 
+
+Further inspection was constructed for a model with k =3. The cluster with the highest IncomePerCap was found to be cluster three at 42760. this cluster also had the highest cluster mean for Professional at 1.330 and Asian at 0.3837. The first cluster which had a IncomePerCap cluster mean of 16577 had the highest uneployment cluster average at 0.619. the cluster plot has three distinct clusters portrayed and the overlap makes it a little difficult to see which cluster is which. With only three clusters, 83.3% of the data is captured which is a drastric improvement from only two clusters. 
+
+``` {r}
+
 #k-4
 set.seed(1000)
 k4 <- kmeans(datJLClean, centers = 4, nstart = 25)
@@ -644,8 +657,6 @@ kplot <-data.frame("K-clusters"= c(2,3,4,5,6,7,8,9,10), "Percent of between_SS /
 plot(kplot,"K-clusters","Percent of between _SS / total_SS", type ="b")
 ```
 
-All of the values in the data set were normalized to make comparisons of the overall dataset on a similar scale. K-means was used for 2,3,4, and 10 clusters. On inspection of the clusters created from k=2, the cluster that had the highest IncomePerCap at 37598 had the highest cluster mean of professional at 0.928, White at 0.420 and Asian at 0.237. the cluster plot chart has all the 70,000 datapoints in green and the two different clusters in blue and red respectively.It appears that there is overlap of the clusters however this occurs as the plot takes all the different data points and plots them on a two dimensional graph.  With only two clusters it captures about 65.8% of the cluster sum of squares.
-Further inspection was constructed for a model with k =3. The cluster with the highest IncomePerCap was found to be cluster three at 42760. this cluster also had the highest cluster mean for Professional at 1.330 and Asian at 0.3837. The first cluster which had a IncomePerCap cluster mean of 16577 had the highest uneployment cluster average at 0.619. the cluster plot has three distinct clusters portrayed and the overlap makes it a little difficult to see which cluster is which. With only three clusters, 83.3% of the data is captured which is a drastric improvement from only two clusters. 
 A final analysis was constructed for a model with k=4. The cluster with the highest IncomePerCap was found to be cluster three with 45781. this cluster had the hgihest Professional cluster average at 1.533 and the highest Asian cluster averge at 0.456. The cluster with the lowest IncomePerCap was cluster two at 14434. It had the highest unemployment cluster average at 0.8988. The cluster plot is difficult to interpret as the all of the datapoints were brought to a two dimensional scale and now there are four different clusters. With only four clusters, 90.2% of the data is captured which is a significant improvement from only two clusters. 
 As the clusters increased from 4 to 10, the percentage captured did not increase drastically. For example when k= 10, 98.2% of the data is captured. Therefore, a cluster of four would be sufficient
 
@@ -776,7 +787,7 @@ knn_different_k = sapply(seq(1, 30, by = 2),  #<- set k to be odd number from 1 
                                              train_class = dat_ipc[dat_sample==1, 11],
                                              val_class = dat_ipc[dat_sample==2, 11]))
 # Reformat the results to graph the results.
-str(knn_different_k)
+#str(knn_different_k)
 knn_different_k = data.frame(k = knn_different_k[1,],
                              accuracy = knn_different_k[2,])
 # Plot accuracy vs. k.
@@ -909,13 +920,13 @@ In reality, income per capita is a numerical variable. So the classification exe
 #Subsetting
 datDisc <- subset(dat1, select = c(Hispanic, White, Black, Asian, Professional, Service, Office, Construction, Production, Unemployment, IncomePerCap))
                
-str(datDisc)
+#str(datDisc)
 ```
 
 
 ## Basic Linear Regression
 
-The predictive modeling began with a simple linear regression model. This allows for basic statements about how the variables of interest correlate with income, but won't be an appropriate final model, since it does not allow for interactions between components which we have already shown to be inter-related. The process begins with an exhaustive search of our variables of interest.
+The predictive modeling began with a simple linear regression model. This allows for basic statements about how the variables of interest correlate with income, but won't be an appropriate final model, since it does not allow for interactions between components which have already been shown to be inter-related. The process begins with an exhaustive search of our variables of interest.
 
 ```{r Feature Selection} 
 loadPkg('leaps')
@@ -940,7 +951,7 @@ With a simple linear regression, the level of income showed reasonably high effe
 vif(lr)
 ```
 
-Above are the vif values for the simple linear regression. It is clear that there is a very high level of covariance among the ethnicity variables, since these variables sum to a value near one. The work variables face lower covariance only because we removed the "professional" component from this model.
+Above are the vif values for the simple linear regression. It is clear that there is a very high level of covariance among the ethnicity variables, since these variables sum to a value near one. The work variables face lower covariance only because the "professional" component from this model was removed.
 
 # Logistic Regression
 ```{r Logistic Regression} 
@@ -979,7 +990,7 @@ y=datJLClean$IncomePerCap
 loadPkg(glmnet)
 grid=10^seq(10,-2,length=100) # prepare log scale grid for λ values, from 10^10 to 10^-2, in 100 segments
 ridge.mod=glmnet(x,y,alpha=0,lambda=grid) # build the ridge model. (alpha is elastic-net mixing parameter, between 0 and 1. Ridge is 0, Lasso is 1)
-dim(coef(ridge.mod))  # same as dim(coefficients(ridge.mod)), is the dimensions of all the models (100 of them), and the dimension is here: 20x100
+#dim(coef(ridge.mod))  # same as dim(coefficients(ridge.mod)), is the dimensions of all the models (100 of them), and the dimension is here: 20x100
 plot(ridge.mod)
 #legend("topleft",x, y, legend = c("Hispanic", "White", "Black", "Asian", "Professional", "Service", "Office", "Construction", "Production", "Unemployment", "IncomePerCap"), col = c("orange", "blue", "green", "purple", "red", "violet", "aqua", "indigo", "brown", "peach", "black"))
 ```
@@ -1007,7 +1018,7 @@ set.seed(1)
 cv.out.ridge=cv.glmnet(x_train,y_train,alpha=0)  # Fit ridge regression model on training data
 plot(cv.out.ridge)
 bestlam.ridge = cv.out.ridge$lambda.min  # Select lamda that minimizes training MSE
-bestlam.ridge
+
 cat("lowest lamda from CV: ", bestlam.ridge, "\n\n")
 ridge.pred=predict(ridge.mod,s=bestlam.ridge,newx=x_test)
 ridgeMeanMse = mean((ridge.pred-y_test)^2)
@@ -1097,7 +1108,7 @@ Ethnicity and work type proportions both have strong predictive power, with the 
 
 K-means was utilized to see how the data would group together so clusters with different IncomePerCaps may have specific ethnicity or work variation cluster means. Clusters were constructed for k=2,3,4, and 10. Overall for larger income groups, it appears to have higher averages for Professional. Also, as more clusters were added, a greater percentage of data variation was explained. Four clusters became the optimal choice as it explained 90.2 % while 3 clusters explained 83.3% and 10 clusters explained 98.2%. There wasn’t much of an increase from 4 to 10 and just enough increase from 3 to 4. 
 
-KNN could work well as an exercise to classify future census tracts based on their demographics. It is a method that functions as a good aproximation to understand how census tracts can be classified. It is different from prediction or regression, since we do not know how much is the amount of variation of the dependent variable while indepedent variables vary.
+KNN could work well as an exercise to classify future census tracts based on their demographics. It is a method that functions as a good aproximation to understand how census tracts can be classified. It is different from prediction or regression, since the amount of variation of the dependent variable is unknown while indepedent variables vary.
 
 Altogether, these variables allowed the model to predict income per capita at the census tract level with high reliability, even with simple models (R-squared = `r summary(lr)$r.squared`); this is actually quite impressive given the simplicity of this data. For instance, it does not directly include any information about the age or education of the population. The categorical case was also considered, where half or quarter of the income distribution that each census tract will fall within was predicted. Again, an efficient simple model was easily constructed.
 
