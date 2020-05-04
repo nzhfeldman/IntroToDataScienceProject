@@ -982,7 +982,7 @@ plot(ridge.mod)
 #legend("topleft",x, y, legend = c("Hispanic", "White", "Black", "Asian", "Professional", "Service", "Office", "Construction", "Production", "Unemployment", "IncomePerCap"), col = c("orange", "blue", "green", "purple", "red", "violet", "aqua", "indigo", "brown", "peach", "black"))
 ```
 
-   The dataset had 10 dependent variables predicting the independent variable. Ridge regression was introduced as it minimized the residual sum of squares and has a shrinkage penalty of lambda times by the sum of squares of the coefficients. Overall as lambda increases, the coefficients apprach zero. This plot indicates the entire path of variables as they shring towards zero. To build the ridge regression, a log sacle grid for the lambda values was constucted from  10^10 to 10^-2 in 100 segments.
+   The dataset had 12 independent variables predicting the dependent variable. Ridge regression was introduced as it minimized the residual sum of squares and has a shrinkage penalty of lambda times by the sum of squares of the coefficients. Overall as lambda increases, the coefficients apprach zero. This plot indicates the entire path of variables as they shring towards zero. To build the ridge regression, a log sacle grid for the lambda values was constucted from  10^10 to 10^-2 in 100 segments.
 
 ## Train and Test sets
 
