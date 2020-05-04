@@ -1087,12 +1087,10 @@ Altogether, these variables allow us to predict income per capita at the census 
 
   Lasso and Ridge regression were introduced to see if other forms of regression would be more effective than ordinary least squares models. Cross validations was used for both the lasso and ridge regression to find the best combinations of coefficients that would have the lowest MSE. Although the models cannot be directly compared as each use different penalizing factors, the R^2 value was used for comparing how much variation in income can be explained by the respective models. The R^2 values for the Ridge Lasso regression were 0.707 and 0.708. The full OLS model has a slightly higher R^2 value at 0.711. So all the models explain about roughly the data since the OLS is slightly higher, that would be the recommend choice. 
   
-Clustering:
-
   K-means was utilizes to see how the data would group together so clusters with different IncomePerCaps may have specific ethnicity or work variation cluster means. Clusters were constructed for k=2,3,4, and 10. Overall for larger income groups, it appears to have higher averages for Professional. Also, as more clusters were added, a greater percentage of data variation was explained. Four clusters became the optimal choice as it explained 90.2 % while 3 clusters explained 83.3% and 10 clusters explained 98.2%. There wasn’t much of an increase from 4 to 10 and just enough increase from 3 to 4. 
 
-Classification:
-	
+KNN could work well as an exercise to classify future census tracts based on their demographics. It is a method that functions as a good aproximation to understand how census tracts can be classified. It is different from prediction or regression, since we do not know how much is the amount of variation of the dependent variable while indepedent variables vary.
+
 Moving forward, this analysis allows for several expansions. The first is to integrate new data, such as age and education status of census tract residents. Additionally, it may be valuable to consider each of the individual freedom measures on its own, to negate the influence of high internal correlation. Finally, it is interesting if there are differences driven by geographic density, which can be estimated with just the currently accessible data.
 	
 # Bibliography
