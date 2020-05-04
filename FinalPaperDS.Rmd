@@ -921,7 +921,7 @@ plot(reg.best10, scale = "adjr2", main = "Adjusted R^2")
 #plot(reg.best10, scale = "Cp", main = "Cp")
 ```
 
-The exhaustive search indicates, by adjusted R^2, that we should include all of our variables except Professional.  Since we perceive few costs to expanding the model, we simply take the model with the highest adjusted value. Note that Professional is excluded not because it is individually unhelpful, but because the set of work types sums to one, so one of them will always be dropped. We also did feature selection with BIC and Cp, with similar results. For brevity, we do not include them. 
+The exhaustive search indicates, by adjusted R-squared, that we should include all of our variables except Professional.  Since we perceive few costs to expanding the model, we simply take the model with the highest adjusted value. Note that Professional is excluded not because it is individually unhelpful, but because the set of work types sums to one, so one of them will always be dropped. We also did feature selection with BIC and Cp, with similar results. For brevity, we do not include them. 
 
 ```{r Regression} 
 loadPkg('car')
@@ -930,7 +930,7 @@ summary(lr)
 
 ```
 
-Taking a simple linear regression, we find that we can predict the level of income with reasonably high effectiveness (R^2 = `r summary(lr)$r.squared`). We also see that the p-values for each of our predictor variables are all near zero (2e-16 is the lowest level our statistical engine will print), meaning that each one is adding a statistically significant amount of information to our prediction. 
+Taking a simple linear regression, we find that we can predict the level of income with reasonably high effectiveness (R-squared = `r summary(lr)$r.squared`). We also see that the p-values for each of our predictor variables are all near zero (2e-16 is the lowest level our statistical engine will print), meaning that each one is adding a statistically significant amount of information to our prediction. 
 
 Finally, consider the estimated coefficients. We see that the changes in each of the ethnicity variables have a relatively small effect; a few tens of dollars of yearly income per percentage point, out of a total income in the tens of thousands of dallars. The work variables are several times larger, but still somewhat small. This does not contradict the high significance because there is a large amount of data available to us.
 
@@ -1091,9 +1091,11 @@ models <- list(ridge = ridge.mod, lasso = lasso.mod, OLS = OLS)
 
 # Conclusion
 
-Overall, this analysis found that there are several ways in which our independent variables reliably predict income in communities across the United States.
-Ethnicity and work type proportions had stronger predictive power, with the latter having the most powerful effects.  However, these variables suffer from being largely non-normal, with a rightward skew, and from having high internal correlations, both between and within the two categories.
-Altogether, these variables allow us to predict income per capita at the census tract level with high reliability (R-squared = .67); this is actually quite impressive given the simplicity of this data. For instance, it does not directly include any information about the age or education of the population.
+Overall, this analysis found that there are several models through which our independent variables reliably predict income in communities across the United States.
+
+Ethnicity and work type proportions both have strong  predictive power, with the latter having the most powerful effects.  However, these variables suffer from being largely non-normal, with a rightward skew, and from having high internal correlations, both between and within the two categories.
+
+Altogether, these variables allow us to predict income per capita at the census tract level with high reliability, even with simple models (R-squared = `r summary(lr)$r.squared`); this is actually quite impressive given the simplicity of this data. For instance, it does not directly include any information about the age or education of the population.
 
   Lasso and Ridge regression were introduced to see if other forms of regression would be more effective than ordinary least squares models. Cross validations was used for both the lasso and ridge regression to find the best combinations of coefficients that would have the lowest MSE. Although the models cannot be directly compared as each use different penalizing factors, the R^2 value was used for comparing how much variation in income can be explained by the respective models. The R^2 values for the Ridge Lasso regression were 0.707 and 0.708. The full OLS model has a slightly higher R^2 value at 0.711. So all the models explain about roughly the data since the OLS is slightly higher, that would be the recommend choice. 
   
