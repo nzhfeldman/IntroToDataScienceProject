@@ -921,7 +921,7 @@ plot(reg.best10, scale = "adjr2", main = "Adjusted R^2")
 #plot(reg.best10, scale = "Cp", main = "Cp")
 ```
 
-The exhaustive search indicates, by adjusted R-squared, that we should include all of our variables except Professional.  Since we perceive few costs to expanding the model, we simply take the model with the highest adjusted value. Note that Professional is excluded not because it is individually unhelpful, but because the set of work types sums to one, so one of them will always be dropped. We also did feature selection with BIC and Cp, with similar results. For brevity, we do not include them. 
+The exhaustive search indicates, by adjusted R-squared, that all variables except Professional should be included.  Since there are few practical costs to expanding the model, the model with the highest adjusted value is appropriate. Note that Professional is excluded not because it is individually unhelpful, but because the set of work types sums to one, so one of them will always be dropped. Feature selection with BIC and Cp was also conducted, with similar results. For brevity, they are not included here. 
 
 ```{r Regression} 
 loadPkg('car')
@@ -930,15 +930,13 @@ summary(lr)
 
 ```
 
-Taking a simple linear regression, we find that we can predict the level of income with reasonably high effectiveness (R-squared = `r summary(lr)$r.squared`). We also see that the p-values for each of our predictor variables are all near zero (2e-16 is the lowest level our statistical engine will print), meaning that each one is adding a statistically significant amount of information to our prediction. 
-
-Finally, consider the estimated coefficients. We see that the changes in each of the ethnicity variables have a relatively small effect; a few tens of dollars of yearly income per percentage point, out of a total income in the tens of thousands of dallars. The work variables are several times larger, but still somewhat small. This does not contradict the high significance because there is a large amount of data available to us.
+With a simple linear regression, the level of income showed reasonably high effectiveness (R-squared = `r summary(lr)$r.squared`). The p-values for each of the predictor variables are all near zero (2e-16 is the lowest level our statistical engine will print), meaning that each one is adding a statistically significant amount of information to the prediction.  Finally, consider the estimated coefficients. Changes in each of the ethnicity variables have a relatively small effect; a few tens of dollars of yearly income per percentage point, out of a total income in the tens of thousands of dallars. The work variables are several times larger, but still somewhat small. This does not contradict the high significance because there is a large amount of data available, 74000 rows.
 
 ```{r vif}
 vif(lr)
 ```
 
-Above are the vif values for the simple linear regression. We can see that there is a very high level of covariance among the ethnicity variables, since these variables sum to a value near one. The work variables face lower covariance only because we removed the "professional" component from this model.
+Above are the vif values for the simple linear regression. It is clear that there is a very high level of covariance among the ethnicity variables, since these variables sum to a value near one. The work variables face lower covariance only because we removed the "professional" component from this model.
 
 ## Logistic Regression
 ```{r Logistic Regression} 
@@ -947,7 +945,7 @@ glr <- glm(ipc2   ~ . - Professional, data = datCap, family = "binomial")
 summary(glr)
 ```
 
-   Taking a logistic regression - analyzing how the variables predict whether a given census ract will fall within the upper half of the income distribution or the lower half - we find similar results. All of the same predictor variables remain significant, with the same signs and similar relative scales. We can now see more strongly, however, how a high proportion of asian and white citizens correlate with higher likelihood to end up within the upper end of the income distribution, while greater reliance on work in the production and service sectors lowers this likelihood.
+Taking a logistic regression - analyzing how the variables predict whether a given census ract will fall within the upper half of the income distribution or the lower half - produced similar results. All of the same predictor variables remained significant, with the same signs and similar relative scales. It can now be seen more clearly, however, that a high proportion of asian and white citizens correlate with higher likelihood to end up within the upper end of the income distribution, while greater reliance on work in the production and service sectors lowers this likelihood.
 
 
 ```{r roc_auc}
@@ -961,7 +959,7 @@ plot(h)
 # unloadPkg(pROC) # good habit to remove unload packages no longer needed 
 ```
 
-As a final check, we construct the receiver operating characteristic curve for our generalized linear regression. Se see that the curve is quite full, with an AUC of `r auc`. This indicates that our model is already quite efficiently predicting income.
+As a final check, the receiver operating characteristic curve for the generalized linear regression was constructed.  The curve is quite full, with an AUC of `r auc`. This indicates that the logistic model already quite efficiently predicts income.
 
 # Ridge Regression
 
