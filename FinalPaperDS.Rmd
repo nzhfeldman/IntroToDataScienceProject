@@ -150,11 +150,11 @@ full_2015 <- full_join(census_2015, freedom %>% filter(Year == 2015), by = "Stat
 
 # Introduction 
 
-America is a highly diverse country. It is not only diverse in terms of ethnicity, but also in terms of income, industry, and law. This opens the doors for a variety of possible interactions between these variables. What factors drive the way that income is distributed in the United States? What factors reliably predict whether the average income per capita in a specific area is high or low? How does state level variations in law and freedom impact income?
+America is a highly diverse country. It is not only diverse in terms of ethnicity, but also in terms of income, industry, and law. This opens the doors for a variety of possible interactions between these variables. What factors drive the way that income is distributed in the United States? What factors reliably predict whether the average income per capita in a given area is high or low? In this analysis, we use several models to persue these questions, and also investigate how these models differ in the ways that they answer these questions.
 
 ## How are these questions SMART?
 
-These questions are important because they tell many facets of the story of consumption in the United States. Income serves both as a measure of productivity and lifetime consumption (although this analysis does not disentangle the two). Although their scope is broad, they remain specific to the concepts of income, demographics, and freedom, and maintain a consistent structure: how do demographics and freedom drive income in the United States, at the census tract level. 
+These questions are important because they tell many facets of the story of consumption in the United States. Income serves both as a measure of productivity and lifetime consumption (although this analysis does not disentangle the two). Although their scope is broad, they remain specific to the concepts of income and demographics and they maintain a consistent structure: how do demographics (both economic and ethnic) drive income in the United States, at the census tract level. 
 
 These questions also correspond to a set of highly measurable (And luckily, premeasured) variables. Income can be imputed from tax records, while ethnicity and work status are available from census forms. Achieving the answers to the questions is made simple by the cleanliness and availability of this data; since few data points are missing across all census tracts throughout the 50 states of interest, it is simple to form statistical tests.
 
