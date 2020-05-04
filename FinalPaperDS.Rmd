@@ -908,7 +908,7 @@ str(datDisc)
 ```
 
 
-#Basic Linear Regression
+## Basic Linear Regression
 We begin our predictive modeling with a simple linear regression model. This will allow us to make basic statements about how the variables of interest correlate with income, but won't be an appropriate final model, since it does not allow for interactions between components which we have already shown to be inter-related. We begin by doing an exhaustive search of our variables of interest.
 
 ```{r Feature Selection} 
@@ -925,19 +925,27 @@ The exhaustive search indicates, by adjusted R^2, that we should include all of 
 loadPkg('car')
 lr <- lm(IncomePerCap  ~ . - Professional, data = datDisc) 
 summary(lr)
-lr
-vif(lr)
-coef <- coef(lr)
-coef
+
 ```
 
-Taking a simple linear regression, we find that we can predict the level income  with reasonably high effectiveness (R^2 = `r )
-```{r Logistic Regression} 
-glr <- glm(ipc4   ~ . - Professional, data = dat_ipc %>% select(-ipc2), family = "binomial") 
-summary(glr)
-vif(glr)
-coef <- coef(glr)
+Taking a simple linear regression, we find that we can predict the level of income with reasonably high effectiveness (R^2 = `r summary(lr)$r.squared`). We also see that the p-values for each of our predictor variables are all near zero (2e-16 is the lowest level our statistical engine will print), meaning that each one is adding a statistically significant amount of information to our prediction. 
+
+Finally, consider the estimated coefficients. We see that the changes in each of the ethnicity variables have a relatively small effect; a few tens of dollars of yearly income per percentage point, out of a total income in the tens of thousands of dallars. The work variables are several times larger, but still somewhat small. This does not contradict the high significance because there is a large amount of data available to us.
+
+```{r vif}
+vif(lr)
 ```
+
+Above are the vif values for the simple linear regression. We can see that there is a very high level of covariance among the ethnicity variables, since these variables sum to a value near one. The work variables face lower covariance only because we removed the "professional" component from this model.
+
+## Logistic Regression
+```{r Logistic Regression} 
+datCap <- subset(dat_1, select = c(Hispanic, White, Black, Asian, Professional, Service, Office, Construction, Production, Unemployment, ipc2))
+glr <- glm(ipc2   ~ . - Professional, data = datCap, family = "binomial") 
+summary(glr)
+```
+
+Taking a logistic regression - analyzing how the variables predict whether a given census ract will fall within the upper half of the income distribution or the lower half - we find similar results. All of the same predictor variables remain significant, with the same signs and similar relative scales. We can now see more strongly, however, how a high proportion of asian and white citizens correlate with higher likelihood to end up within the upper end of the income distribution, while greater reliance on work in the production and service sectors lowers this likelihood.
 
 
 ```{r roc_auc}
@@ -946,10 +954,12 @@ prob=predict(glr, type = c("response"))
 datprob <- dat_ipc
 datprob$prob=prob
 h <- roc(ipc4~prob, data=datprob)
-auc(h) # area-under-curve prefer 0.8 or higher.
+auc = auc(h) # area-under-curve prefer 0.8 or higher.
 plot(h)
 # unloadPkg(pROC) # good habit to remove unload packages no longer needed 
 ```
+
+As a final check, we construct the receiver operating characteristic curve for our generalized linear regression. Se see that the curve is quite full, with an AUC of `r auc`. This indicates that our model is already quite efficiently predicting income.
 
 # Ridge Regression
 
