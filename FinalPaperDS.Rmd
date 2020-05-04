@@ -910,7 +910,7 @@ We begin our predictive modeling with a simple linear regression model. This wil
 ```{r Feature Selection} 
 loadPkg('leaps')
 reg.best10 <- regsubsets(IncomePerCap~. , data = datDisc, nvmax = 10)  
-plot(reg.best10, scale = "adjr2", main = "Adjusted R^2")
+plot(reg.best10, scale = "adjr2", main = "Adjusted R-squared")
 #plot(reg.best10, scale = "bic", main = "BIC")
 #plot(reg.best10, scale = "Cp", main = "Cp")
 ```
@@ -934,7 +934,7 @@ vif(lr)
 
 Above are the vif values for the simple linear regression. We can see that there is a very high level of covariance among the ethnicity variables, since these variables sum to a value near one. The work variables face lower covariance only because we removed the "professional" component from this model.
 
-## Logistic Regression
+# Logistic Regression
 ```{r Logistic Regression} 
 datCap <- subset(dat_1, select = c(Hispanic, White, Black, Asian, Professional, Service, Office, Construction, Production, Unemployment, ipc2))
 glr <- glm(ipc2   ~ . - Professional, data = datCap, family = "binomial") 
@@ -976,7 +976,7 @@ plot(ridge.mod)
 #legend("topleft",x, y, legend = c("Hispanic", "White", "Black", "Asian", "Professional", "Service", "Office", "Construction", "Production", "Unemployment", "IncomePerCap"), col = c("orange", "blue", "green", "purple", "red", "violet", "aqua", "indigo", "brown", "peach", "black"))
 ```
 
-   The dataset had 12 independent variables predicting the dependent variable. Ridge regression was introduced as it minimized the residual sum of squares and has a shrinkage penalty of lambda times by the sum of squares of the coefficients. Overall as lambda increases, the coefficients apprach zero. This plot indicates the entire path of variables as they shring towards zero. To build the ridge regression, a log sacle grid for the lambda values was constucted from  10^10 to 10^-2 in 100 segments.
+   The dataset had 10 independent variables predicting the dependent variable. Ridge regression was introduced as it minimized the residual sum of squares and has a shrinkage penalty of lambda times by the sum of squares of the coefficients. Overall as lambda increases, the coefficients apprach zero. This plot indicates the entire path of variables as they shring towards zero. To build the ridge regression, a log sacle grid for the lambda values was constucted from  10^10 to 10^-2 in 100 segments.
 
 ## Train and Test sets
 
@@ -1009,18 +1009,18 @@ out.ridge=glmnet(x,y,alpha=0)
 ridge_coef = predict(out.ridge,type="coefficients",s=bestlam.ridge)[1:11,]
 cat("\nAll the coefficients : \n")
 ridge_coef
-#r^2 calculations
+#R-squared calculations
 rss2 <- sum((ridge.pred-y_test) ^ 2)
 tss2 <- sum((y_test - mean(y_test)) ^ 2)
 rsq2 <- 1 - rss2/tss2
-cat("\nR^2: \n")
+cat("\nR-squared: \n")
 rsq2
 ```
 
-  In order to obtain the best model for Ridge regression, cross validation was implimented to find the best fit. The cross validation line graph indicates that a model with ten dependent variables would yield the best lambda with the lowest mean square error. As the lambda value decreases, the mean square error also decreases. Overall, Ridge Regression includes all the of the dependent variables and the best value for lambda is indicated by the first vertical dotted line.
-  The lowest lamda from the cross validation was found to be 825. The MSE for the best Ridge Lambda equation was 30834392. from the equation, the model that had the most positive coefficient valus were professional at 3248, White at 1104 and Asian at 546. The values that had the strongest negative coeffiecents were service at -2195, production at -2021 and unemployment at -1602. It was interesting to note that only professional had a positive lambda while the other work variables were all negative. The R^2 value for the best Ridge model was found to be 0.707. this means that 70.7% of the variation in the income can be explained by the model. 
+  In order to obtain the best model for Ridge regression, cross validation was implemented to find the best fit. The cross validation line graph indicates that a model with ten dependent variables would yield the best lambda with the lowest mean square error. As the lambda value decreases, the mean square error also decreases. Overall, Ridge Regression includes all the of the dependent variables and the best value for lambda is indicated by the first vertical dotted line.
+  The lowest lamda from the cross validation was found to be 825. The MSE for the best Ridge Lambda equation was 30834392. from the equation, the model that had the most positive coefficient valus were professional at 3248, White at 1104 and Asian at 546. The values that had the strongest negative coeffiecents were service at -2195, production at -2021 and unemployment at -1602. It was interesting to note that only professional had a positive lambda while the other work variables were all negative. The R-squared value for the best Ridge model was found to be 0.707, this means that 70.7% of the variation in the income can be explained by the model. 
   
-## Lasso Regression
+# Lasso Regression
 ```{r lasso}
 lasso.mod=glmnet(x_train,y_train,alpha=1,lambda=grid)
 plot(lasso.mod)
@@ -1041,15 +1041,15 @@ cat("\nAll the coefficients : \n")
 lasso_coef
 cat("\nThe non-zero coefficients : \n")
 lasso_coef[lasso_coef!=0]
-#r^2 calculation
+#R-squared calculation
 rss <- sum((lasso.pred-y_test) ^ 2)
 tss <- sum((y_test - mean(y_test)) ^ 2)
 rsq <- 1 - rss/tss
 rsq
 ```
   
-  Lasso regression was also implimented to see if this model would perform differently from the OLS or Ridge model. Lasso regression can be useful in reducing over-fittness and assist in model selection. from the line plot it can be seen that the three most positive coefficient values are professional at 6030.2, white at 1690, and asian at 712.2. This means that Professional, White, and Asian have much stronger positive pull on the data that the other variables. The three most negtive coefficient values are unemployment at -1613, service at -716.5, and producton at -622.3. Construction was found to have a coefficient value of 0.0 so it was removed for the final Lasso model. It is interesting to note that the lambda values for hispanic are small at 13.6 so they do not deviate much from the ordinary least squares model (OLS).
-   Cross validation was introduced to select the lambda value with the lowest MSE. The CV recommended eight dependent variables be used to predict income. The Lasso regresison recommended that construction be removed from the equation. the Cross validaiton value was found to be 16.2 and the MSE for the best Lasso model was 30709528. Also the r^2 value was found to be 0.708. this means that 70.8% of the variation in Income can be explained by the model. 
+Lasso regression was also implemented to see if this model would perform differently from the OLS or Ridge model. Lasso regression can be useful in reducing over-fittness and assist in model selection. From the line plot it can be seen that the three most positive coefficient values are professional at 6030.2, White at 1690, and Asian at 712.2. This means that Professional, White, and Asian have much stronger positive pull on the data that the other variables. The three most negative coefficient values are unemployment at -1613, service at -716.5, and production at -622.3. Construction was found to have a coefficient value of 0.0 so it was removed for the final Lasso model. It is interesting to note that the lambda values for Hispanic are small at 13.6 so they do not deviate much from the ordinary least squares model (OLS).
+Cross validation was introduced to select the lambda value with the lowest MSE. The CV recommended eight dependent variables be used to predict income. The Lasso regresison recommended that construction be removed from the equation. the Cross validaiton value was found to be 16.2 and the MSE for the best Lasso model was 30709528. Also the R-squared value was found to be 0.708. this means that 70.8% of the variation in Income can be explained by the model. 
 
 ```{r lasso vs. regression vs full}
 ####I want to test to see which one is better 
@@ -1073,10 +1073,8 @@ library(glmnet)
 models <- list(ridge = ridge.mod, lasso = lasso.mod, OLS = OLS)
 ```
 
-  An OLS model was consturcted for both the full model and the full model without the construction variable to compare them to the Ridge and Lasso models. the R^2 value for both the OLS models was found to be 0.71. this means that both the ordinary least squares models explain 71% of the variation in income can be explainedby the model. Furthermore the MSE for the full model was found to be 30459848. The full model withouth the construction variable was found to have a larger MSE at 30460435. 
-  Overall the Lasso, Ridge, and both OLS models explain aobut roughly the same amount of variability in the data. Also all of the R^2 values are about the same around 0.70. Since the full OLS has the lowest MSE and the highest R^2 it would be a more suitable option than the Ridge, Lasso, or OLS without construction. 
-
-
+An OLS model was constructed for both the full model and the full model without the construction variable to compare them to the Ridge and Lasso models. The R-squared value for both the OLS models was found to be 0.71, this means that both the ordinary least squares models explain 71% of the variation in income can be explained by the model. Furthermore the MSE for the full model was found to be 30459848. The full model without the construction variable was found to have a larger MSE at 30460435. 
+Overall the Lasso, Ridge, and both OLS models explain aobut roughly the same amount of variability in the data. Also all of the R-squared values are about the same around 0.70. Since the full OLS has the lowest MSE and the highest R-squared it would be a more suitable option than the Ridge, Lasso, or OLS without construction. 
 
 
 ```{r, include=FALSE}
@@ -1087,15 +1085,15 @@ models <- list(ridge = ridge.mod, lasso = lasso.mod, OLS = OLS)
 
 Overall, this analysis found that there are several models through which our independent variables reliably predict income in communities across the United States.
 
-Ethnicity and work type proportions both have strong  predictive power, with the latter having the most powerful effects.  However, these variables suffer from being largely non-normal, with a rightward skew, and from having high internal correlations, both between and within the two categories.
+Ethnicity and work type proportions both have strong predictive power, with the latter having the most powerful effects. However, these variables suffer from being largely non-normal, with a rightward skew, and from having high internal correlations, both between and within the two categories.
 
-Altogether, these variables allow us to predict income per capita at the census tract level with high reliability, even with simple models (R-squared = `r summary(lr)$r.squared`); this is actually quite impressive given the simplicity of this data. For instance, it does not directly include any information about the age or education of the population. Wea lso cosidered the categorical case, where we predict which half or quarter of the income distribution that each census tract will fall within. Again we were able to construct an efficient simple model.
-
-Lasso and Ridge regression were introduced to see if other forms of regression would be more effective than ordinary least squares models. Cross validations was used for both the lasso and ridge regression to find the best combinations of coefficients that would have the lowest MSE. Although the models cannot be directly compared as each use different penalizing factors, the R^2 value was used for comparing how much variation in income can be explained by the respective models. The R^2 values for the Ridge Lasso regression were 0.707 and 0.708. The full OLS model has a slightly higher R^2 value at 0.711. So all the models explain about roughly the data since the OLS is slightly higher, that would be the recommend choice. 
-  
 K-means was utilizes to see how the data would group together so clusters with different IncomePerCaps may have specific ethnicity or work variation cluster means. Clusters were constructed for k=2,3,4, and 10. Overall for larger income groups, it appears to have higher averages for Professional. Also, as more clusters were added, a greater percentage of data variation was explained. Four clusters became the optimal choice as it explained 90.2 % while 3 clusters explained 83.3% and 10 clusters explained 98.2%. There wasn’t much of an increase from 4 to 10 and just enough increase from 3 to 4. 
 
 KNN could work well as an exercise to classify future census tracts based on their demographics. It is a method that functions as a good aproximation to understand how census tracts can be classified. It is different from prediction or regression, since we do not know how much is the amount of variation of the dependent variable while indepedent variables vary.
+
+Altogether, these variables allow us to predict income per capita at the census tract level with high reliability, even with simple models (R-squared = `r summary(lr)$r.squared`); this is actually quite impressive given the simplicity of this data. For instance, it does not directly include any information about the age or education of the population. The categorical case was also considered, where half or quarter of the income distribution that each census tract will fall within was predicted. Again, an efficient simple model was easily constructed.
+
+Lasso and Ridge regression were introduced to see if other forms of regression would be more effective than ordinary least squares models. Cross validations was used for both the lasso and ridge regression to find the best combinations of coefficients that would have the lowest MSE. Although the models cannot be directly compared as each use different penalizing factors, the R-squared value was used for comparing how much variation in income can be explained by the respective models. The R-squared values for the Ridge Lasso regression were 0.707 and 0.708. The full OLS model has a slightly higher R-squared value at 0.711. So all the models explain about roughly the data since the OLS is slightly higher, that would be the recommend choice. 
 
 Moving forward, this analysis allows for several expansions. The first is to integrate new data, such as age and education status of census tract residents. Additionally, it may be valuable to consider state level differences between census tracts, which may indicate the effect of state laws and policies. In a similar vein, the repeated nature of this data set would allow for performing this analysis at multiple time slices, which would allow for models with causal elements. Finally, it is interesting if there are differences driven by geographic density, which can be estimated with just the currently accessible data.
 	
