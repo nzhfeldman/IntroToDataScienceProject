@@ -156,7 +156,7 @@ America is a highly diverse country. It is not only diverse in terms of ethnicit
 
 These questions are important because they tell many facets of the story of consumption in the United States. Income serves both as a measure of productivity and lifetime consumption (although this analysis does not disentangle the two). Although their scope is broad, they remain specific to the concepts of income and demographics and they maintain a consistent structure: how do demographics (both economic and ethnic) drive income in the United States, at the census tract level. 
 
-These questions also correspond to a set of highly measurable (and luckily, premeasured) variables. Income can be imputed from tax records, while ethnicity and work status are available from census forms. Achieving the answers to the questions is made simple by the cleanliness and availability of this data; since few data points are missing across all census tracts throughout the 50 states of interest, it is simple to form statistical tests.
+These questions also correspond to a set of highly measurable (And luckily, premeasured) variables. Income can be imputed from tax records, while ethnicity and work status are available from census forms. Achieving the answers to the questions is made simple by the cleanliness and availability of this data; since few data points are missing across all census tracts throughout the 50 states of interest, it is simple to form statistical tests.
 
 Finally, these questions are relevant to policy makers who want to improve the incomes of their constituents as well as to researchers interested in establishing a baseline for the average income they should expect a community would earn based on its demographics. These are critical questions, because the ability of communities to support themselves economically has massive impacts on the wellbeing of their members.
 
@@ -176,8 +176,8 @@ Texas, for example, has 254 counties (U.S. Census Bureau, 2017). California, a s
 As a response to these inconsistencies found in counties in America, the U.S. Census Bureau delineated "Census Tracts" at the beginning of the twentieth century.  A census tract is "geographic region defined for the purpose of taking a census." Over the years, the U.S. Census Bureau has established census tracts in every county in America. There are over 74,000 census tracts in the country and a typical one has around 4,000 or so residents. There is a strength that comes from this consistency: census tracts are by and large similar in population size, and the population size of census tracts does not vary much from state to state.
 
 # Description of Variables
-The complete dataset includes 12 relevant independent variables and 1 dependent variable.
-Thanks to their nature, the independent variables were classified in two groups: Work Variation and Ethnic Variation.
+The complete dataset includes 17 independent variables and 1 dependent variable.
+Thanks to their nature, the independent variables were classified in three groups: Work Variation and Ethnic Variation.
 
 ## Work Variation:
 
@@ -235,12 +235,15 @@ The exploratory data analysis of this dataset was divided into 4 sections:
 loadPkg("ggplot2")
 # NA's
 dat0<-full_2015[!is.na(full_2015$IncomePerCap),]
+#sum(is.na(dat0$IncomePerCap))
 #removed outliers 
 dat1 <- outlierKD2(dat0, IncomePerCap, TRUE)
-
+#Mean after removing NA's
+#format(mean(dat1$TotalPop, na.rm = TRUE))
+#Summary after removing NA's
 summary(dat1$TotalPop)
 ```
-  A baseline analysis of population and income was conducted. The histogram for population was clearly skewed to the right. The different census tracts had similar population counts with a mean of about 4000. Counties were not evenly spread out as some had a population of 1 million and others 10 million. With similar populations, census tracts were easier to investigate instead of counties. The Q-Q plot confirmed the non-normality as the values between quartiles 3 and 4 were far away from the line. 
+  A baseline analysis of population and income was conducted. The histogram for population appeared skewed to the right. The different census tracts had similar population counts with a mean of about 4000. Counties were not evenly spread out as some had a population of 1 million and others 10 million. With similar populations, census tracts were easier to investigate instead of counties. The Q-Q plot confirmed the non-normality as the values between quartiles 3 and 4 were far away from the line. 
 
 
 ## Income per capita
@@ -301,7 +304,7 @@ The only work variation that exhibited an increase in average income was profess
 
 
 
-```{r, include=FALSE}
+```{r}
 #Histogram of Office
 hist(dat1$Office, 
         col = "#FECC51",
@@ -310,18 +313,18 @@ hist(dat1$Office,
 hist(dat1$Service, 
         col = "#79F58A",
         main = "Service")
-#Histogram of Construction
+#Histogram of Construciton
 hist(dat1$Construction, 
         col = "#C0838C",
         main = "Construction")
-#Histogram of Production
+#Histogram of Producrtion
 hist(dat1$Production, 
         col = "#E6B2E4",
         main = "Production")
 #Histogram of Self Employed
 hist(dat1$SelfEmployed, 
         col = "#E6B2E4",
-        main = "SelfEmployed")
+        main = "Production")
 ```
 
 The remaining variables of office and self-employed remained relatively stable across quartiles. The remaining six work variations were all skewed to the right. 
@@ -344,7 +347,7 @@ hist(dat1$White,
         main = "White")
 ```
 
-The boxplots for White showed an increase in average income between the first second and third quartiles but no change in the fourth. This indicates that census tracts with a greater proportion of white residents tend to have greater income.
+The boxplots for White showed an increase in average income between the first second and third quartiles but no change in the fourth.
 
 
 ```{r}
@@ -408,9 +411,8 @@ hist(dat1$Native,
         main = "Native")
 ```
 
-Also, there were not enough non-zero responses from the Native ethnicity to construct a meaningful boxplot. For this reason the Native variable was excluded from further analysis.
-
-Altogether, based on the assessment of the boxplots, histograms, and Q-Q plots, none of the ethnicities appear normally distributed.
+Also, there were not enough responses from the Native ethnicity to construct a meaningful boxplot.
+Therefore, based on the assessment of the boxplots, histograms, and Q-Q plots, none of the ethnicities appear normally distributed.
 
 
 ```{r}
@@ -498,15 +500,15 @@ pcadata_cor <- cor(pcadata)
 ## Models: Why perform both clustering and prediction?
 
 Throughout this report, both clustering models and prediction models were performed. 
-Clustering models, such as PCA and K-means, are unsupervised learning methods. The objective was to find patterns in the data that help understand the relationship and closeness of ethnicity and work variables, and consequently subgrouping the dataset based on those patterns. Overall, it is important to use supervised and unserpervised models as it helps create a better holistic understanding of the data. 
+Clustering models, such as PCA and K-means, are unsupervised learning methods. The objective is to find patterns in the data that help understand the relationship and closeness of different variables, and consequently subgrouping the dataset based on those patterns. Overall, It is important to use supervised and unserpervised models as it helps create a better holistic understanding of the data. 
 In this study, the initial purpose was to understand income per capita. However, there are multiple independent variables that, according to this EDA, could be heavily correlated. Therefore, a clustering analysis could help us understand these relationship and make better conclusions about the reality of income in the U.S.
 
-On the other hand, prediction models, such as KNN classification and regressions, are supervised learning whose main purpose is to understand the behaviour of a dependent variable. As shown in the EDA, the analysis included 10 independent variables and a single dependent variable: income per capita. Then, running classification and regression models was indispensable in this analysis. 
+On the other hand, prediction models, such as KNN classification and regressions, are supervised learning whose main purpose is to understand the behaviour of a dependent variable. As shown in the EDA, the analysis was includes 10 independent variables and a single dependent variable: income per capita. Then, running classification and regression models was indispensable in this analysis. 
 
 
 # PCA
 
-The purpose of Principle Component Analysis (PCA) and Principle Component Regression (PCR) is to decrease the number of variables while accounting for collinearity and therefore seemed suited to this dataset. Within this dataset there were 10 variables to explain IncomePerCap.  However, the correlation matrix showed notable correlation between some of the predictor variables.  For example, Professional had notable correlations with Service, Construction, Production and Unemployment, White had notable correlations with Hispanic and Black, etc. From this inital overview of the correlation matrix, the prospect of PCA seemed suitable and was continued.
+A Principle Component Analysis (PCA) and Principle Component Regression (PCR) seemed suited to this dataset.  The purpose of this technique is to decrease the number of variables while accounting for collinearity.  Within this dataset there were 10 variables to explain IncomePerCap.  However, the correlation matrix showed notable correlation between some of the predictor variables.  For example, Professional had notable correlations with Service, Construction, Production and Unemployment, White had notable correlations with Hispanic and Black, etc.  From this inital overview of the correlation matrix, the prospect of PCA seemed suitable and was continued.
 
 
 ```{r scaled}
@@ -526,7 +528,7 @@ biplot(pc, scale = 0)
 #biplot(pc, 9:10, scale = 0)
 ```
 
-The biplot above analyzed over 70k+ data points, resulting in the dense scattering of data. The axes of this plot were PC1 on the horizontal and PC2 on the vertical. PC1 had the most variation, between approximately -5 to 10, while PC2 went between -8 to 10. The variables White, Production, Unemployment, Black and Professional were pretty evenly split up between Pc1 and PC2. Other variables, such as Office, Service, Unemployed, Construction, etc. were majorly represented in either PC1 or PC2.
+The biplot above analyzed over 70k+ data points, resulting in the dense scattering of data.  The axes of this plot were PC1 on the horizontal and PC2 on the vertical. PC1 had the most variation, between approximately -5 to 10, while PC2 went between -8 to 10.  The variables White, Production, Unemployment, Black and Professional were pretty evenly split up between Pc1 and PC2.  Other variables, such as Office, Service, Unemployed, Construction, etc. were majorly represented in either PC1 or PC2.
 
 
 ```{r rotation}
@@ -552,7 +554,7 @@ pc_pcadata_rot <- prcomp(pcadata_rot, scale = FALSE)
 summary(pc_pcadata_rot)
 ```
 
-The breakdown of the variation explained by each component showed that just over 60% of the variation was accounted for within the first three components. However, except for the first component, the change in the amount of variation explained in each consecutive component was similar. This was further illustrated by the following graph. 
+The breakdown of the variation explained by each component showed that just over 60% of the variation was accounted for within the first three components.  However, except for the first component, the change in the amount of variation explained in each consecutive component was similar. This was further illustrated by the following graph. 
 
 ```{r rot var}
 #plot the cumulation of variance using the sd
@@ -567,7 +569,7 @@ pcadata_rot_reg <- lm(IncomePerCap ~ ., data = pcadata_pcr_rot)
 summary(pcadata_rot_reg)
 ```
 
-A full principle component regression was performed, and all except the last component were deemed significant. It was also notable that this regression explained 71.01% of the variance in the dataset according the the adjusted R-Squared. The strongest variable was of course PC1 with a t-value with a magnitude by far larger than the rest of the variables.
+A full principle component regression was performed, and all except the last component were deemed significant.  It was also notable that this regression explained 71.01% of the variance in the dataset according the the adjusted R-Squared. The strongest variable was of course PC1 with a t-value with a magnitude by far larger than the rest of the variables.
 
 ```{r pcr}
 loadPkg("pls")
@@ -583,7 +585,7 @@ pcr_pcadata <- pcr(IncomePerCap ~ ., data = pcadata_w_ipc, scale = TRUE, validat
 #validationplot(pcr_pcadata, val.type="R2")
 ```
 
-A plot of the R-Square values over the number of components showed the amount of variation explained in the independent variable, IncomePerCap, based off of the components. The steeper increase and then petering off that occured in the R-Square graph seemed to indicate that a significant amount of the variation of the data in regards to IncomePerCap was explained using just the first component. Based on the initial analysis of the R-Square graph and the results of the regression it seemed appropriate to run a regression on just PC1 which resulted in a lower Adjusted R Square.  
+A plot of the R-Square values over the number of components explained the amount of variation explained in the independent variable, IncomePerCap, based off of the components.  The steeper increase and then petering off that occured in the R-Square graph seemed to indicate that a significant amount of the variation of the data in regards to IncomePerCap was explained using just the first component.  Based on the initial analysis of the R-Square graph, and the results of the regression it seemed appropriate to run a regression on just PC1 which resulted in a lower Adjusted R Square.  
 
 ```{r PCA reg2}
 pcadata_pcr_rot = PCRxform(pcadata_w_ipc,"IncomePerCap",TRUE) 
@@ -591,11 +593,12 @@ pcadata_rot_reg2 <- lm(IncomePerCap ~ PC1, data = pcadata_pcr_rot)
 summary(pcadata_rot_reg2)
 ```
 
-The results of this regression on just PC1 corroborated that the Adjusted R-Square is smaller, at a value of 63.93%. The tradeoff between parsimony and description of these two potential models made the choice of model unclear.  Assuming the more explanatory model, which accounted for the number of components included by adjusted R Square, was chosen, only one component would be removed. This was not an effective parsing down of variables. However, there would be low bias since only one component was dropped.
+The results of this regression on just PC1 corroborated that the R-Square is smaller, at a value of 63.93%. The tradeoff between parsimony and description of these two potential models made the choice of model unclear.  Assuming the more explanatory model, which accounted for the number of components included by adjusted R Square, was chosen, only one component would be removed.  This was not an effective parsing down of variables.  However, there would be low bias since only one component was dropped.
+
 
 # K- Means
 
-K-means is an unsupervised learning algorithm. The goal of this program is to find groups or clusters of data in order to identify certain patterns.
+   K-means is an unsupervised learning algorithm. The goal of this program is to find groups or clusters of data in order to identify certain patterns.
 
 ```{r analysis for ethnicities, code_folding=show }
 library(tidyverse)
@@ -607,7 +610,9 @@ loadPkg(factoextra)
 loadPkg(fpc)
 loadPkg(ISLR)
 datJLClean = uzscale(dat_1, 0, "IncomePerCap")
-
+# include work variables {look at luis'} 
+#ethnicities clustering 
+#White
 #down fpc https://cran.r-project.org/web/packages/fpc/index.html
 #need help downloading 
 # cool website https://stats.stackexchange.com/questions/31083/how-to-produce-a-pretty-plot-of-the-results-of-k-means-cluster-analysis
@@ -640,7 +645,7 @@ kplot <-data.frame("K-clusters"= c(2,3,4,5,6,7,8,9,10), "Percent of between_SS /
 plot(kplot,"K-clusters","Percent of between _SS / total_SS", type ="b")
 ```
 
-   All of the values in the data set were normalized to make comparisons of the overall dataset on a similar scale. K-means was used for 2,3,4, and 10 clusters. On inspection of the clusters created from k=2, the cluster that had the highest IncomePerCap at 37598 had the highest cluster mean of professional at 0.928, White at 0.420 and Asian at 0.237. the cluster plot chart has all the 70,000 datapoints in green and the two different clusters in blue and red respectively.It appears that there is overlap of the clusters however this occurs as the plot takes all the different data points and plots them on a two dimensional graph.  With only two clusters it captures about 65.8% of the cluster sum of squares.
+   All of the values in the data set were normalized to make comparisons of the overall dataset on a similar scale. K-means was used for 2,3,4, and 10 clusters. On inspection of the clusters created from k=2, The cluster that had the highest IncomePerCap at 37598 had the highest cluster mean of professional at 0.928, White at 0.420 and Asian at 0.237. the cluster plot chart has all the 70,000 datapoints in green and the two different clusters in blue and red respectively.It appears that there is overlap of the clusters however this occurs as the plot takes all the different data points and plots them on a two dimensional graph.  With only two clusters it captures about 65.8% of the cluster sum of squares.
   Further inspection was constructed for a model with k =3. The cluster with the highest IncomePerCap was found to be cluster three at 42760. this cluster also had the highest cluster mean for Professional at 1.330 and Asian at 0.3837. The first cluster which had a IncomePerCap cluster mean of 16577 had the highest uneployment cluster average at 0.619. the cluster plot has three distinct clusters portrayed and the overlap makes it a little difficult to see which cluster is which. With only three clusters, 83.3% of the data is captured which is a drastric improvement from only two clusters. 
   A final analysis was constructed for a model with k=4. The cluster with the highest IncomePerCap was found to be cluster three with 45781. this cluster had the hgihest Professional cluster average at 1.533 and the highest Asian cluster averge at 0.456. The cluster with the lowest IncomePerCap was cluster two at 14434. It had the highest unemployment cluster average at 0.8988. The cluster plot is difficult to interpret as the all of the datapoints were brought to a two dimensional scale and now there are four different clusters. With only four clusters, 90.2% of the data is captured which is a significant improvement from only two clusters. 
   As the clusters increased from 4 to 10, the percentage captured did not increase drastically. For example when k= 10, 98.2% of the data is captured. Therefore, a cluster of four would be sufficient
@@ -658,7 +663,7 @@ ipc4 <- quant_groups(dat_1$IncomePerCap, 4)
 ipc2 <- quant_groups(dat_1$IncomePerCap, 2)
 ```
 
-Besides prediction, classification was another method that was performed in order to understand income per capita of census tracts. Is it possible to classify future census tract's income per capita based on the information given related to work and ethnic variations? To answer this question the dependent variable was transformed into a classifiable variable. In other words, income per capita, a numerical variable, was splitted into four categories: low, medium low, medium high, and high income per capita.
+Besides prediction, classification was another method that was performed in order to understand income per capita of census tracts. Is it possible to classify future census tract's income per capita based on the information given related to work and ethnic variations? To answer this question the dependent variable was transformed into a classifiable variable. In other words, income per capita, a numerical variable, was splitted into four groups: low, medium low, medium high, and high income per capita.
 
 
 
@@ -674,9 +679,9 @@ levels(dat_1$ipc4)[levels(dat_1$ipc4)=="(1.88e+04,2.47e+04]"] <- "Mid-Low"
 levels(dat_1$ipc4)[levels(dat_1$ipc4)=="(2.47e+04,3.23e+04]"] <- "Mid-High"
 levels(dat_1$ipc4)[levels(dat_1$ipc4)=="(3.23e+04,5.6e+04]"] <- "High"
 #Boxplots
-plot(IncomePerCap ~ ipc2, data=dat_1, main="Income: Low & High", xlab="Income quartile", col=c("#ffd18b", "#ff875f") )
+plot(IncomePerCap ~ ipc2, data=dat_1, main="Income: Low & High", col=c("#ffd18b", "#ff875f") )
 ```
-The function quant_groups was used. This separated the variable "income per capita" in quartiles and created a categorical variable with 4 categories. Each category has the same amount of observations (17418), and contains all census tracts ranging from the income per capita levels of each quartile. The new categorical variable included:
+The function quant_groups was used. This separated the variable "income per capita" in quartiles and created a categorical variable with 4 categories. Each category has the same amount of observations (17418), and contains all census tracts ranging from the income per capita levels of each quartile. The new categorical variable was named "ipc4" and included:
 
 * Low: 0 - 18,000
 * Mid-Low: 18,800 - 24,700
@@ -685,14 +690,14 @@ The function quant_groups was used. This separated the variable "income per capi
 
 
 ``` {r} 
-plot(IncomePerCap ~ ipc4, data=dat_1, main="Income: four levels", xlab="Income quartile", col=c("#ffd18b", "#ff875f") )
+plot(IncomePerCap ~ ipc4, data=dat_1, main="Income: four levels", col=c("#ffd18b", "#ff875f") )
 ```
-Separately, another variable was created from “income per capita” with only 2 categories. The purpose is to compare how classifying income per capita using 4 categories differs from classifying it using 2 categories. Therefore, a second categorical variable was created containing:
+Separately, another variable was created from “income per capita” with only 2 categories. The purpose is to compare how classifying income per capita using 4 categories differs from classifying it using 2 categories. Therefore, a second categorical variable was created and named “ipc2” containing:
 
 * Low: 0 - 24,700
 * High: 24,700 - 56,000
 
-Both new categorical variables were added to the dataset to perform the KNN classifier.
+Both new categorical variables were added to the dataset “dat_1”.
 
 
 ```{r}
@@ -704,6 +709,7 @@ dat_ipc <- na.omit(dat_ipc)
 str(dat_ipc)
 ```
 
+The dataset that was used to perform the KNN contained "ipc2" and "ipc4" along with the independent variables used to classify income per capita. 
 
 
 ### Train-Test split 3:1
@@ -726,8 +732,8 @@ dat_ipc2.testLabels <- dat_ipc[dat_sample==2, 11]
 dat_ipc4.trainLabels <- dat_ipc[dat_sample==1, 12]
 dat_ipc4.testLabels <- dat_ipc[dat_sample==2, 12]
 ```
-First, the data was split into 80% training, and 20% test subsets.
-Two test sets were created: one for the categorical variable with 2 categories and another one for the categorical variable with 4 categories.
+First, the data was splitted into 80% training, and 20% test subsets.
+Two test sets were created: one for the categorical variable with 2 categories (ipc2) and another one for the categorical variable with 4 categories (ipc4).
 
 
 ## KNN 2 categories
@@ -905,7 +911,7 @@ str(datDisc)
 
 
 ## Basic Linear Regression
-We begin our predictive modeling with a simple linear regression model. This will allow us to make basic statements about how the variables of interest correlate with income, but won't be an appropriate final model, since it does not allow for interactions between components which we have already shown to be inter-related. We begin by doing an exhaustive search of our variables of interest.
+The predictive modeling began with a simple linear regression model. This allows for basic statements about how the variables of interest correlate with income, but won't be an appropriate final model, since it does not allow for interactions between components which we have already shown to be inter-related. The process begins with an exhaustive search of our variables of interest.
 
 ```{r Feature Selection} 
 loadPkg('leaps')
